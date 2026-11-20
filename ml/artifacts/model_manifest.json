@@ -1,0 +1,85 @@
+{
+  "model_name": "RandomForestClassifier",
+  "dataset_kind": "synthetic",
+  "dataset_sha256": "a96e63fa8451215d542af6137dbd37e7e9b29022c9af20e1c44053aca01a3d57",
+  "artifact_sha256": "5c3fcac4c60132d17e884ee80000be87058c2df2f79645a9214a949c8c952626",
+  "seed": 42,
+  "model_version": "rf-sample-risk-v1.1.0",
+  "feature_schema_version": "v1.1",
+  "features": {
+    "numerical": [
+      "estimated_age_years",
+      "storage_temp_min_c",
+      "storage_duration_days",
+      "total_tests_conducted",
+      "failed_tests_count",
+      "total_incidents_logged",
+      "critical_incidents_logged"
+    ],
+    "categorical": [
+      "sample_type_code",
+      "preservation_state",
+      "restricted_risk_level"
+    ]
+  },
+  "target_classes": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "metrics": {
+    "macro_f1": 0.7584,
+    "classification_report": {
+      "high": {
+        "precision": 0.8181818181818182,
+        "recall": 0.5869565217391305,
+        "f1-score": 0.6835443037974683,
+        "support": 46.0
+      },
+      "low": {
+        "precision": 0.9023668639053254,
+        "recall": 0.9270516717325228,
+        "f1-score": 0.9145427286356822,
+        "support": 329.0
+      },
+      "medium": {
+        "precision": 0.6666666666666666,
+        "recall": 0.688,
+        "f1-score": 0.6771653543307087,
+        "support": 125.0
+      },
+      "accuracy": 0.836,
+      "macro avg": {
+        "precision": 0.7957384495846034,
+        "recall": 0.7340027311572177,
+        "f1-score": 0.7584174622546197,
+        "support": 500.0
+      },
+      "weighted avg": {
+        "precision": 0.8356967903890979,
+        "recall": 0.836,
+        "f1-score": 0.8339465299743231,
+        "support": 500.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        305,
+        24,
+        0
+      ],
+      [
+        33,
+        86,
+        6
+      ],
+      [
+        0,
+        19,
+        27
+      ]
+    ]
+  },
+  "training_samples": 2000,
+  "test_samples": 500
+}

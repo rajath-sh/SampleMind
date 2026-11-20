@@ -1,0 +1,124 @@
+{
+  "nodes": [
+    {
+      "id": "E1",
+      "kind": "external"
+    },
+    {
+      "id": "2.1",
+      "kind": "process"
+    },
+    {
+      "id": "2.2",
+      "kind": "process"
+    },
+    {
+      "id": "2.3",
+      "kind": "process"
+    },
+    {
+      "id": "2.4",
+      "kind": "process"
+    },
+    {
+      "id": "2.5",
+      "kind": "process"
+    },
+    {
+      "id": "E1",
+      "kind": "external"
+    },
+    {
+      "id": "D1",
+      "kind": "store"
+    },
+    {
+      "id": "D2",
+      "kind": "store"
+    },
+    {
+      "id": "D2",
+      "kind": "store"
+    },
+    {
+      "id": "D2",
+      "kind": "store"
+    },
+    {
+      "id": "D2",
+      "kind": "store"
+    }
+  ],
+  "flows": [
+    {
+      "from": "E1",
+      "to": "2.1",
+      "label": "Specimen maintenance requests"
+    },
+    {
+      "from": "2.5",
+      "to": "E1",
+      "label": "Specimen maintenance results"
+    },
+    {
+      "from": "D1",
+      "to": "2.1",
+      "label": "Actor reference data"
+    },
+    {
+      "from": "D2",
+      "to": "2.1",
+      "label": "Existing specimen\nand reference data"
+    },
+    {
+      "from": "2.1",
+      "to": "2.2",
+      "label": "Validated type or\nlocation change"
+    },
+    {
+      "from": "2.1",
+      "to": "2.3",
+      "label": "Validated sample\nor age change"
+    },
+    {
+      "from": "2.1",
+      "to": "2.4",
+      "label": "Validated derivation request\nand current lineage data"
+    },
+    {
+      "from": "2.2",
+      "to": "D2",
+      "label": "Type and location changes"
+    },
+    {
+      "from": "2.3",
+      "to": "D2",
+      "label": "Sample and extension changes"
+    },
+    {
+      "from": "2.4",
+      "to": "D2",
+      "label": "Derivation and affected\nsample changes"
+    },
+    {
+      "from": "2.2",
+      "to": "2.5",
+      "label": "Reference save result"
+    },
+    {
+      "from": "2.3",
+      "to": "2.5",
+      "label": "Sample save result"
+    },
+    {
+      "from": "2.4",
+      "to": "2.5",
+      "label": "Derivation result"
+    },
+    {
+      "from": "2.1",
+      "to": "2.5",
+      "label": "Validation errors"
+    }
+  ]
+}

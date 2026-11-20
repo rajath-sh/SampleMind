@@ -1,0 +1,224 @@
+{
+  "nodes": [
+    {
+      "id": "E1",
+      "kind": "external"
+    },
+    {
+      "id": "1.0",
+      "kind": "process"
+    },
+    {
+      "id": "E1",
+      "kind": "external"
+    },
+    {
+      "id": "2.0",
+      "kind": "process"
+    },
+    {
+      "id": "E1",
+      "kind": "external"
+    },
+    {
+      "id": "3.0",
+      "kind": "process"
+    },
+    {
+      "id": "E1",
+      "kind": "external"
+    },
+    {
+      "id": "4.0",
+      "kind": "process"
+    },
+    {
+      "id": "E1",
+      "kind": "external"
+    },
+    {
+      "id": "5.0",
+      "kind": "process"
+    },
+    {
+      "id": "D1",
+      "kind": "store"
+    },
+    {
+      "id": "D2",
+      "kind": "store"
+    },
+    {
+      "id": "D1",
+      "kind": "store"
+    },
+    {
+      "id": "D3",
+      "kind": "store"
+    },
+    {
+      "id": "D2",
+      "kind": "store"
+    },
+    {
+      "id": "D4",
+      "kind": "store"
+    },
+    {
+      "id": "D1",
+      "kind": "store"
+    },
+    {
+      "id": "D2",
+      "kind": "store"
+    },
+    {
+      "id": "D1",
+      "kind": "store"
+    },
+    {
+      "id": "D2",
+      "kind": "store"
+    },
+    {
+      "id": "D3",
+      "kind": "store"
+    },
+    {
+      "id": "D4",
+      "kind": "store"
+    }
+  ],
+  "flows": [
+    {
+      "from": "E1",
+      "to": "1.0",
+      "label": "Account and access requests"
+    },
+    {
+      "from": "1.0",
+      "to": "E1",
+      "label": "Account and access results"
+    },
+    {
+      "from": "E1",
+      "to": "2.0",
+      "label": "Specimen maintenance requests"
+    },
+    {
+      "from": "2.0",
+      "to": "E1",
+      "label": "Specimen maintenance results"
+    },
+    {
+      "from": "E1",
+      "to": "3.0",
+      "label": "Assay maintenance requests"
+    },
+    {
+      "from": "3.0",
+      "to": "E1",
+      "label": "Assay maintenance results"
+    },
+    {
+      "from": "E1",
+      "to": "4.0",
+      "label": "Experiment and usage requests"
+    },
+    {
+      "from": "4.0",
+      "to": "E1",
+      "label": "Experiment and usage results"
+    },
+    {
+      "from": "E1",
+      "to": "5.0",
+      "label": "Search and report requests"
+    },
+    {
+      "from": "5.0",
+      "to": "E1",
+      "label": "Search results and reports"
+    },
+    {
+      "from": "1.0",
+      "to": "D1",
+      "label": "Account changes"
+    },
+    {
+      "from": "D1",
+      "to": "1.0",
+      "label": "Account records"
+    },
+    {
+      "from": "2.0",
+      "to": "D2",
+      "label": "Specimen and reference changes"
+    },
+    {
+      "from": "D2",
+      "to": "2.0",
+      "label": "Existing specimen and reference data"
+    },
+    {
+      "from": "D1",
+      "to": "2.0",
+      "label": "Actor reference data"
+    },
+    {
+      "from": "3.0",
+      "to": "D3",
+      "label": "Assay changes"
+    },
+    {
+      "from": "D3",
+      "to": "3.0",
+      "label": "Assay records"
+    },
+    {
+      "from": "D2",
+      "to": "3.0",
+      "label": "Sample reference data"
+    },
+    {
+      "from": "4.0",
+      "to": "D4",
+      "label": "Experiment and usage changes"
+    },
+    {
+      "from": "D4",
+      "to": "4.0",
+      "label": "Experiment and usage records"
+    },
+    {
+      "from": "D1",
+      "to": "4.0",
+      "label": "Creator and lead reference data"
+    },
+    {
+      "from": "D2",
+      "to": "4.0",
+      "label": "Sample reference data"
+    },
+    {
+      "from": "D1",
+      "to": "5.0",
+      "label": "Account display data"
+    },
+    {
+      "from": "D2",
+      "to": "5.0",
+      "label": "Specimen records"
+    },
+    {
+      "from": "D3",
+      "to": "5.0",
+      "label": "Assay records"
+    },
+    {
+      "from": "D4",
+      "to": "5.0",
+      "label": "Experiment and usage records"
+    }
+  ]
+}

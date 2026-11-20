@@ -1,0 +1,3 @@
+"""
+SampleMind FastAPI Backend Application
+"""

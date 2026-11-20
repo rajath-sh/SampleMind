@@ -1,0 +1,149 @@
+
+
+
+
+<svg width="991pt" height="780pt"
+ viewBox="0.00 0.00 991.00 780.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(28.8 751.67)">
+<title>DFD</title>
+<polygon fill="white" stroke="none" points="-28.8,28.8 -28.8,-751.67 962.38,-751.67 962.38,28.8 -28.8,28.8"/>
+<text xml:space="preserve" text-anchor="middle" x="466.79" y="-697.27" font-family="Times,serif" font-size="24.00">Context DFD | level 0</text>
+
+<g id="node1" class="node">
+<title>user</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="131.94,-339.59 0,-339.59 0,-303.59 131.94,-303.59 131.94,-339.59"/>
+<text xml:space="preserve" text-anchor="middle" x="65.97" y="-317.39" font-family="Arial" font-size="14.00">Lab user (all roles)</text>
+</g>
+
+<g id="node2" class="node">
+<title>system</title>
+<ellipse fill="#edf5f0" stroke="#286c61" cx="507.7" cy="-321.59" rx="66.34" ry="66.34"/>
+<text xml:space="preserve" text-anchor="middle" x="507.7" y="-325.79" font-family="Arial" font-size="14.00">0</text>
+<text xml:space="preserve" text-anchor="middle" x="507.7" y="-308.99" font-family="Arial" font-size="14.00">SampleMind</text>
+</g>
+
+<g id="edge1" class="edge">
+<title>user&#45;&gt;system</title>
+<path fill="none" stroke="#49678a" d="M67.33,-339.89C69.56,-395.66 84.73,-563.87 185.94,-633.59 259.66,-684.38 313.61,-684.34 387.36,-633.59 463.47,-581.21 491.07,-473.18 501.06,-399.06"/>
+<polygon fill="#49678a" stroke="#49678a" points="504.49,-399.79 502.27,-389.43 497.55,-398.91 504.49,-399.79"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-675.27" font-family="Arial" font-size="12.00">credentials</text>
+</g>
+
+<g id="edge3" class="edge">
+<title>user&#45;&gt;system</title>
+<path fill="none" stroke="#49678a" d="M69.28,-339.79C76.43,-387.4 102.95,-515.54 185.94,-567.59 261.78,-615.15 311.49,-615.11 387.36,-567.59 446.22,-530.72 476.78,-455.63 492.16,-398.06"/>
+<polygon fill="#49678a" stroke="#49678a" points="495.49,-399.18 494.58,-388.63 488.71,-397.45 495.49,-399.18"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-606.85" font-family="Arial" font-size="12.00">lab records / assignments / messages</text>
+</g>
+
+<g id="edge5" class="edge">
+<title>user&#45;&gt;system</title>
+<path fill="none" stroke="#49678a" d="M72.56,-340C85.35,-378.44 120.78,-466.55 185.94,-501.59 264.78,-543.99 308.49,-543.93 387.36,-501.59 429.81,-478.8 459.72,-433.53 478.97,-394.09"/>
+<polygon fill="#49678a" stroke="#49678a" points="482.14,-395.58 483.24,-385.05 475.81,-392.6 482.14,-395.58"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-536.97" font-family="Arial" font-size="12.00">query / cohort criteria</text>
+</g>
+
+<g id="edge7" class="edge">
+<title>user&#45;&gt;system</title>
+<path fill="none" stroke="#49678a" d="M78.93,-339.79C97.88,-366.75 137.63,-416.18 185.94,-435.59 269,-468.96 304.27,-468.9 387.36,-435.59 414.95,-424.53 439.77,-403.72 459.54,-382.87"/>
+<polygon fill="#49678a" stroke="#49678a" points="461.93,-385.44 466.12,-375.7 456.78,-380.7 461.93,-385.44"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-464.2" font-family="Arial" font-size="12.00">report / chat request</text>
+</g>
+
+<g id="edge9" class="edge">
+<title>user&#45;&gt;system</title>
+<path fill="none" stroke="#49678a" d="M102.31,-340.03C125.42,-351.02 156.64,-363.9 185.94,-369.59 273.82,-386.65 299.47,-386.6 387.36,-369.59 404,-366.37 421.25,-360.84 437.3,-354.66"/>
+<polygon fill="#49678a" stroke="#49678a" points="438.27,-358.04 446.25,-351.08 435.67,-351.54 438.27,-358.04"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-385.97" font-family="Arial" font-size="12.00">material upload / library request</text>
+</g>
+
+<g id="edge11" class="edge">
+<title>user&#45;&gt;system</title>
+<path fill="none" stroke="#49678a" d="M132.33,-321.59C211.7,-321.59 345.39,-321.59 429.68,-321.59"/>
+<polygon fill="#49678a" stroke="#49678a" points="429.47,-325.09 439.47,-321.59 429.47,-318.09 429.47,-325.09"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-325.19" font-family="Arial" font-size="12.00">news filters</text>
+</g>
+
+<g id="edge2" class="edge">
+<title>system&#45;&gt;user</title>
+<path fill="none" stroke="#49678a" d="M445.29,-298.44C426.93,-292.58 406.57,-287.13 387.36,-284.19 298.87,-270.65 274.42,-270.61 185.94,-284.19 165.63,-287.31 144.03,-293.25 124.88,-299.5"/>
+<polygon fill="#49678a" stroke="#49678a" points="124.02,-296.1 115.66,-302.61 126.25,-302.73 124.02,-296.1"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-287.79" font-family="Arial" font-size="12.00">session / access result</text>
+</g>
+
+<g id="edge4" class="edge">
+<title>system&#45;&gt;user</title>
+<path fill="none" stroke="#49678a" d="M454.72,-281C434.79,-267.84 411.12,-254.91 387.36,-248.19 301.22,-223.82 272.06,-223.76 185.94,-248.19 152.9,-257.56 120.04,-279 97.25,-296.3"/>
+<polygon fill="#49678a" stroke="#49678a" points="95.36,-293.33 89.62,-302.24 99.66,-298.86 95.36,-293.33"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-251.79" font-family="Arial" font-size="12.00">saved records / incident updates</text>
+</g>
+
+<g id="edge6" class="edge">
+<title>system&#45;&gt;user</title>
+<path fill="none" stroke="#49678a" d="M468.24,-267.97C447.4,-243.58 419.37,-217.29 387.36,-204.19 304.51,-170.27 268.76,-170.21 185.94,-204.19 141.8,-222.3 105.28,-265.57 84.81,-294.22"/>
+<polygon fill="#49678a" stroke="#49678a" points="82.18,-291.86 79.35,-302.07 87.93,-295.85 82.18,-291.86"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-207.79" font-family="Arial" font-size="12.00">rows / coverage explanations</text>
+</g>
+
+<g id="edge8" class="edge">
+<title>system&#45;&gt;user</title>
+<path fill="none" stroke="#49678a" d="M481.36,-260.45C461.85,-222.04 430.81,-175.65 387.36,-153.19 307.84,-112.08 265.43,-112.02 185.94,-153.19 129.26,-182.54 93.82,-252.71 77.53,-292.59"/>
+<polygon fill="#49678a" stroke="#49678a" points="74.31,-291.22 73.9,-301.8 80.82,-293.78 74.31,-291.22"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-156.79" font-family="Arial" font-size="12.00">report / receipt / AI text</text>
+</g>
+
+<g id="edge10" class="edge">
+<title>system&#45;&gt;user</title>
+<path fill="none" stroke="#49678a" d="M491.84,-256.89C475.83,-203.65 444.57,-131.56 387.36,-97.19 310.62,-51.09 262.64,-51.04 185.94,-97.19 114.58,-140.12 83.76,-241.84 72.5,-292.24"/>
+<polygon fill="#49678a" stroke="#49678a" points="69.12,-291.33 70.47,-301.83 75.97,-292.77 69.12,-291.33"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-100.79" font-family="Arial" font-size="12.00">preview / original download</text>
+</g>
+
+<g id="edge12" class="edge">
+<title>system&#45;&gt;user</title>
+<path fill="none" stroke="#49678a" d="M499.67,-255.39C488.55,-187.6 460.04,-85.51 387.36,-37.19 312.81,12.37 260.46,12.42 185.94,-37.19 98.41,-95.45 75.16,-231.79 69.08,-292.05"/>
+<polygon fill="#49678a" stroke="#49678a" points="65.6,-291.59 68.19,-301.87 72.58,-292.22 65.6,-291.59"/>
+<text xml:space="preserve" text-anchor="middle" x="286.65" y="-40.79" font-family="Arial" font-size="12.00">article / publisher&#45;country results</text>
+</g>
+
+<g id="node3" class="node">
+<title>ai</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="922.69,-392.59 838.99,-392.59 838.99,-356.59 922.69,-356.59 922.69,-392.59"/>
+<text xml:space="preserve" text-anchor="middle" x="880.84" y="-370.39" font-family="Arial" font-size="14.00">AI provider</text>
+</g>
+
+<g id="edge13" class="edge">
+<title>system&#45;&gt;ai</title>
+<path fill="none" stroke="#49678a" d="M567.78,-350.27C586.6,-358.05 607.79,-365.46 628.03,-369.59 695.8,-383.41 775.96,-382.06 827.32,-379.01"/>
+<polygon fill="#49678a" stroke="#49678a" points="827.52,-382.5 837.27,-378.37 827.07,-375.52 827.52,-382.5"/>
+<text xml:space="preserve" text-anchor="middle" x="701.07" y="-384.61" font-family="Arial" font-size="12.00">explicit chat / report context</text>
+</g>
+
+<g id="node4" class="node">
+<title>news</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="933.58,-285.59 828.1,-285.59 828.1,-249.59 933.58,-249.59 933.58,-285.59"/>
+<text xml:space="preserve" text-anchor="middle" x="880.84" y="-263.39" font-family="Arial" font-size="14.00">News provider</text>
+</g>
+
+<g id="edge15" class="edge">
+<title>system&#45;&gt;news</title>
+<path fill="none" stroke="#49678a" d="M573.77,-312.12C642.06,-302.19 748.71,-286.67 816.39,-276.82"/>
+<polygon fill="#49678a" stroke="#49678a" points="816.84,-280.29 826.23,-275.39 815.83,-273.37 816.84,-280.29"/>
+<text xml:space="preserve" text-anchor="middle" x="701.07" y="-307.72" font-family="Arial" font-size="12.00">news query</text>
+</g>
+
+<g id="edge14" class="edge">
+<title>ai&#45;&gt;system</title>
+<path fill="none" stroke="#49678a" d="M838.64,-363.88C819.18,-359.13 795.56,-353.81 774.1,-350.19 710.98,-339.55 638.72,-332.06 585.55,-327.43"/>
+<polygon fill="#49678a" stroke="#49678a" points="585.93,-323.95 575.67,-326.58 585.34,-330.92 585.93,-323.95"/>
+<text xml:space="preserve" text-anchor="middle" x="701.07" y="-353.79" font-family="Arial" font-size="12.00">assistant response</text>
+</g>
+
+<g id="edge16" class="edge">
+<title>news&#45;&gt;system</title>
+<path fill="none" stroke="#49678a" d="M827.85,-257.32C776.32,-249.07 695.53,-241.37 628.03,-258.19 609.38,-262.84 590.45,-271 573.32,-279.96"/>
+<polygon fill="#49678a" stroke="#49678a" points="571.92,-276.74 564.79,-284.58 575.25,-282.89 571.92,-276.74"/>
+<text xml:space="preserve" text-anchor="middle" x="701.07" y="-261.79" font-family="Arial" font-size="12.00">article metadata</text>
+</g>
+</g>
+</svg>

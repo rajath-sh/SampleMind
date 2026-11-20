@@ -1,0 +1,24 @@
+{
+  "nodes": [
+    {
+      "id": "E1",
+      "kind": "external"
+    },
+    {
+      "id": "0",
+      "kind": "process"
+    }
+  ],
+  "flows": [
+    {
+      "from": "E1",
+      "to": "0",
+      "label": "Laboratory requests\nAccount and access requests\nSpecimen maintenance requests\nAssay maintenance requests\nExperiment and usage requests\nSearch and report requests"
+    },
+    {
+      "from": "0",
+      "to": "E1",
+      "label": "Laboratory responses\nAccount and access results\nSpecimen maintenance results\nAssay maintenance results\nExperiment and usage results\nSearch results and reports"
+    }
+  ]
+}

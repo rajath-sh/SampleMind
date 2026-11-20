@@ -1,0 +1,1003 @@
+
+
+
+
+<svg width="1760pt" height="2353pt"
+ viewBox="0.00 0.00 1760.00 2353.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(28.8 2324.6)">
+<title>ER</title>
+<polygon fill="white" stroke="none" points="-28.8,28.8 -28.8,-2324.6 1731.62,-2324.6 1731.62,28.8 -28.8,28.8"/>
+<text xml:space="preserve" text-anchor="middle" x="851.41" y="-2270.2" font-family="Times,serif" font-size="24.00">SampleMind | Chen ER overview | keys only; see attribute atlas and mapping appendix</text>
+
+<g id="node1" class="node">
+<title>AppUser</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="94.22,-1279 23.75,-1279 23.75,-1243 94.22,-1243 94.22,-1279"/>
+<text xml:space="preserve" text-anchor="middle" x="58.98" y="-1256.8" font-family="Arial" font-size="14.00">AppUser</text>
+</g>
+
+<g id="node2" class="node">
+<title>AppUser.user_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="345.19" cy="-1295" rx="42.71" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="322.23" y="-1291.8" font-family="Arial" text-decoration="underline" font-size="14.00">user_id</text>
+</g>
+
+<g id="edge1" class="edge">
+<title>AppUser&#45;&#45;AppUser.user_id</title>
+<path fill="none" stroke="#51736b" d="M94.55,-1265.14C147.36,-1271.45 247.89,-1283.48 303.92,-1290.18"/>
+</g>
+
+<g id="node43" class="node">
+<title>relationship0</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="345.19,-1448 265.06,-1430 345.19,-1412 425.31,-1430 345.19,-1448"/>
+<text xml:space="preserve" text-anchor="middle" x="345.19" y="-1426.4" font-family="Arial" font-size="12.00">actor_user_id</text>
+</g>
+
+<g id="edge23" class="edge">
+<title>AppUser&#45;&#45;relationship0</title>
+<path fill="none" stroke="#51736b" d="M79.9,-1279.32C117.89,-1314.27 196.96,-1387 196.96,-1387 196.96,-1387 265.37,-1406.98 308.92,-1419.7"/>
+<text xml:space="preserve" text-anchor="middle" x="98.96" y="-1281.77" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node44" class="node">
+<title>relationship1</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="345.19,-1626 277.1,-1608 345.19,-1590 413.27,-1608 345.19,-1626"/>
+<text xml:space="preserve" text-anchor="middle" x="345.19" y="-1604.4" font-family="Arial" font-size="12.00">created_by</text>
+</g>
+
+<g id="edge25" class="edge">
+<title>AppUser&#45;&#45;relationship1</title>
+<path fill="none" stroke="#51736b" d="M68.97,-1279.37C99.45,-1341.66 196.96,-1541 196.96,-1541 196.96,-1541 276.78,-1577.33 318.88,-1596.48"/>
+<text xml:space="preserve" text-anchor="middle" x="84.53" y="-1288.34" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node45" class="node">
+<title>relationship2</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="345.19,-1711 237.94,-1693 345.19,-1675 452.43,-1693 345.19,-1711"/>
+<text xml:space="preserve" text-anchor="middle" x="345.19" y="-1689.4" font-family="Arial" font-size="12.00">lead_researcher_id</text>
+</g>
+
+<g id="edge27" class="edge">
+<title>AppUser&#45;&#45;relationship2</title>
+<path fill="none" stroke="#51736b" d="M66.59,-1279.38C93.95,-1355.48 196.96,-1642 196.96,-1642 196.96,-1642 264.98,-1665.56 308.55,-1680.65"/>
+<text xml:space="preserve" text-anchor="middle" x="80.68" y="-1289.97" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node48" class="node">
+<title>relationship5</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="345.19,-1096 277.1,-1078 345.19,-1060 413.27,-1078 345.19,-1096"/>
+<text xml:space="preserve" text-anchor="middle" x="345.19" y="-1074.4" font-family="Arial" font-size="12.00">created_by</text>
+</g>
+
+<g id="edge33" class="edge">
+<title>AppUser&#45;&#45;relationship5</title>
+<path fill="none" stroke="#51736b" d="M77.33,-1242.76C114.19,-1204.01 196.96,-1117 196.96,-1117 196.96,-1117 266.55,-1098.57 310.04,-1087.05"/>
+<text xml:space="preserve" text-anchor="middle" x="83.7" y="-1220.2" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node51" class="node">
+<title>relationship8</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="680.86,-1380 605.56,-1362 680.86,-1344 756.17,-1362 680.86,-1380"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-1358.4" font-family="Arial" font-size="12.00">reviewed_by</text>
+</g>
+
+<g id="edge39" class="edge">
+<title>AppUser&#45;&#45;relationship8</title>
+<path fill="none" stroke="#51736b" d="M94.55,-1278.16C135.13,-1298.3 196.96,-1329 196.96,-1329 196.96,-1329 491.7,-1349.14 620.65,-1357.95"/>
+<text xml:space="preserve" text-anchor="middle" x="114.54" y="-1275.05" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node57" class="node">
+<title>relationship14</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="345.19,-1952 270.48,-1934 345.19,-1916 419.89,-1934 345.19,-1952"/>
+<text xml:space="preserve" text-anchor="middle" x="345.19" y="-1930.4" font-family="Arial" font-size="12.00">recorded_by</text>
+</g>
+
+<g id="edge51" class="edge">
+<title>AppUser&#45;&#45;relationship14</title>
+<path fill="none" stroke="#51736b" d="M65.35,-1279.27C90.68,-1365.42 196.96,-1727 196.96,-1727 196.96,-1727 298.88,-1870.3 333.12,-1918.44"/>
+<text xml:space="preserve" text-anchor="middle" x="78.57" y="-1290.67" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node62" class="node">
+<title>relationship19</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="680.86,-352 608.56,-334 680.86,-316 753.16,-334 680.86,-352"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-330.4" font-family="Arial" font-size="12.00">reported_by</text>
+</g>
+
+<g id="edge61" class="edge">
+<title>AppUser&#45;&#45;relationship19</title>
+<path fill="none" stroke="#51736b" d="M67.15,-1242.88C95.34,-1171.69 196.96,-915 196.96,-915 196.96,-915 493.41,-793 493.41,-793 493.41,-793 572.41,-388 572.41,-388 572.41,-388 624.07,-362.04 655.75,-346.12"/>
+<text xml:space="preserve" text-anchor="middle" x="65.97" y="-1219.32" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node63" class="node">
+<title>relationship20</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="680.86,-440 607.96,-422 680.86,-404 753.77,-422 680.86,-440"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-418.4" font-family="Arial" font-size="12.00">assigned_to</text>
+</g>
+
+<g id="edge63" class="edge">
+<title>AppUser&#45;&#45;relationship20</title>
+<path fill="none" stroke="#51736b" d="M71.43,-1242.87C104.35,-1190.72 196.96,-1044 196.96,-1044 196.96,-1044 493.41,-919 493.41,-919 493.41,-919 572.41,-523 572.41,-523 572.41,-523 635.4,-463.8 664.92,-436.04"/>
+<text xml:space="preserve" text-anchor="middle" x="73.95" y="-1219.43" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node65" class="node">
+<title>relationship22</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="345.19,-1525 269.88,-1507 345.19,-1489 420.49,-1507 345.19,-1525"/>
+<text xml:space="preserve" text-anchor="middle" x="345.19" y="-1503.4" font-family="Arial" font-size="12.00">reviewed_by</text>
+</g>
+
+<g id="edge67" class="edge">
+<title>AppUser&#45;&#45;relationship22</title>
+<path fill="none" stroke="#51736b" d="M72.38,-1279.37C106.1,-1329.34 196.96,-1464 196.96,-1464 196.96,-1464 266.55,-1484.32 310.04,-1497.03"/>
+<text xml:space="preserve" text-anchor="middle" x="89.53" y="-1286.07" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node68" class="node">
+<title>relationship25</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="680.86,-575 599.54,-557 680.86,-539 762.19,-557 680.86,-575"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-553.4" font-family="Arial" font-size="12.00">performed_by</text>
+</g>
+
+<g id="edge73" class="edge">
+<title>AppUser&#45;&#45;relationship25</title>
+<path fill="none" stroke="#51736b" d="M64.7,-1242.55C88.78,-1148.3 196.96,-725 196.96,-725 196.96,-725 493.41,-651 493.41,-651 493.41,-651 603.82,-595.34 654.72,-569.68"/>
+<text xml:space="preserve" text-anchor="middle" x="61" y="-1219.3" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node71" class="node">
+<title>relationship28</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="345.19,-1245 270.48,-1227 345.19,-1209 419.89,-1227 345.19,-1245"/>
+<text xml:space="preserve" text-anchor="middle" x="345.19" y="-1223.4" font-family="Arial" font-size="12.00">recorded_by</text>
+</g>
+
+<g id="edge79" class="edge">
+<title>AppUser&#45;&#45;relationship28</title>
+<path fill="none" stroke="#51736b" d="M94.55,-1256.86C144.25,-1250.92 236.23,-1239.92 293.59,-1233.05"/>
+<text xml:space="preserve" text-anchor="middle" x="111.54" y="-1242.72" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node74" class="node">
+<title>relationship31</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="680.86,-220 616.4,-202 680.86,-184 745.33,-202 680.86,-220"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-198.4" font-family="Arial" font-size="12.00">moved_by</text>
+</g>
+
+<g id="edge85" class="edge">
+<title>AppUser&#45;&#45;relationship31</title>
+<path fill="none" stroke="#51736b" d="M64.08,-1242.62C86.87,-1140.46 196.96,-647 196.96,-647 196.96,-647 493.41,-593 493.41,-593 493.41,-593 572.41,-300 572.41,-300 572.41,-300 635.4,-242.55 664.92,-215.63"/>
+<text xml:space="preserve" text-anchor="middle" x="59.78" y="-1219.49" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node76" class="node">
+<title>relationship33</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="345.19,-1169 263.86,-1151 345.19,-1133 426.51,-1151 345.19,-1169"/>
+<text xml:space="preserve" text-anchor="middle" x="345.19" y="-1147.4" font-family="Arial" font-size="12.00">performed_by</text>
+</g>
+
+<g id="edge89" class="edge">
+<title>AppUser&#45;&#45;relationship33</title>
+<path fill="none" stroke="#51736b" d="M94.55,-1243.84C135.13,-1223.7 196.96,-1193 196.96,-1193 196.96,-1193 264.59,-1173.71 308.17,-1161.27"/>
+<text xml:space="preserve" text-anchor="middle" x="107.03" y="-1224.61" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node3" class="node">
+<title>ArchaeologicalSite</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="746.84,-2023 614.89,-2023 614.89,-1987 746.84,-1987 746.84,-2023"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-2000.8" font-family="Arial" font-size="14.00">ArchaeologicalSite</text>
+</g>
+
+<g id="node4" class="node">
+<title>ArchaeologicalSite.archaeological_site_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="990.03" cy="-2039" rx="106.6" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="920.76" y="-2035.8" font-family="Arial" text-decoration="underline" font-size="14.00">archaeological_site_id</text>
+</g>
+
+<g id="edge2" class="edge">
+<title>ArchaeologicalSite&#45;&#45;ArchaeologicalSite.archaeological_site_id</title>
+<path fill="none" stroke="#51736b" d="M747.01,-2012.21C791.47,-2017.13 850.94,-2023.72 899.81,-2029.12"/>
+</g>
+
+<g id="node53" class="node">
+<title>relationship10</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-1989 868.32,-1971 990.03,-1953 1111.74,-1971 990.03,-1989"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-1967.4" font-family="Arial" font-size="12.00">archaeological_site_id</text>
+</g>
+
+<g id="edge43" class="edge">
+<title>ArchaeologicalSite&#45;&#45;relationship10</title>
+<path fill="none" stroke="#51736b" d="M747.01,-1997.79C797.2,-1992.23 866.5,-1984.56 918.09,-1978.85"/>
+<text xml:space="preserve" text-anchor="middle" x="764.09" y="-1983.79" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node5" class="node">
+<title>Equipment</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="722.33,-2225 639.4,-2225 639.4,-2189 722.33,-2189 722.33,-2225"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-2202.8" font-family="Arial" font-size="14.00">Equipment</text>
+</g>
+
+<g id="node6" class="node">
+<title>Equipment.equipment_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="990.03" cy="-2173" rx="69.02" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="948" y="-2169.8" font-family="Arial" text-decoration="underline" font-size="14.00">equipment_id</text>
+</g>
+
+<g id="edge3" class="edge">
+<title>Equipment&#45;&#45;Equipment.equipment_id</title>
+<path fill="none" stroke="#51736b" d="M722.65,-2202.49C774.63,-2196.73 865.02,-2186.73 925.92,-2179.99"/>
+</g>
+
+<g id="node55" class="node">
+<title>relationship12</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-2259 910.5,-2241 990.03,-2223 1069.57,-2241 990.03,-2259"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-2237.4" font-family="Arial" font-size="12.00">equipment_id</text>
+</g>
+
+<g id="edge47" class="edge">
+<title>Equipment&#45;&#45;relationship12</title>
+<path fill="none" stroke="#51736b" d="M722.65,-2211.51C777.24,-2217.56 874.2,-2228.29 934.87,-2235"/>
+<text xml:space="preserve" text-anchor="middle" x="741.6" y="-2201.51" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node7" class="node">
+<title>ModelRegistry</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="733.6,-1549 628.13,-1549 628.13,-1513 733.6,-1513 733.6,-1549"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-1526.8" font-family="Arial" font-size="14.00">ModelRegistry</text>
+</g>
+
+<g id="node8" class="node">
+<title>ModelRegistry.model_registry_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="990.03" cy="-1565" rx="87.25" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="934.78" y="-1561.8" font-family="Arial" text-decoration="underline" font-size="14.00">model_registry_id</text>
+</g>
+
+<g id="edge4" class="edge">
+<title>ModelRegistry&#45;&#45;ModelRegistry.model_registry_id</title>
+<path fill="none" stroke="#51736b" d="M733.97,-1536.77C782.84,-1542.18 856.52,-1550.33 912.14,-1556.49"/>
+</g>
+
+<g id="node50" class="node">
+<title>relationship7</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-1515 890.03,-1497 990.03,-1479 1090.03,-1497 990.03,-1515"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-1493.4" font-family="Arial" font-size="12.00">model_registry_id</text>
+</g>
+
+<g id="edge37" class="edge">
+<title>ModelRegistry&#45;&#45;relationship7</title>
+<path fill="none" stroke="#51736b" d="M733.97,-1525.23C787.03,-1519.36 869.34,-1510.25 926.03,-1503.97"/>
+<text xml:space="preserve" text-anchor="middle" x="751.06" y="-1511.24" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node9" class="node">
+<title>SampleType</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="106.28,-677 11.69,-677 11.69,-641 106.28,-641 106.28,-677"/>
+<text xml:space="preserve" text-anchor="middle" x="58.98" y="-654.8" font-family="Arial" font-size="14.00">SampleType</text>
+</g>
+
+<g id="node10" class="node">
+<title>SampleType.sample_type_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="345.19" cy="-559" rx="78.68" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="296.15" y="-555.8" font-family="Arial" text-decoration="underline" font-size="14.00">sample_type_id</text>
+</g>
+
+<g id="edge5" class="edge">
+<title>SampleType&#45;&#45;SampleType.sample_type_id</title>
+<path fill="none" stroke="#51736b" d="M103.32,-640.65C143.46,-623.66 196.96,-601 196.96,-601 196.96,-601 251.98,-585.3 294.75,-573.1"/>
+</g>
+
+<g id="node46" class="node">
+<title>relationship3</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="345.19,-777 254.81,-759 345.19,-741 435.56,-759 345.19,-777"/>
+<text xml:space="preserve" text-anchor="middle" x="345.19" y="-755.4" font-family="Arial" font-size="12.00">sample_type_id</text>
+</g>
+
+<g id="edge29" class="edge">
+<title>SampleType&#45;&#45;relationship3</title>
+<path fill="none" stroke="#51736b" d="M106.59,-675.4C164.23,-695.68 260.87,-729.69 311.31,-747.43"/>
+<text xml:space="preserve" text-anchor="middle" x="126.5" y="-669.84" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node11" class="node">
+<title>StorageLocation</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="117.96,-137 0,-137 0,-101 117.96,-101 117.96,-137"/>
+<text xml:space="preserve" text-anchor="middle" x="58.98" y="-114.8" font-family="Arial" font-size="14.00">StorageLocation</text>
+</g>
+
+<g id="node12" class="node">
+<title>StorageLocation.storage_location_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="345.19" cy="-85" rx="94.79" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="284.48" y="-81.8" font-family="Arial" text-decoration="underline" font-size="14.00">storage_location_id</text>
+</g>
+
+<g id="edge6" class="edge">
+<title>StorageLocation&#45;&#45;StorageLocation.storage_location_id</title>
+<path fill="none" stroke="#51736b" d="M118.18,-112.04C160.24,-107.01 217.58,-100.15 263.98,-94.6"/>
+</g>
+
+<g id="node47" class="node">
+<title>relationship4</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="345.19,-375 196.96,-357 345.19,-339 493.41,-357 345.19,-375"/>
+<text xml:space="preserve" text-anchor="middle" x="345.19" y="-353.4" font-family="Arial" font-size="12.00">current_storage_location_id</text>
+</g>
+
+<g id="edge31" class="edge">
+<title>StorageLocation&#45;&#45;relationship4</title>
+<path fill="none" stroke="#51736b" d="M81.81,-137.28C135.75,-182.45 274.63,-298.75 325.31,-341.19"/>
+<text xml:space="preserve" text-anchor="middle" x="101.14" y="-138.84" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node61" class="node">
+<title>relationship18</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="680.86,-120 572.41,-102 680.86,-84 789.32,-102 680.86,-120"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-98.4" font-family="Arial" font-size="12.00">storage_location_id</text>
+</g>
+
+<g id="edge59" class="edge">
+<title>StorageLocation&#45;&#45;relationship18</title>
+<path fill="none" stroke="#51736b" d="M118.44,-119C236.74,-119 493.41,-119 493.41,-119 493.41,-119 555.94,-113.3 608.57,-108.5"/>
+<text xml:space="preserve" text-anchor="middle" x="136.56" y="-106.95" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node73" class="node">
+<title>relationship30</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="680.86,-36 572.41,-18 680.86,0 789.32,-18 680.86,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-14.4" font-family="Arial" font-size="12.00">storage_location_id</text>
+</g>
+
+<g id="edge83" class="edge">
+<title>StorageLocation&#45;&#45;relationship30</title>
+<path fill="none" stroke="#51736b" d="M97.05,-100.6C137.62,-80.46 196.96,-51 196.96,-51 196.96,-51 465.07,-32.68 601.74,-23.34"/>
+<text xml:space="preserve" text-anchor="middle" x="109.53" y="-81.37" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node13" class="node">
+<title>AuditLog</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="716.5,-1448 645.23,-1448 645.23,-1412 716.5,-1412 716.5,-1448"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-1425.8" font-family="Arial" font-size="14.00">AuditLog</text>
+</g>
+
+<g id="node14" class="node">
+<title>AuditLog.audit_log_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="990.03" cy="-1429" rx="63.12" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="952.28" y="-1425.8" font-family="Arial" text-decoration="underline" font-size="14.00">audit_log_id</text>
+</g>
+
+<g id="edge7" class="edge">
+<title>AuditLog&#45;&#45;AuditLog.audit_log_id</title>
+<path fill="none" stroke="#51736b" d="M716.8,-1429.89C767.75,-1429.72 863.23,-1429.41 926.48,-1429.2"/>
+</g>
+
+<g id="node15" class="node">
+<title>Experiment</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="724.27,-1777 637.46,-1777 637.46,-1741 724.27,-1741 724.27,-1777"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-1754.8" font-family="Arial" font-size="14.00">Experiment</text>
+</g>
+
+<g id="node16" class="node">
+<title>Experiment.experiment_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="990.03" cy="-1767" rx="71.69" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="946.06" y="-1763.8" font-family="Arial" text-decoration="underline" font-size="14.00">experiment_id</text>
+</g>
+
+<g id="edge8" class="edge">
+<title>Experiment&#45;&#45;Experiment.experiment_id</title>
+<path fill="none" stroke="#51736b" d="M724.57,-1760.11C774.69,-1761.42 858.52,-1763.6 918.37,-1765.16"/>
+</g>
+
+<g id="node54" class="node">
+<title>relationship11</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-1921 907.5,-1903 990.03,-1885 1072.57,-1903 990.03,-1921"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-1899.4" font-family="Arial" font-size="12.00">experiment_id</text>
+</g>
+
+<g id="edge45" class="edge">
+<title>Experiment&#45;&#45;relationship11</title>
+<path fill="none" stroke="#51736b" d="M713.07,-1777.41C766.15,-1808.73 868.32,-1869 868.32,-1869 868.32,-1869 916.96,-1882.7 952.49,-1892.71"/>
+<text xml:space="preserve" text-anchor="middle" x="732.98" y="-1775.74" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node56" class="node">
+<title>relationship13</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-1853 907.5,-1835 990.03,-1817 1072.57,-1835 990.03,-1853"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-1831.4" font-family="Arial" font-size="12.00">experiment_id</text>
+</g>
+
+<g id="edge49" class="edge">
+<title>Experiment&#45;&#45;relationship13</title>
+<path fill="none" stroke="#51736b" d="M724.57,-1769.57C784.41,-1784.37 892.34,-1811.07 950.08,-1825.36"/>
+<text xml:space="preserve" text-anchor="middle" x="744.2" y="-1762.12" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node58" class="node">
+<title>relationship15</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-1717 907.5,-1699 990.03,-1681 1072.57,-1699 990.03,-1717"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-1695.4" font-family="Arial" font-size="12.00">experiment_id</text>
+</g>
+
+<g id="edge53" class="edge">
+<title>Experiment&#45;&#45;relationship15</title>
+<path fill="none" stroke="#51736b" d="M724.57,-1750.66C782.77,-1739.29 886.43,-1719.04 945.2,-1707.56"/>
+<text xml:space="preserve" text-anchor="middle" x="740.74" y="-1735.29" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node17" class="node">
+<title>Sample</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="712.6,-777 649.13,-777 649.13,-741 712.6,-741 712.6,-777"/>
+<text xml:space="preserve" text-anchor="middle" x="680.86" y="-754.8" font-family="Arial" font-size="14.00">Sample</text>
+</g>
+
+<g id="node18" class="node">
+<title>Sample.sample_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="990.03" cy="-619" rx="55.05" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="958.13" y="-615.8" font-family="Arial" text-decoration="underline" font-size="14.00">sample_id</text>
+</g>
+
+<g id="edge9" class="edge">
+<title>Sample&#45;&#45;Sample.sample_id</title>
+<path fill="none" stroke="#51736b" d="M713.07,-741.26C766.15,-711.08 868.32,-653 868.32,-653 868.32,-653 912.57,-640.54 947.49,-630.7"/>
+</g>
+
+<g id="node49" class="node">
+<title>relationship6</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-1111 926.17,-1093 990.03,-1075 1053.89,-1093 990.03,-1111"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-1089.4" font-family="Arial" font-size="12.00">sample_id</text>
+</g>
+
+<g id="edge35" class="edge">
+<title>Sample&#45;&#45;relationship6</title>
+<path fill="none" stroke="#51736b" d="M693.25,-777.31C733.73,-842.45 868.32,-1059 868.32,-1059 868.32,-1059 920.93,-1073.82 956.68,-1083.89"/>
+<text xml:space="preserve" text-anchor="middle" x="709.99" y="-784.65" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node52" class="node">
+<title>relationship9</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-1179 926.17,-1161 990.03,-1143 1053.89,-1161 990.03,-1179"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-1157.4" font-family="Arial" font-size="12.00">sample_id</text>
+</g>
+
+<g id="edge41" class="edge">
+<title>Sample&#45;&#45;relationship9</title>
+<path fill="none" stroke="#51736b" d="M691.11,-777.25C728.73,-851.5 868.32,-1127 868.32,-1127 868.32,-1127 920.93,-1141.82 956.68,-1151.89"/>
+<text xml:space="preserve" text-anchor="middle" x="706.84" y="-786" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node59" class="node">
+<title>relationship16</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-1043 926.17,-1025 990.03,-1007 1053.89,-1025 990.03,-1043"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-1021.4" font-family="Arial" font-size="12.00">sample_id</text>
+</g>
+
+<g id="edge55" class="edge">
+<title>Sample&#45;&#45;relationship16</title>
+<path fill="none" stroke="#51736b" d="M696.5,-777.2C740.45,-831.9 868.32,-991 868.32,-991 868.32,-991 920.93,-1005.82 956.68,-1015.89"/>
+<text xml:space="preserve" text-anchor="middle" x="714.44" y="-782.44" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node60" class="node">
+<title>relationship17</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-705 926.17,-687 990.03,-669 1053.89,-687 990.03,-705"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-683.4" font-family="Arial" font-size="12.00">sample_id</text>
+</g>
+
+<g id="edge57" class="edge">
+<title>Sample&#45;&#45;relationship17</title>
+<path fill="none" stroke="#51736b" d="M713.01,-751.7C770.66,-738.19 893.64,-709.36 954.06,-695.2"/>
+<text xml:space="preserve" text-anchor="middle" x="728.73" y="-735.73" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node64" class="node">
+<title>relationship21</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-1247 926.17,-1229 990.03,-1211 1053.89,-1229 990.03,-1247"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-1225.4" font-family="Arial" font-size="12.00">sample_id</text>
+</g>
+
+<g id="edge65" class="edge">
+<title>Sample&#45;&#45;relationship21</title>
+<path fill="none" stroke="#51736b" d="M689.76,-777.46C725.25,-860.44 868.32,-1195 868.32,-1195 868.32,-1195 920.93,-1209.82 956.68,-1219.89"/>
+<text xml:space="preserve" text-anchor="middle" x="704.66" y="-787.2" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node66" class="node">
+<title>relationship23</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-569 926.17,-551 990.03,-533 1053.89,-551 990.03,-569"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-547.4" font-family="Arial" font-size="12.00">sample_id</text>
+</g>
+
+<g id="edge69" class="edge">
+<title>Sample&#45;&#45;relationship23</title>
+<path fill="none" stroke="#51736b" d="M701.47,-740.71C749.34,-696.03 868.32,-585 868.32,-585 868.32,-585 920.93,-570.18 956.68,-560.11"/>
+<text xml:space="preserve" text-anchor="middle" x="708.95" y="-718.56" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node67" class="node">
+<title>relationship24</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-501 874.36,-483 990.03,-465 1105.71,-483 990.03,-501"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-479.4" font-family="Arial" font-size="12.00">reference_sample_id</text>
+</g>
+
+<g id="edge71" class="edge">
+<title>Sample&#45;&#45;relationship24</title>
+<path fill="none" stroke="#51736b" d="M695.88,-740.81C739.24,-684.53 868.32,-517 868.32,-517 868.32,-517 912.29,-504.62 947.15,-494.8"/>
+<text xml:space="preserve" text-anchor="middle" x="700.25" y="-717.69" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node69" class="node">
+<title>relationship26</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-841 889.41,-823 990.03,-805 1090.65,-823 990.03,-841"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-819.4" font-family="Arial" font-size="12.00">parent_sample_id</text>
+</g>
+
+<g id="edge75" class="edge">
+<title>Sample&#45;&#45;relationship26</title>
+<path fill="none" stroke="#51736b" d="M713.01,-765.49C767,-776.74 878.28,-799.92 941.82,-813.16"/>
+<text xml:space="preserve" text-anchor="middle" x="732.48" y="-757.31" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node70" class="node">
+<title>relationship27</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-975 897.85,-957 990.03,-939 1082.21,-957 990.03,-975"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-953.4" font-family="Arial" font-size="12.00">child_sample_id</text>
+</g>
+
+<g id="edge77" class="edge">
+<title>Sample&#45;&#45;relationship27</title>
+<path fill="none" stroke="#51736b" d="M710.49,-777.45C771.55,-816.81 913.43,-908.27 967.54,-943.15"/>
+<text xml:space="preserve" text-anchor="middle" x="730.3" y="-776.57" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node72" class="node">
+<title>relationship29</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-301 926.17,-283 990.03,-265 1053.89,-283 990.03,-301"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-279.4" font-family="Arial" font-size="12.00">sample_id</text>
+</g>
+
+<g id="edge81" class="edge">
+<title>Sample&#45;&#45;relationship29</title>
+<path fill="none" stroke="#51736b" d="M693.57,-740.7C721.42,-697.16 789.32,-591 789.32,-591 789.32,-591 868.32,-449 868.32,-449 868.32,-449 948.39,-338.89 978.11,-298.02"/>
+<text xml:space="preserve" text-anchor="middle" x="696.22" y="-717.28" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node75" class="node">
+<title>relationship32</title>
+<polygon fill="#eaf0fa" stroke="#49678a" points="990.03,-773 926.17,-755 990.03,-737 1053.89,-755 990.03,-773"/>
+<text xml:space="preserve" text-anchor="middle" x="990.03" y="-751.4" font-family="Arial" font-size="12.00">sample_id</text>
+</g>
+
+<g id="edge87" class="edge">
+<title>Sample&#45;&#45;relationship32</title>
+<path fill="none" stroke="#51736b" d="M713.01,-758.59C763.11,-757.94 862.55,-756.65 927.39,-755.8"/>
+<text xml:space="preserve" text-anchor="middle" x="731.02" y="-746.31" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="node19" class="node">
+<title>AIAnalysis</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1325.8,-1380 1244.44,-1380 1244.44,-1344 1325.8,-1344 1325.8,-1380"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-1357.8" font-family="Arial" font-size="14.00">AIAnalysis</text>
+</g>
+
+<g id="node20" class="node">
+<title>AIAnalysis.ai_analysis_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-1362" rx="71.7" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1536.68" y="-1358.8" font-family="Arial" text-decoration="underline" font-size="14.00">ai_analysis_id</text>
+</g>
+
+<g id="edge10" class="edge">
+<title>AIAnalysis&#45;&#45;AIAnalysis.ai_analysis_id</title>
+<path fill="none" stroke="#51736b" d="M1326.01,-1362C1372.8,-1362 1451.25,-1362 1508.53,-1362"/>
+</g>
+
+<g id="node21" class="node">
+<title>AncientSpecimen</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1347.59,-1482 1222.64,-1482 1222.64,-1446 1347.59,-1446 1347.59,-1482"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-1459.8" font-family="Arial" font-size="14.00">AncientSpecimen</text>
+</g>
+
+<g id="node22" class="node">
+<title>AncientSpecimen.sample_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-1464" rx="55.05" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1548.75" y="-1460.8" font-family="Arial" text-decoration="underline" font-size="14.00">sample_id</text>
+</g>
+
+<g id="edge11" class="edge">
+<title>AncientSpecimen&#45;&#45;AncientSpecimen.sample_id</title>
+<path fill="none" stroke="#51736b" d="M1348.01,-1464C1400.49,-1464 1475.03,-1464 1525.26,-1464"/>
+</g>
+
+<g id="node23" class="node">
+<title>ExperimentEquipment</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1361.99,-2157 1208.25,-2157 1208.25,-2121 1361.99,-2121 1361.99,-2157"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-2134.8" font-family="Arial" font-size="14.00">ExperimentEquipment</text>
+</g>
+
+<g id="node24" class="node">
+<title>ExperimentEquipment.experiment_equipment_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-2139" rx="122.16" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1500.1" y="-2135.8" font-family="Arial" text-decoration="underline" font-size="14.00">experiment_equipment_id</text>
+</g>
+
+<g id="edge12" class="edge">
+<title>ExperimentEquipment&#45;&#45;ExperimentEquipment.experiment_equipment_id</title>
+<path fill="none" stroke="#51736b" d="M1362.48,-2139C1391.69,-2139 1425.79,-2139 1458.19,-2139"/>
+</g>
+
+<g id="node25" class="node">
+<title>ExperimentResult</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1348.36,-1988 1221.87,-1988 1221.87,-1952 1348.36,-1952 1348.36,-1988"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-1965.8" font-family="Arial" font-size="14.00">ExperimentResult</text>
+</g>
+
+<g id="node26" class="node">
+<title>ExperimentResult.experiment_result_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-1970" rx="100.68" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1515.68" y="-1966.8" font-family="Arial" text-decoration="underline" font-size="14.00">experiment_result_id</text>
+</g>
+
+<g id="edge13" class="edge">
+<title>ExperimentResult&#45;&#45;ExperimentResult.experiment_result_id</title>
+<path fill="none" stroke="#51736b" d="M1348.73,-1970C1386.78,-1970 1436.24,-1970 1479.61,-1970"/>
+</g>
+
+<g id="node27" class="node">
+<title>ExperimentSample</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1352.26,-1178 1217.98,-1178 1217.98,-1142 1352.26,-1142 1352.26,-1178"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-1155.8" font-family="Arial" font-size="14.00">ExperimentSample</text>
+</g>
+
+<g id="node28" class="node">
+<title>ExperimentSample.experiment_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-1092" rx="71.69" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1536.69" y="-1088.8" font-family="Arial" text-decoration="underline" font-size="14.00">experiment_id</text>
+</g>
+
+<g id="edge14" class="edge">
+<title>ExperimentSample&#45;&#45;ExperimentSample.experiment_id</title>
+<path fill="none" stroke="#51736b" d="M1352.73,-1144.57C1405.5,-1132.34 1478.23,-1115.5 1526.99,-1104.2"/>
+</g>
+
+<g id="node29" class="node">
+<title>ExperimentSample.sample_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-1228" rx="55.05" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1548.75" y="-1224.8" font-family="Arial" text-decoration="underline" font-size="14.00">sample_id</text>
+</g>
+
+<g id="edge15" class="edge">
+<title>ExperimentSample&#45;&#45;ExperimentSample.sample_id</title>
+<path fill="none" stroke="#51736b" d="M1352.73,-1175.43C1408.38,-1188.32 1486.21,-1206.35 1534.74,-1217.59"/>
+</g>
+
+<g id="node30" class="node">
+<title>ExperimentSample.usage_role</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-1160" rx="58.82" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1546.02" y="-1156.8" font-family="Arial" text-decoration="underline" font-size="14.00">usage_role</text>
+</g>
+
+<g id="edge16" class="edge">
+<title>ExperimentSample&#45;&#45;ExperimentSample.usage_role</title>
+<path fill="none" stroke="#51736b" d="M1352.73,-1160C1403.64,-1160 1473.12,-1160 1521.74,-1160"/>
+</g>
+
+<g id="node31" class="node">
+<title>Incident</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1317.64,-302 1252.6,-302 1252.6,-266 1317.64,-266 1317.64,-302"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-279.8" font-family="Arial" font-size="14.00">Incident</text>
+</g>
+
+<g id="node32" class="node">
+<title>Incident.incident_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-284" rx="57.21" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1547.19" y="-280.8" font-family="Arial" text-decoration="underline" font-size="14.00">incident_id</text>
+</g>
+
+<g id="edge17" class="edge">
+<title>Incident&#45;&#45;Incident.incident_id</title>
+<path fill="none" stroke="#51736b" d="M1318.09,-284C1367.27,-284 1462.18,-284 1523.14,-284"/>
+</g>
+
+<g id="node33" class="node">
+<title>RestrictedMaterial</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1349.53,-1583 1220.71,-1583 1220.71,-1547 1349.53,-1547 1349.53,-1583"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-1560.8" font-family="Arial" font-size="14.00">RestrictedMaterial</text>
+</g>
+
+<g id="node34" class="node">
+<title>RestrictedMaterial.restricted_material_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-1565" rx="103.35" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1513.74" y="-1561.8" font-family="Arial" text-decoration="underline" font-size="14.00">restricted_material_id</text>
+</g>
+
+<g id="edge18" class="edge">
+<title>RestrictedMaterial&#45;&#45;RestrictedMaterial.restricted_material_id</title>
+<path fill="none" stroke="#51736b" d="M1349.81,-1565C1386.91,-1565 1434.56,-1565 1476.85,-1565"/>
+</g>
+
+<g id="node35" class="node">
+<title>SampleQuantityTransaction</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1379.49,-501 1190.74,-501 1190.74,-465 1379.49,-465 1379.49,-501"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-478.8" font-family="Arial" font-size="14.00">SampleQuantityTransaction</text>
+</g>
+
+<g id="node36" class="node">
+<title>SampleQuantityTransaction.transaction_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-483" rx="71.16" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1537.07" y="-479.8" font-family="Arial" text-decoration="underline" font-size="14.00">transaction_id</text>
+</g>
+
+<g id="edge19" class="edge">
+<title>SampleQuantityTransaction&#45;&#45;SampleQuantityTransaction.transaction_id</title>
+<path fill="none" stroke="#51736b" d="M1379.8,-483C1421.75,-483 1470.38,-483 1509.17,-483"/>
+</g>
+
+<g id="node37" class="node">
+<title>SampleRelationship</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1355.38,-975 1214.86,-975 1214.86,-939 1355.38,-939 1355.38,-975"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-952.8" font-family="Arial" font-size="14.00">SampleRelationship</text>
+</g>
+
+<g id="node38" class="node">
+<title>SampleRelationship.relationship_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-957" rx="73.31" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1535.51" y="-953.8" font-family="Arial" text-decoration="underline" font-size="14.00">relationship_id</text>
+</g>
+
+<g id="edge20" class="edge">
+<title>SampleRelationship&#45;&#45;SampleRelationship.relationship_id</title>
+<path fill="none" stroke="#51736b" d="M1355.68,-957C1401.29,-957 1460.8,-957 1507.01,-957"/>
+</g>
+
+<g id="node39" class="node">
+<title>SampleStorageHistory</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1363.15,-168 1207.09,-168 1207.09,-132 1363.15,-132 1363.15,-168"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-145.8" font-family="Arial" font-size="14.00">SampleStorageHistory</text>
+</g>
+
+<g id="node40" class="node">
+<title>SampleStorageHistory.storage_history_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-150" rx="89.95" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1523.46" y="-146.8" font-family="Arial" text-decoration="underline" font-size="14.00">storage_history_id</text>
+</g>
+
+<g id="edge21" class="edge">
+<title>SampleStorageHistory&#45;&#45;SampleStorageHistory.storage_history_id</title>
+<path fill="none" stroke="#51736b" d="M1363.63,-150C1402.52,-150 1449.84,-150 1490.27,-150"/>
+</g>
+
+<g id="node41" class="node">
+<title>SampleTest</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1330.47,-840 1239.77,-840 1239.77,-804 1330.47,-804 1330.47,-840"/>
+<text xml:space="preserve" text-anchor="middle" x="1285.12" y="-817.8" font-family="Arial" font-size="14.00">SampleTest</text>
+</g>
+
+<g id="node42" class="node">
+<title>SampleTest.sample_test_id</title>
+<ellipse fill="#ffffff" stroke="#286c61" cx="1580.66" cy="-822" rx="75.99" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1533.57" y="-818.8" font-family="Arial" text-decoration="underline" font-size="14.00">sample_test_id</text>
+</g>
+
+<g id="edge22" class="edge">
+<title>SampleTest&#45;&#45;SampleTest.sample_test_id</title>
+<path fill="none" stroke="#51736b" d="M1330.7,-822C1376.73,-822 1449.38,-822 1504.35,-822"/>
+</g>
+
+<g id="edge24" class="edge">
+<title>relationship0&#45;&#45;AuditLog</title>
+<path fill="none" stroke="#51736b" d="M427.39,-1430C497.03,-1430 593.98,-1430 645.11,-1430"/>
+<text xml:space="preserve" text-anchor="middle" x="626.98" y="-1434.85" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge26" class="edge">
+<title>relationship1&#45;&#45;Experiment</title>
+<path fill="none" stroke="#51736b" d="M376.31,-1617.38C419.32,-1632.28 493.73,-1658.06 493.41,-1659 493.88,-1658.12 592.31,-1710.91 646.14,-1739.78"/>
+<path fill="none" stroke="#51736b" d="M375.65,-1619.27C418.67,-1634.17 493.08,-1659.94 493.41,-1659 492.93,-1659.88 591.36,-1712.67 645.19,-1741.54"/>
+<text xml:space="preserve" text-anchor="middle" x="625.7" y="-1735.94" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge28" class="edge">
+<title>relationship2&#45;&#45;Experiment</title>
+<path fill="none" stroke="#51736b" d="M396.14,-1702.88C461.59,-1715.83 575.27,-1738.31 637,-1750.52"/>
+<text xml:space="preserve" text-anchor="middle" x="617.58" y="-1751.7" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge30" class="edge">
+<title>relationship3&#45;&#45;Sample</title>
+<path fill="none" stroke="#51736b" d="M437.81,-758C508.23,-758 601.26,-758 648.88,-758"/>
+<path fill="none" stroke="#51736b" d="M437.81,-760C508.23,-760 601.26,-760 648.88,-760"/>
+<text xml:space="preserve" text-anchor="middle" x="630.75" y="-763.85" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge32" class="edge">
+<title>relationship4&#45;&#45;Sample</title>
+<path fill="none" stroke="#51736b" d="M360.57,-373.41C397.61,-415.69 493.41,-525 493.41,-525 493.41,-525 621.28,-685.48 665.23,-740.64"/>
+<text xml:space="preserve" text-anchor="middle" x="647.33" y="-728.13" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge34" class="edge">
+<title>relationship5&#45;&#45;Sample</title>
+<path fill="none" stroke="#51736b" d="M373.53,-1067.04C416.11,-1049.98 493.41,-1019 493.41,-1019 493.41,-1019 572.41,-865 572.41,-865 572.41,-865 630.36,-807.83 661.15,-777.46"/>
+<text xml:space="preserve" text-anchor="middle" x="654.18" y="-792.61" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge36" class="edge">
+<title>relationship6&#45;&#45;AIAnalysis</title>
+<path fill="none" stroke="#51736b" d="M1023.65,-1101.15C1059.41,-1111.22 1112.01,-1126.04 1111.74,-1127 1112.55,-1126.41 1230.76,-1287.57 1271.4,-1342.97"/>
+<path fill="none" stroke="#51736b" d="M1023.11,-1103.07C1058.87,-1113.15 1111.47,-1127.96 1111.74,-1127 1110.94,-1127.59 1229.15,-1288.75 1269.79,-1344.15"/>
+<text xml:space="preserve" text-anchor="middle" x="1253.06" y="-1330.34" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge38" class="edge">
+<title>relationship7&#45;&#45;AIAnalysis</title>
+<path fill="none" stroke="#51736b" d="M1030.29,-1484.9C1065.49,-1474.99 1111.47,-1462.04 1111.74,-1463 1111.24,-1462.14 1202.72,-1408.53 1252.4,-1379.43"/>
+<path fill="none" stroke="#51736b" d="M1030.83,-1486.83C1066.03,-1476.91 1112.01,-1463.96 1111.74,-1463 1112.25,-1463.86 1203.73,-1410.26 1253.41,-1381.15"/>
+<text xml:space="preserve" text-anchor="middle" x="1241.54" y="-1393.15" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge40" class="edge">
+<title>relationship8&#45;&#45;AIAnalysis</title>
+<path fill="none" stroke="#51736b" d="M758.14,-1362C887.44,-1362 1145.24,-1362 1244.18,-1362"/>
+<text xml:space="preserve" text-anchor="middle" x="1226.05" y="-1366.85" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge42" class="edge">
+<title>relationship9&#45;&#45;AncientSpecimen</title>
+<path fill="none" stroke="#51736b" d="M1023.65,-1169.15C1059.41,-1179.22 1112.01,-1194.04 1111.74,-1195 1112.67,-1194.63 1191.67,-1395.63 1190.74,-1396 1191.33,-1395.19 1232.03,-1424.83 1259.68,-1444.97"/>
+<path fill="none" stroke="#51736b" d="M1023.11,-1171.07C1058.87,-1181.15 1111.47,-1195.96 1111.74,-1195 1110.81,-1195.37 1189.81,-1396.37 1190.74,-1396 1190.15,-1396.81 1230.85,-1426.44 1258.51,-1446.59"/>
+<text xml:space="preserve" text-anchor="middle" x="1239.47" y="-1438.34" font-family="Arial" font-size="12.00">1</text>
+</g>
+
+<g id="edge44" class="edge">
+<title>relationship10&#45;&#45;AncientSpecimen</title>
+<path fill="none" stroke="#51736b" d="M1033.59,-1959.01C1068.34,-1949.22 1111.74,-1937 1111.74,-1937 1111.74,-1937 1190.74,-1531 1190.74,-1531 1190.74,-1531 1230.96,-1502.15 1258.6,-1482.31"/>
+<text xml:space="preserve" text-anchor="middle" x="1248.8" y="-1496.14" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge46" class="edge">
+<title>relationship11&#45;&#45;ExperimentEquipment</title>
+<path fill="none" stroke="#51736b" d="M1027.85,-1912.33C1063.38,-1922.34 1112.01,-1936.04 1111.74,-1937 1112.5,-1936.35 1226.85,-2070.34 1269.28,-2120.07"/>
+<path fill="none" stroke="#51736b" d="M1027.31,-1914.26C1062.83,-1924.26 1111.47,-1937.96 1111.74,-1937 1110.98,-1937.65 1225.32,-2071.64 1267.76,-2121.37"/>
+<text xml:space="preserve" text-anchor="middle" x="1250.32" y="-2108.82" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge48" class="edge">
+<title>relationship12&#45;&#45;ExperimentEquipment</title>
+<path fill="none" stroke="#51736b" d="M1026.65,-2229.93C1062.23,-2219.91 1111.47,-2206.04 1111.74,-2207 1111.38,-2206.07 1186.05,-2176.61 1237.1,-2156.47"/>
+<path fill="none" stroke="#51736b" d="M1027.19,-2231.85C1062.78,-2221.83 1112.01,-2207.96 1111.74,-2207 1112.11,-2207.93 1186.79,-2178.47 1237.84,-2158.33"/>
+<text xml:space="preserve" text-anchor="middle" x="1223.71" y="-2168.32" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge50" class="edge">
+<title>relationship13&#45;&#45;ExperimentResult</title>
+<path fill="none" stroke="#51736b" d="M1027.85,-1844.33C1063.38,-1854.34 1112.01,-1868.04 1111.74,-1869 1112.25,-1868.14 1203.73,-1921.74 1253.41,-1950.85"/>
+<path fill="none" stroke="#51736b" d="M1027.31,-1846.26C1062.83,-1856.26 1111.47,-1869.96 1111.74,-1869 1111.24,-1869.86 1202.72,-1923.47 1252.4,-1952.57"/>
+<text xml:space="preserve" text-anchor="middle" x="1232.99" y="-1946.24" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge52" class="edge">
+<title>relationship14&#45;&#45;ExperimentResult</title>
+<path fill="none" stroke="#51736b" d="M371.7,-1945.84C430.86,-1973.3 572.41,-2039 572.41,-2039 572.41,-2039 868.32,-2073 868.32,-2073 868.32,-2073 1111.74,-2073 1111.74,-2073 1111.74,-2073 1203.72,-2018.04 1253.3,-1988.41"/>
+<text xml:space="preserve" text-anchor="middle" x="1242.08" y="-2001.37" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge54" class="edge">
+<title>relationship15&#45;&#45;ExperimentSample</title>
+<path fill="none" stroke="#51736b" d="M1007.69,-1683.9C1041.07,-1656.25 1111.11,-1598.23 1111.74,-1599 1110.78,-1598.72 1189.78,-1327.72 1190.74,-1328 1189.87,-1327.51 1248.87,-1221.35 1273.07,-1177.81"/>
+<path fill="none" stroke="#51736b" d="M1008.97,-1685.44C1042.34,-1657.79 1112.38,-1599.77 1111.74,-1599 1112.7,-1599.28 1191.7,-1328.28 1190.74,-1328 1191.62,-1328.49 1250.62,-1222.33 1274.82,-1178.78"/>
+<text xml:space="preserve" text-anchor="middle" x="1272.53" y="-1194.65" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge56" class="edge">
+<title>relationship16&#45;&#45;ExperimentSample</title>
+<path fill="none" stroke="#51736b" d="M1023.65,-1033.15C1059.41,-1043.22 1112.01,-1058.04 1111.74,-1059 1112.25,-1058.14 1203.73,-1111.74 1253.41,-1140.85"/>
+<path fill="none" stroke="#51736b" d="M1023.11,-1035.07C1058.87,-1045.15 1111.47,-1059.96 1111.74,-1059 1111.24,-1059.86 1202.72,-1113.47 1252.4,-1142.57"/>
+<text xml:space="preserve" text-anchor="middle" x="1232.99" y="-1136.24" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge58" class="edge">
+<title>relationship17&#45;&#45;Incident</title>
+<path fill="none" stroke="#51736b" d="M1023.38,-677.89C1059.14,-667.82 1111.74,-653 1111.74,-653 1111.74,-653 1190.74,-449 1190.74,-449 1190.74,-449 1249.46,-345.25 1273.77,-302.29"/>
+<text xml:space="preserve" text-anchor="middle" x="1272.2" y="-318.63" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge60" class="edge">
+<title>relationship18&#45;&#45;Incident</title>
+<path fill="none" stroke="#51736b" d="M720.92,-113.8C832.35,-147.48 1150.34,-243.57 1252.27,-274.37"/>
+<text xml:space="preserve" text-anchor="middle" x="1232.47" y="-273.62" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge62" class="edge">
+<title>relationship19&#45;&#45;Incident</title>
+<path fill="none" stroke="#51736b" d="M706.98,-321.45C758.05,-298.17 867.91,-248.09 868.32,-249 868.32,-248 1111.74,-248 1111.74,-249 1111.94,-248.02 1202.94,-266.5 1252.7,-276.6"/>
+<path fill="none" stroke="#51736b" d="M707.81,-323.27C758.88,-299.99 868.74,-249.91 868.32,-249 868.32,-250 1111.74,-250 1111.74,-249 1111.54,-249.98 1202.54,-268.46 1252.3,-278.56"/>
+<text xml:space="preserve" text-anchor="middle" x="1233.06" y="-278.66" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge64" class="edge">
+<title>relationship20&#45;&#45;Incident</title>
+<path fill="none" stroke="#51736b" d="M719.99,-413.26C830.53,-387.93 1149.77,-314.79 1252.13,-291.33"/>
+<text xml:space="preserve" text-anchor="middle" x="1236.35" y="-300.02" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge66" class="edge">
+<title>relationship21&#45;&#45;RestrictedMaterial</title>
+<path fill="none" stroke="#51736b" d="M1002.86,-1243.25C1044.72,-1299.64 1191.55,-1497.4 1190.74,-1498 1191.33,-1497.19 1231.54,-1526.04 1259.19,-1545.88"/>
+<path fill="none" stroke="#51736b" d="M1001.25,-1244.44C1043.12,-1300.83 1189.94,-1498.6 1190.74,-1498 1190.16,-1498.81 1230.37,-1527.67 1258.02,-1547.5"/>
+<text xml:space="preserve" text-anchor="middle" x="1238.95" y="-1539.39" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge68" class="edge">
+<title>relationship22&#45;&#45;RestrictedMaterial</title>
+<path fill="none" stroke="#51736b" d="M383.04,-1516.45C447.14,-1532.88 572.41,-1565 572.41,-1565 572.41,-1565 868.32,-1599 868.32,-1599 868.32,-1599 1111.74,-1599 1111.74,-1599 1111.74,-1599 1171.32,-1587.25 1220.42,-1577.56"/>
+<text xml:space="preserve" text-anchor="middle" x="1204.27" y="-1585.76" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge70" class="edge">
+<title>relationship23&#45;&#45;SampleQuantityTransaction</title>
+<path fill="none" stroke="#51736b" d="M1026.16,-541.82C1070.01,-531.65 1146.07,-514 1204.24,-500.51"/>
+<path fill="none" stroke="#51736b" d="M1026.61,-543.77C1070.46,-533.6 1146.53,-515.95 1204.69,-502.45"/>
+<text xml:space="preserve" text-anchor="middle" x="1188.72" y="-510.21" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge72" class="edge">
+<title>relationship24&#45;&#45;SampleQuantityTransaction</title>
+<path fill="none" stroke="#51736b" d="M1108.55,-483C1135.79,-483 1164.41,-483 1190.46,-483"/>
+<text xml:space="preserve" text-anchor="middle" x="1172.34" y="-487.85" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge74" class="edge">
+<title>relationship25&#45;&#45;SampleQuantityTransaction</title>
+<path fill="none" stroke="#51736b" d="M704.36,-543.97C753.95,-515.25 868.32,-449 868.32,-449 868.32,-449 1111.74,-449 1111.74,-449 1111.74,-449 1149.93,-456.53 1190.36,-464.51"/>
+<text xml:space="preserve" text-anchor="middle" x="1170.95" y="-465.69" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge76" class="edge">
+<title>relationship26&#45;&#45;SampleRelationship</title>
+<path fill="none" stroke="#51736b" d="M1020.08,-835.18C1072.51,-859.15 1184.06,-910.15 1244.16,-937.63"/>
+<path fill="none" stroke="#51736b" d="M1019.25,-837C1071.68,-860.97 1183.23,-911.97 1243.33,-939.45"/>
+<text xml:space="preserve" text-anchor="middle" x="1223.75" y="-935.09" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge78" class="edge">
+<title>relationship27&#45;&#45;SampleRelationship</title>
+<path fill="none" stroke="#51736b" d="M1084.57,-956C1126.79,-956 1175.79,-956 1214.67,-956"/>
+<path fill="none" stroke="#51736b" d="M1084.57,-958C1126.79,-958 1175.79,-958 1214.67,-958"/>
+<text xml:space="preserve" text-anchor="middle" x="1196.54" y="-961.85" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge80" class="edge">
+<title>relationship28&#45;&#45;SampleRelationship</title>
+<path fill="none" stroke="#51736b" d="M405.07,-1231.06C541.62,-1240.47 868.32,-1263 868.32,-1263 868.32,-1263 1111.74,-1263 1111.74,-1263 1111.74,-1263 1236.74,-1041.1 1273.85,-975.23"/>
+<text xml:space="preserve" text-anchor="middle" x="1272.32" y="-991.57" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge82" class="edge">
+<title>relationship29&#45;&#45;SampleStorageHistory</title>
+<path fill="none" stroke="#51736b" d="M1015.1,-270.98C1065.53,-248.1 1181.39,-195.52 1243.17,-167.48"/>
+<path fill="none" stroke="#51736b" d="M1015.93,-272.8C1066.35,-249.92 1182.22,-197.34 1244,-169.3"/>
+<text xml:space="preserve" text-anchor="middle" x="1230.57" y="-179.98" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge84" class="edge">
+<title>relationship30&#45;&#45;SampleStorageHistory</title>
+<path fill="none" stroke="#51736b" d="M751.89,-24.68C873.7,-36.3 1111.74,-59 1111.74,-59 1111.74,-59 1198.87,-104.99 1249.24,-131.58"/>
+<text xml:space="preserve" text-anchor="middle" x="1229.26" y="-127" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge86" class="edge">
+<title>relationship31&#45;&#45;SampleStorageHistory</title>
+<path fill="none" stroke="#51736b" d="M731.66,-197.7C836.64,-188.64 1081.29,-167.51 1206.81,-156.67"/>
+<text xml:space="preserve" text-anchor="middle" x="1189.48" y="-163.06" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge88" class="edge">
+<title>relationship32&#45;&#45;SampleTest</title>
+<path fill="none" stroke="#51736b" d="M1026.9,-762.17C1080.45,-774.41 1181.57,-797.53 1239.87,-810.86"/>
+<path fill="none" stroke="#51736b" d="M1026.45,-764.12C1080,-776.36 1181.12,-799.48 1239.42,-812.81"/>
+<text xml:space="preserve" text-anchor="middle" x="1220.09" y="-812.43" font-family="Arial" font-size="12.00">N</text>
+</g>
+
+<g id="edge90" class="edge">
+<title>relationship33&#45;&#45;SampleTest</title>
+<path fill="none" stroke="#51736b" d="M383.72,-1141.06C427.33,-1129.5 493.41,-1112 493.41,-1112 493.41,-1112 868.32,-923 868.32,-923 868.32,-923 1132.36,-858.86 1239.62,-832.81"/>
+<text xml:space="preserve" text-anchor="middle" x="1224" y="-841.7" font-family="Arial" font-size="12.00">N</text>
+</g>
+</g>
+</svg>

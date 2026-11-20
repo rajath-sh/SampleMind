@@ -1,0 +1,3 @@
+"""
+SampleMind Isolated Domain Modules
+"""

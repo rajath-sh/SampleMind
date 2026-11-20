@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3500" height="3480" viewBox="0 0 3500 3480"><defs><marker id="arrow" viewBox="0 0 12 10" refX="11" refY="5" markerWidth="12" markerHeight="10" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L12,5 L0,10 Z" fill="black"/></marker></defs><rect width="100%" height="100%" fill="white"/><g font-family="Times New Roman,serif" fill="black">
+<text x="1750" y="55" text-anchor="middle" stroke="none" font-size="42" font-weight="bold"><tspan x="1750" dy="0">SampleMind Data Flow Diagram Level 1</tspan></text>
+<text x="1750" y="105" text-anchor="middle" stroke="none" font-size="27" ><tspan x="1750" dy="0">Decomposition of process 0 into access, specimen, assay, experiment and query functions</tspan></text>
+<g id="external-E1-1"><rect x="140" y="335" width="380" height="130" fill="white" stroke="black" stroke-width="2.1"/>
+<text x="330" y="382.02" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="330" dy="0">E1</tspan><tspan x="330" dy="35.96">Laboratory user</tspan></text>
+</g>
+<g id="process-1.0"><circle cx="1450" cy="400" r="140" fill="white" stroke="black" stroke-width="2.2"/>
+<text x="1450" y="364.04" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="1450" dy="0">1.0</tspan><tspan x="1450" dy="35.96">Manage access</tspan><tspan x="1450" dy="35.96">and accounts</tspan></text>
+</g>
+<polyline points="520,355 1317,355" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="900" y="305" text-anchor="middle" stroke="none" font-size="27" ><tspan x="900" dy="0">Account and access requests</tspan></text>
+<polyline points="1317,445 520,445" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="900" y="510" text-anchor="middle" stroke="none" font-size="27" ><tspan x="900" dy="0">Account and access results</tspan></text>
+<g id="external-E1-3"><rect x="140" y="935" width="380" height="130" fill="white" stroke="black" stroke-width="2.1"/>
+<text x="330" y="982.02" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="330" dy="0">E1</tspan><tspan x="330" dy="35.96">Laboratory user</tspan></text>
+</g>
+<g id="process-2.0"><circle cx="1450" cy="1000" r="140" fill="white" stroke="black" stroke-width="2.2"/>
+<text x="1450" y="964.04" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="1450" dy="0">2.0</tspan><tspan x="1450" dy="35.96">Manage</tspan><tspan x="1450" dy="35.96">specimens</tspan></text>
+</g>
+<polyline points="520,955 1317,955" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="900" y="905" text-anchor="middle" stroke="none" font-size="27" ><tspan x="900" dy="0">Specimen maintenance requests</tspan></text>
+<polyline points="1317,1045 520,1045" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="900" y="1110" text-anchor="middle" stroke="none" font-size="27" ><tspan x="900" dy="0">Specimen maintenance results</tspan></text>
+<g id="external-E1-5"><rect x="140" y="1535" width="380" height="130" fill="white" stroke="black" stroke-width="2.1"/>
+<text x="330" y="1582.02" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="330" dy="0">E1</tspan><tspan x="330" dy="35.96">Laboratory user</tspan></text>
+</g>
+<g id="process-3.0"><circle cx="1450" cy="1600" r="140" fill="white" stroke="black" stroke-width="2.2"/>
+<text x="1450" y="1564.04" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="1450" dy="0">3.0</tspan><tspan x="1450" dy="35.96">Manage</tspan><tspan x="1450" dy="35.96">assays</tspan></text>
+</g>
+<polyline points="520,1555 1317,1555" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="900" y="1505" text-anchor="middle" stroke="none" font-size="27" ><tspan x="900" dy="0">Assay maintenance requests</tspan></text>
+<polyline points="1317,1645 520,1645" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="900" y="1710" text-anchor="middle" stroke="none" font-size="27" ><tspan x="900" dy="0">Assay maintenance results</tspan></text>
+<g id="external-E1-7"><rect x="140" y="2135" width="380" height="130" fill="white" stroke="black" stroke-width="2.1"/>
+<text x="330" y="2182.02" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="330" dy="0">E1</tspan><tspan x="330" dy="35.96">Laboratory user</tspan></text>
+</g>
+<g id="process-4.0"><circle cx="1450" cy="2200" r="140" fill="white" stroke="black" stroke-width="2.2"/>
+<text x="1450" y="2164.04" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="1450" dy="0">4.0</tspan><tspan x="1450" dy="35.96">Manage experiments</tspan><tspan x="1450" dy="35.96">and usages</tspan></text>
+</g>
+<polyline points="520,2155 1317,2155" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="900" y="2105" text-anchor="middle" stroke="none" font-size="27" ><tspan x="900" dy="0">Experiment and usage requests</tspan></text>
+<polyline points="1317,2245 520,2245" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="900" y="2310" text-anchor="middle" stroke="none" font-size="27" ><tspan x="900" dy="0">Experiment and usage results</tspan></text>
+<g id="external-E1-9"><rect x="140" y="2795" width="380" height="130" fill="white" stroke="black" stroke-width="2.1"/>
+<text x="330" y="2842.02" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="330" dy="0">E1</tspan><tspan x="330" dy="35.96">Laboratory user</tspan></text>
+</g>
+<g id="process-5.0"><circle cx="1450" cy="2860" r="140" fill="white" stroke="black" stroke-width="2.2"/>
+<text x="1450" y="2824.04" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="1450" dy="0">5.0</tspan><tspan x="1450" dy="35.96">Search and</tspan><tspan x="1450" dy="35.96">produce reports</tspan></text>
+</g>
+<polyline points="520,2815 1317,2815" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="900" y="2765" text-anchor="middle" stroke="none" font-size="27" ><tspan x="900" dy="0">Search and report requests</tspan></text>
+<polyline points="1317,2905 520,2905" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="900" y="2970" text-anchor="middle" stroke="none" font-size="27" ><tspan x="900" dy="0">Search results and reports</tspan></text>
+<g id="store-D1-11" stroke="black"><path d="M2475,345 H3125 M2475,455 H3125" fill="none" stroke-width="2"/>
+<text x="2800" y="383.26" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2800" dy="0">D1  Accounts</tspan><tspan x="2800" dy="33.48">AppUser</tspan></text>
+</g>
+<polyline points="1583,355 2475,355" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2000" y="315" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2000" dy="0">Account changes</tspan></text>
+<polyline points="2475,445 1583,445" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2000" y="500" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2000" dy="0">Account records</tspan></text>
+<g id="store-D2-12" stroke="black"><path d="M2450,925 H3150 M2450,1075 H3150" fill="none" stroke-width="2"/>
+<text x="2800" y="966.52" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2800" dy="0">D2  Specimen records</tspan><tspan x="2800" dy="33.48">SampleType, StorageLocation, Sample,</tspan><tspan x="2800" dy="33.48">SampleRelationship, AncientSpecimen</tspan></text>
+</g>
+<polyline points="1583,955 2450,955" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2020" y="915" text-anchor="middle" stroke="none" font-size="26" ><tspan x="2020" dy="0">Specimen and reference changes</tspan></text>
+<polyline points="2450,1045 1583,1045" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2020" y="1115" text-anchor="middle" stroke="none" font-size="26" ><tspan x="2020" dy="0">Existing specimen and reference data</tspan></text>
+<g id="store-D1-13" stroke="black"><path d="M1875,715 H2425 M1875,805 H2425" fill="none" stroke-width="2"/>
+<text x="2150" y="760" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2150" dy="0">D1  Accounts</tspan></text>
+</g>
+<polyline points="1875,760 1550,902" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1700" y="770" text-anchor="middle" stroke="none" font-size="25" ><tspan x="1700" dy="0">Actor reference data</tspan></text>
+<g id="store-D3-14" stroke="black"><path d="M2475,1545 H3125 M2475,1655 H3125" fill="none" stroke-width="2"/>
+<text x="2800" y="1583.26" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2800" dy="0">D3  Assays</tspan><tspan x="2800" dy="33.48">SampleTest</tspan></text>
+</g>
+<polyline points="1583,1555 2475,1555" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2020" y="1515" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2020" dy="0">Assay changes</tspan></text>
+<polyline points="2475,1645 1583,1645" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2020" y="1705" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2020" dy="0">Assay records</tspan></text>
+<g id="store-D2-15" stroke="black"><path d="M1875,1315 H2425 M1875,1405 H2425" fill="none" stroke-width="2"/>
+<text x="2150" y="1360" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2150" dy="0">D2  Specimen records</tspan></text>
+</g>
+<polyline points="1875,1360 1550,1502" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1700" y="1370" text-anchor="middle" stroke="none" font-size="25" ><tspan x="1700" dy="0">Sample reference data</tspan></text>
+<g id="store-D4-16" stroke="black"><path d="M2475,2145 H3125 M2475,2255 H3125" fill="none" stroke-width="2"/>
+<text x="2800" y="2183.26" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2800" dy="0">D4  Experiments and usages</tspan><tspan x="2800" dy="33.48">Experiment, ExperimentSample</tspan></text>
+</g>
+<polyline points="1583,2155 2475,2155" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2020" y="2115" text-anchor="middle" stroke="none" font-size="26" ><tspan x="2020" dy="0">Experiment and usage changes</tspan></text>
+<polyline points="2475,2245 1583,2245" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2020" y="2305" text-anchor="middle" stroke="none" font-size="26" ><tspan x="2020" dy="0">Experiment and usage records</tspan></text>
+<g id="store-D1-17" stroke="black"><path d="M1875,1915 H2425 M1875,2005 H2425" fill="none" stroke-width="2"/>
+<text x="2150" y="1960" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2150" dy="0">D1  Accounts</tspan></text>
+</g>
+<polyline points="1875,1960 1550,2102" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1700" y="1955" text-anchor="middle" stroke="none" font-size="24" ><tspan x="1700" dy="0">Creator and lead reference data</tspan></text>
+<g id="store-D2-18" stroke="black"><path d="M1875,2395 H2425 M1875,2485 H2425" fill="none" stroke-width="2"/>
+<text x="2150" y="2440" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2150" dy="0">D2  Specimen records</tspan></text>
+</g>
+<polyline points="1875,2440 1550,2298" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1700" y="2460" text-anchor="middle" stroke="none" font-size="25" ><tspan x="1700" dy="0">Sample reference data</tspan></text>
+<g id="store-D1-19" stroke="black"><path d="M2455,2545 H3105 M2455,2635 H3105" fill="none" stroke-width="2"/>
+<text x="2780" y="2590" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2780" dy="0">D1  Accounts</tspan></text>
+</g>
+<polyline points="2455,2590 2000,2590 1550,2762" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2070" y="2562" text-anchor="middle" stroke="none" font-size="24" ><tspan x="2070" dy="0">Account display data</tspan></text>
+<g id="store-D2-20" stroke="black"><path d="M2455,2725 H3105 M2455,2815 H3105" fill="none" stroke-width="2"/>
+<text x="2780" y="2770" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2780" dy="0">D2  Specimen records</tspan></text>
+</g>
+<polyline points="2455,2770 2000,2770 1580,2808" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2070" y="2742" text-anchor="middle" stroke="none" font-size="24" ><tspan x="2070" dy="0">Specimen records</tspan></text>
+<g id="store-D3-21" stroke="black"><path d="M2455,2905 H3105 M2455,2995 H3105" fill="none" stroke-width="2"/>
+<text x="2780" y="2950" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2780" dy="0">D3  Assays</tspan></text>
+</g>
+<polyline points="2455,2950 2000,2950 1580,2912" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2070" y="2922" text-anchor="middle" stroke="none" font-size="24" ><tspan x="2070" dy="0">Assay records</tspan></text>
+<g id="store-D4-22" stroke="black"><path d="M2455,3085 H3105 M2455,3175 H3105" fill="none" stroke-width="2"/>
+<text x="2780" y="3130" text-anchor="middle" stroke="none" font-size="27" ><tspan x="2780" dy="0">D4  Experiments and usages</tspan></text>
+</g>
+<polyline points="2455,3130 2000,3130 1550,2958" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="2070" y="3102" text-anchor="middle" stroke="none" font-size="24" ><tspan x="2070" dy="0">Experiment and usage records</tspan></text>
+<text x="1750" y="3350" text-anchor="middle" stroke="none" font-size="25" ><tspan x="1750" dy="0">Rectangle = external entity   |   Circle = process   |   Parallel lines = data store   |   Arrow = named data flow</tspan></text>
+<text x="1750" y="3392" text-anchor="middle" stroke="none" font-size="24" ><tspan x="1750" dy="0">Repeated E1 rectangles and repeated store identifiers denote the same entity or store, not additional copies.</tspan></text>
+<text x="1750" y="3440" text-anchor="middle" stroke="none" font-size="24" ><tspan x="1750" dy="0">Authentication and role checks are prerequisites for protected operations; DFD arrows express data, not a control sequence.</tspan></text>
+</g></svg>

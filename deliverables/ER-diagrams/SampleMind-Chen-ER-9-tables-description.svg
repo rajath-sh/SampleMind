@@ -1,0 +1,320 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="4500" height="3150" viewBox="0 0 4500 3150"><rect width="4500" height="3150" fill="white"/><g fill="black" stroke="black" font-family="Times New Roman,serif">
+<text x="2250" y="55" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="43" >SampleMind — Nine-table Chen ER diagram</text>
+<text x="2250" y="105" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="27" >Solid underline: key · dashed underline: partial key · double rectangle: weak entity · double diamond: identifying relationship</text>
+<text x="2250" y="150" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="25" >Nine selected entities; at most four attributes per entity, including the displayed relationship and derived attributes</text>
+<line x1="3120" y1="1503" x2="3400" y2="1503" stroke-width="1.7"/>
+<line x1="3120" y1="1497" x2="3400" y2="1497" stroke-width="1.7"/>
+<line x1="3600" y1="1500" x2="3780" y2="1500" stroke-width="1.8"/>
+<line x1="3000" y1="535" x2="3000" y2="950" stroke-width="1.8"/>
+<line x1="3000" y1="1050" x2="3000" y2="1465" stroke-width="1.8"/>
+<line x1="2880" y1="1465" x2="2500" y2="1250" stroke-width="1.8"/>
+<line x1="2301.6488495044287" y1="1247.4937487532682" x2="1921.6488495044289" y2="997.4937487532682" stroke-width="1.7"/>
+<line x1="2298.3511504955713" y1="1252.5062512467318" x2="1918.3511504955711" y2="1002.5062512467318" stroke-width="1.7"/>
+<line x1="3000" y1="1535" x2="2700" y2="1900" stroke-width="1.8"/>
+<line x1="2697.369072780492" y1="1998.5583960441052" x2="2497.369072780492" y2="2363.5583960441054" stroke-width="1.7"/>
+<line x1="2702.630927219508" y1="2001.4416039558948" x2="2502.630927219508" y2="2366.4416039558946" stroke-width="1.7"/>
+<line x1="1320" y1="2400" x2="1750" y2="2400" stroke-width="1.8"/>
+<line x1="1950" y1="2403" x2="2355" y2="2403" stroke-width="1.7"/>
+<line x1="1950" y1="2397" x2="2355" y2="2397" stroke-width="1.7"/>
+<line x1="3120" y1="1535" x2="3350" y2="1950" stroke-width="1.8"/>
+<line x1="3547.1371744738126" y1="1950.8967887190468" x2="3677.1371744738126" y2="2365.8967887190465" stroke-width="1.7"/>
+<line x1="3552.8628255261874" y1="1949.1032112809532" x2="3682.8628255261874" y2="2364.1032112809535" stroke-width="1.7"/>
+<line x1="2880" y1="1465" x2="2400" y2="850" stroke-width="1.8"/>
+<line x1="2302.7748208517582" y1="798.8596626636611" x2="2152.7748208517582" y2="433.8596626636611" stroke-width="1.7"/>
+<line x1="2297.2251791482418" y1="801.1403373363389" x2="2147.2251791482418" y2="436.1403373363389" stroke-width="1.7"/>
+<line x1="2960" y1="1465" x2="2700" y2="850" stroke-width="1.8"/>
+<line x1="2602.5439949120155" y1="798.4100031799904" x2="2352.5439949120155" y2="398.41000317999044" stroke-width="1.7"/>
+<line x1="2597.4560050879845" y1="801.5899968200096" x2="2347.4560050879845" y2="401.58999682000956" stroke-width="1.7"/>
+<line x1="600" y1="1465" x2="600" y2="600" stroke-width="1.8"/>
+<line x1="600" y1="600" x2="1200" y2="600" stroke-width="1.8"/>
+<line x1="1400" y1="600" x2="2050" y2="400" stroke-width="1.8"/>
+<line x1="720" y1="1465" x2="1000" y2="1200" stroke-width="1.8"/>
+<line x1="1200" y1="1200" x2="1680" y2="1000" stroke-width="1.8"/>
+<line x1="720" y1="1500" x2="1700" y2="1500" stroke-width="1.8"/>
+<line x1="1900" y1="1500" x2="2880" y2="1500" stroke-width="1.8"/>
+<line x1="720" y1="1535" x2="1000" y2="1950" stroke-width="1.8"/>
+<line x1="997.1965367952131" y1="2051.067985982776" x2="1117.1965367952132" y2="2366.067985982776" stroke-width="1.7"/>
+<line x1="1002.8034632047869" y1="2048.932014017224" x2="1122.8034632047868" y2="2363.932014017224" stroke-width="1.7"/>
+<line x1="600" y1="1535" x2="600" y2="2050" stroke-width="1.8"/>
+<line x1="700" y1="2100" x2="1080" y2="2400" stroke-width="1.8"/>
+<g id="entity-AppUser"><rect x="480" y="1465" width="240" height="70" fill="white" stroke-width="2.4"/>
+<text x="600" y="1500" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="34" font-weight="bold">AppUser</text>
+</g>
+<g id="entity-Sample"><rect x="2880" y="1465" width="240" height="70" fill="white" stroke-width="2.4"/>
+<text x="3000" y="1500" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="34" font-weight="bold">Sample</text>
+</g>
+<g id="entity-SampleType"><rect x="3780" y="1465" width="240" height="70" fill="white" stroke-width="2.4"/>
+<text x="3900" y="1500" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="34" font-weight="bold">SampleType</text>
+</g>
+<g id="entity-StorageLocation"><rect x="2860" y="465" width="280" height="70" fill="white" stroke-width="2.4"/>
+<text x="3000" y="500" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="32.075471698113205" font-weight="bold">StorageLocation</text>
+</g>
+<g id="entity-SampleRelationship"><rect x="2050" y="365" width="300" height="70" fill="white" stroke-width="2.4"/>
+<text x="2200" y="400" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28.825995807127878" font-weight="bold">SampleRelationship</text>
+</g>
+<g id="entity-SampleTest"><rect x="1680" y="965" width="240" height="70" fill="white" stroke-width="2.4"/>
+<text x="1800" y="1000" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="34" font-weight="bold">SampleTest</text>
+</g>
+<g id="entity-Experiment"><rect x="1080" y="2365" width="240" height="70" fill="white" stroke-width="2.4"/>
+<text x="1200" y="2400" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="34" font-weight="bold">Experiment</text>
+</g>
+<g id="entity-ExperimentSample"><rect x="2355" y="2365" width="290" height="70" fill="white" stroke-width="2.4"/>
+<rect x="2363" y="2373" width="274" height="54" fill="none" stroke-width="2"/>
+<text x="2500" y="2400" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31.25" font-weight="bold">ExperimentSample</text>
+</g>
+<g id="entity-AncientSpecimen"><rect x="3650" y="2365" width="300" height="70" fill="white" stroke-width="2.4"/>
+<text x="3800" y="2400" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="34" font-weight="bold">AncientSpecimen</text>
+</g>
+<g id="relationship-type"><polygon points="3400,1500 3500,1450 3600,1500 3500,1550" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="3500" y="1500" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >CLASSIFIES</text>
+</g>
+<rect x="3262" y="1445" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="3280" y="1465" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<rect x="3672" y="1445" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="3690" y="1465" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<g id="relationship-storage"><polygon points="2900,1000 3000,950 3100,1000 3000,1050" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="3000" y="1000" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >STORES</text>
+</g>
+<rect x="3012" y="750" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="3030" y="770" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="3012" y="1250" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="3030" y="1270" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<g id="relationship-test"><polygon points="2300,1250 2400,1200 2500,1250 2400,1300" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="2400" y="1250" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >HAS TEST</text>
+</g>
+<rect x="2642" y="1285" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="2660" y="1305" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="2082" y="1070" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="2100" y="1090" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<g id="relationship-sample-usage"><polygon points="2600,1950 2700,1900 2800,1950 2700,2000" fill="#f3f3f3" stroke-width="2.2"/>
+<polygon points="2612,1950 2700,1911 2788,1950 2700,1989" fill="none" stroke-width="1.8"/>
+<text x="2700" y="1950" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >USED IN</text>
+</g>
+<rect x="2842" y="1690" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="2860" y="1710" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="2562" y="2170" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="2580" y="2190" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<g id="relationship-experiment-usage"><polygon points="1750,2400 1850,2350 1950,2400 1850,2450" fill="#f3f3f3" stroke-width="2.2"/>
+<polygon points="1762,2400 1850,2361 1938,2400 1850,2439" fill="none" stroke-width="1.8"/>
+<text x="1850" y="2400" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >HAS USAGE</text>
+</g>
+<rect x="1512" y="2345" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="1530" y="2365" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="2122" y="2345" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="2140" y="2365" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<g id="relationship-extension"><polygon points="3350,1950 3450,1900 3550,1950 3450,2000" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="3450" y="1950" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >EXTENDS</text>
+</g>
+<rect x="3217" y="1670" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="3235" y="1690" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="3632" y="2130" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="3650" y="2150" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<g id="relationship-parent"><polygon points="2200,850 2300,800 2400,850 2300,900" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="2300" y="850" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >PARENT ROLE</text>
+</g>
+<rect x="2592" y="1060" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="2610" y="1080" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="2172" y="605" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="2190" y="625" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<g id="relationship-child"><polygon points="2500,850 2600,800 2700,850 2600,900" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="2600" y="850" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >CHILD ROLE</text>
+</g>
+<rect x="2832" y="1080" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="2850" y="1100" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="2442" y="580" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="2460" y="600" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<g id="relationship-recorder"><polygon points="1200,600 1300,550 1400,600 1300,650" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="1300" y="600" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >RECORDS</text>
+</g>
+<rect x="882" y="545" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="900" y="565" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="1702" y="445" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="1720" y="465" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<g id="relationship-performer"><polygon points="1000,1200 1100,1150 1200,1200 1100,1250" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="1100" y="1200" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >PERFORMS</text>
+</g>
+<rect x="822" y="1280" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="840" y="1300" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="1432" y="1040" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="1450" y="1060" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<g id="relationship-registrar"><polygon points="1700,1500 1800,1450 1900,1500 1800,1550" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="1800" y="1500" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >REGISTERS</text>
+</g>
+<rect x="1382" y="1445" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="1400" y="1465" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="2282" y="1445" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="2300" y="1465" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<g id="relationship-creator"><polygon points="900,2000 1000,1950 1100,2000 1000,2050" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="1000" y="2000" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >CREATES</text>
+</g>
+<rect x="822" y="1680" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="840" y="1700" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="1082" y="2180" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="1100" y="2200" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<g id="relationship-lead"><polygon points="500,2100 600,2050 700,2100 600,2150" fill="#f3f3f3" stroke-width="2.2"/>
+<text x="600" y="2100" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >LEADS</text>
+</g>
+<rect x="617" y="1820" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="635" y="1840" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">1</text>
+<rect x="862" y="2180" width="36" height="40" rx="3" fill="white" stroke="#9b2226" stroke-width="1.5"/>
+<text x="880" y="2200" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="31"  fill="#9b2226" font-weight="bold">N</text>
+<line x1="500" y1="1465" x2="372.0034651563205" y2="1281.5383000573927" stroke-width="1.8"/>
+<g id="attribute-AppUser-user_id"><ellipse cx="350" cy="1250" rx="130" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="350" y="1250" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" text-decoration="underline">user_id</text>
+</g>
+<line x1="500" y1="1535" x2="367.99824244495017" y2="1768.2031050139215" stroke-width="1.8"/>
+<g id="attribute-AppUser-display_name"><ellipse cx="350" cy="1800" rx="160" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="350" y="1800" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >display_name</text>
+</g>
+<line x1="480" y1="1500" x2="310" y2="1500" stroke-width="1.8"/>
+<g id="attribute-AppUser-role"><ellipse cx="200" cy="1500" rx="110" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="200" y="1500" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >role</text>
+</g>
+<line x1="3100" y1="1465" x2="3233.8547857183216" y2="1201.752254753967" stroke-width="1.8"/>
+<g id="attribute-Sample-sample_id"><ellipse cx="3250" cy="1170" rx="130" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="3250" y="1170" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" text-decoration="underline">sample_id</text>
+</g>
+<line x1="2920" y1="1535" x2="2757.783902793367" y2="1619.7947780852853" stroke-width="1.8"/>
+<g id="attribute-Sample-sample_type_id"><ellipse cx="2700" cy="1650" rx="175" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="2700" y="1650" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >sample_type_id</text>
+<text x="2700" y="1701" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="21" >FK</text>
+</g>
+<line x1="3100" y1="1465" x2="3384.7871384283835" y2="1330.7432061694765" stroke-width="1.8"/>
+<g id="attribute-Sample-current_storage_location_id"><ellipse cx="3450" cy="1300" rx="235" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="3450" y="1300" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >current_storage_location_id</text>
+<text x="3450" y="1351" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="21" >FK</text>
+</g>
+<line x1="3100" y1="1535" x2="3194.714029037329" y2="2108.019875675841" stroke-width="1.8"/>
+<g id="attribute-Sample-assay_count"><ellipse cx="3200" cy="2140" rx="150" ry="32" fill="#f5f5f5" stroke-width="1.7" stroke-dasharray="8 5"/>
+<text x="3200" y="2140" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >assay_count</text>
+</g>
+<line x1="3900" y1="1465" x2="3900" y2="1232" stroke-width="1.8"/>
+<g id="attribute-SampleType-sample_type_id"><ellipse cx="3900" cy="1200" rx="175" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="3900" y="1200" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" text-decoration="underline">sample_type_id</text>
+</g>
+<line x1="3840" y1="1535" x2="3694.836273087471" y2="1718.5894193305517" stroke-width="1.8"/>
+<g id="attribute-SampleType-type_code"><ellipse cx="3670" cy="1750" rx="130" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="3670" y="1750" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >type_code</text>
+</g>
+<line x1="3960" y1="1535" x2="4122.280767379848" y2="1718.6334999298283" stroke-width="1.8"/>
+<g id="attribute-SampleType-type_name"><ellipse cx="4150" cy="1750" rx="140" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="4150" y="1750" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >type_name</text>
+</g>
+<line x1="3000" y1="465" x2="3000" y2="302" stroke-width="1.8"/>
+<g id="attribute-StorageLocation-storage_location_id"><ellipse cx="3000" cy="270" rx="200" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="3000" y="270" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" text-decoration="underline">storage_location_id</text>
+</g>
+<line x1="3120" y1="465" x2="3329.1714211698604" y2="379.0903091623788" stroke-width="1.8"/>
+<g id="attribute-StorageLocation-location_code"><ellipse cx="3400" cy="350" rx="170" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="3400" y="350" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >location_code</text>
+</g>
+<line x1="3140" y1="535" x2="3335.727030553407" y2="621.5715712063146" stroke-width="1.8"/>
+<g id="attribute-StorageLocation-unit_type"><ellipse cx="3400" cy="650" rx="140" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="3400" y="650" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >unit_type</text>
+</g>
+<line x1="2200" y1="365" x2="2200" y2="262" stroke-width="1.8"/>
+<g id="attribute-SampleRelationship-relationship_id"><ellipse cx="2200" cy="230" rx="170" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="2200" y="230" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" text-decoration="underline">relationship_id</text>
+</g>
+<line x1="2100" y1="365" x2="1866.3763790953253" y2="259.8693705928964" stroke-width="1.8"/>
+<g id="attribute-SampleRelationship-parent_sample_id"><ellipse cx="1800" cy="230" rx="185" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="1800" y="230" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >parent_sample_id</text>
+<text x="1800" y="281" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="21" >FK</text>
+</g>
+<line x1="2300" y1="365" x2="2533.86296960313" y2="259.7616636785916" stroke-width="1.8"/>
+<g id="attribute-SampleRelationship-child_sample_id"><ellipse cx="2600" cy="230" rx="180" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="2600" y="230" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >child_sample_id</text>
+<text x="2600" y="281" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="21" >FK</text>
+</g>
+<line x1="2350" y1="400" x2="2525" y2="400" stroke-width="1.8"/>
+<g id="attribute-SampleRelationship-transformed_at"><ellipse cx="2700" cy="400" rx="175" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="2700" y="400" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >transformed_at</text>
+</g>
+<line x1="1740" y1="965" x2="1620.6824236790271" y2="781.7622935070775" stroke-width="1.8"/>
+<g id="attribute-SampleTest-sample_test_id"><ellipse cx="1600" cy="750" rx="170" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="1600" y="750" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" text-decoration="underline">sample_test_id</text>
+</g>
+<line x1="1860" y1="965" x2="1996.5008573415096" y2="781.5769729473466" stroke-width="1.8"/>
+<g id="attribute-SampleTest-sample_id"><ellipse cx="2020" cy="750" rx="145" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="2020" y="750" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >sample_id</text>
+<text x="2020" y="801" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="21" >FK</text>
+</g>
+<line x1="1800" y1="1035" x2="1800" y2="1218" stroke-width="1.8"/>
+<g id="attribute-SampleTest-test_type"><ellipse cx="1800" cy="1250" rx="140" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="1800" y="1250" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >test_type</text>
+</g>
+<line x1="2400" y1="1300" x2="2141.7539750981327" y2="1373.7845785433908" stroke-width="1.8"/>
+<g id="attribute-SampleTest-requested_at"><ellipse cx="2050" cy="1400" rx="160" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="2050" y="1400" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >requested_at</text>
+</g>
+<line x1="1200" y1="2435" x2="1200" y2="2818" stroke-width="1.8"/>
+<g id="attribute-Experiment-experiment_id"><ellipse cx="1200" cy="2850" rx="175" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="1200" y="2850" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" text-decoration="underline">experiment_id</text>
+</g>
+<line x1="1120" y1="2435" x2="845.3945406474523" y2="2619.500543002493" stroke-width="1.8"/>
+<g id="attribute-Experiment-created_by"><ellipse cx="800" cy="2650" rx="150" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="800" y="2650" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >created_by</text>
+<text x="800" y="2701" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="21" >FK</text>
+</g>
+<line x1="1280" y1="2435" x2="1510.6837310126343" y2="2618.6926006211716" stroke-width="1.8"/>
+<g id="attribute-Experiment-lead_researcher_id"><ellipse cx="1550" cy="2650" rx="190" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="1550" y="2650" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >lead_researcher_id</text>
+<text x="1550" y="2701" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="21" >FK</text>
+</g>
+<line x1="2400" y1="2435" x2="2223.9241939690382" y2="2668.3004429910243" stroke-width="1.8"/>
+<g id="attribute-ExperimentSample-experiment_id"><ellipse cx="2200" cy="2700" rx="175" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="2200" y="2700" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" text-decoration="underline">experiment_id</text>
+<text x="2200" y="2751" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="21" >FK</text>
+</g>
+<line x1="2500" y1="2435" x2="2500" y2="2868" stroke-width="1.8"/>
+<g id="attribute-ExperimentSample-sample_id"><ellipse cx="2500" cy="2900" rx="145" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="2500" y="2900" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" text-decoration="underline">sample_id</text>
+<text x="2500" y="2951" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="21" >FK</text>
+</g>
+<line x1="2600" y1="2435" x2="2776.177237405789" y2="2668.4348395626707" stroke-width="1.8"/>
+<g id="attribute-ExperimentSample-usage_role"><ellipse cx="2800" cy="2700" rx="145" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="2800" y="2700" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >usage_role</text>
+<path d="M2730,2716 H2870" fill="none" stroke-width="1.8" stroke-dasharray="7 4"/>
+</g>
+<line x1="1850" y1="2350" x2="1850" y2="2232" stroke-width="1.8"/>
+<g id="attribute-ExperimentSample-quantity_used"><ellipse cx="1850" cy="2200" rx="170" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="1850" y="2200" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >quantity_used</text>
+</g>
+<line x1="3920" y1="2365" x2="4090.790050699184" y2="2230.807817307784" stroke-width="1.8"/>
+<g id="attribute-AncientSpecimen-sample_id"><ellipse cx="4130" cy="2200" rx="145" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="4130" y="2200" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" text-decoration="underline">sample_id</text>
+<text x="4130" y="2251" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="21" >FK</text>
+</g>
+<line x1="3720" y1="2435" x2="3572.995415780109" y2="2638.2122193627906" stroke-width="1.8"/>
+<g id="attribute-AncientSpecimen-estimated_age_years"><ellipse cx="3550" cy="2670" rx="200" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="3550" y="2670" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >estimated_age_years</text>
+</g>
+<line x1="3920" y1="2435" x2="4101.824261147121" y2="2638.4700065217785" stroke-width="1.8"/>
+<g id="attribute-AncientSpecimen-dating_method"><ellipse cx="4130" cy="2670" rx="165" ry="32" fill="#f5f5f5" stroke-width="1.7" />
+<text x="4130" y="2670" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" >dating_method</text>
+</g>
+<text x="2250" y="3000" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="27" >ExperimentSample is jointly identified by Experiment + Sample + usage_role. The dashed-underlined usage_role is its partial key within that owner pair.</text>
+<text x="2250" y="3040" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="25" >Physical ExperimentSample PK = (experiment_id, sample_id, usage_role). Both identifying relationships are required; neither owner alone identifies a usage.</text>
+<text x="2250" y="3080" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="25" >AncientSpecimen remains a 1:1 extension, not a weak entity. SampleRelationship has its own key; its two roles express recursive derivation.</text>
+<text x="2250" y="3120" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="24" >Same nine-table scope and connector coordinates. Double participation lines mean required references; assay_count is derived, not stored.</text>
+<g id="notation-legend"><rect x="1300" y="1710" width="1050" height="370" rx="12" fill="white" stroke="#666" stroke-width="1.8"/>
+<text x="1825" y="1745" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="28" font-weight="bold">CHEN NOTATION</text>
+<rect x="1340" y="1790" width="75" height="40" fill="white" stroke-width="2"/>
+<text x="1560" y="1810" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="26" >Strong entity</text>
+<rect x="1340" y="1860" width="75" height="40" fill="white" stroke-width="2"/><rect x="1347" y="1867" width="61" height="26" fill="none" stroke-width="1.7"/>
+<text x="1560" y="1880" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="26" >Weak entity</text>
+<polygon points="1340,1950 1378,1928 1415,1950 1378,1972" fill="#f3f3f3" stroke-width="2"/><polygon points="1350,1950 1378,1935 1405,1950 1378,1965" fill="none" stroke-width="1.6"/>
+<text x="1600" y="1950" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="26" >Identifying relation</text>
+<text x="1380" y="2020" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="26" >role</text>
+<path d="M1354,2035 H1406" stroke-dasharray="6 4" stroke-width="1.6"/>
+<text x="1580" y="2020" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="26" >Partial key</text>
+<path d="M1840,1810 H1930" stroke-width="2"/>
+<text x="2120" y="1810" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="26" >Partial participation</text>
+<path d="M1840,1876 H1930 M1840,1884 H1930" stroke-width="2"/>
+<text x="2120" y="1880" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="26" >Total participation</text>
+<text x="1880" y="1950" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="27" fill="#9b2226" font-weight="bold">1 : N</text>
+<text x="2120" y="1950" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="26" >Cardinality ratio</text>
+<ellipse cx="1880" cy="2020" rx="50" ry="22" fill="#f5f5f5" stroke-dasharray="6 4"/>
+<text x="2120" y="2020" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="26" >Derived attribute</text>
+</g>
+</g><g id="selected-role-labels" font-family="Times New Roman,serif" font-size="27" font-style="italic" fill="black" stroke="none"><text x="2430" y="1050" text-anchor="middle">parent sample</text><text x="2850" y="850" text-anchor="middle">child sample</text><text x="1170" y="2110" text-anchor="middle">creator</text></g></svg>

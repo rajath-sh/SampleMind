@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="1650" viewBox="0 0 3000 1650"><defs><marker id="arrow" viewBox="0 0 12 10" refX="11" refY="5" markerWidth="12" markerHeight="10" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L12,5 L0,10 Z" fill="black"/></marker></defs><rect width="100%" height="100%" fill="white"/><g font-family="Times New Roman,serif" fill="black">
+<text x="1500" y="55" text-anchor="middle" stroke="none" font-size="42" font-weight="bold"><tspan x="1500" dy="0">SampleMind Data Flow Diagram Level 0</tspan></text>
+<text x="1500" y="105" text-anchor="middle" stroke="none" font-size="27" ><tspan x="1500" dy="0">Context diagram of the approved nine entity laboratory scope</tspan></text>
+<g id="external-E1-1"><rect x="235" y="740" width="430" height="160" fill="white" stroke="black" stroke-width="2.1"/>
+<text x="450" y="802.02" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="450" dy="0">E1</tspan><tspan x="450" dy="35.96">Laboratory user</tspan></text>
+</g>
+<g id="process-0"><circle cx="2050" cy="820" r="270" fill="white" stroke="black" stroke-width="2.2"/>
+<text x="2050" y="784.04" text-anchor="middle" stroke="none" font-size="29" font-weight="bold"><tspan x="2050" dy="0">0</tspan><tspan x="2050" dy="35.96">SampleMind</tspan><tspan x="2050" dy="35.96">laboratory system</tspan></text>
+</g>
+<polyline points="665,785 1782,785" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1225" y="340.1" text-anchor="middle" stroke="none" font-size="29" ><tspan x="1225" dy="0">Laboratory requests</tspan><tspan x="1225" dy="35.96">Account and access requests</tspan><tspan x="1225" dy="35.96">Specimen maintenance requests</tspan><tspan x="1225" dy="35.96">Assay maintenance requests</tspan><tspan x="1225" dy="35.96">Experiment and usage requests</tspan><tspan x="1225" dy="35.96">Search and report requests</tspan></text>
+<polyline points="1782,865 665,865" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1225" y="1030.1" text-anchor="middle" stroke="none" font-size="29" ><tspan x="1225" dy="0">Laboratory responses</tspan><tspan x="1225" dy="35.96">Account and access results</tspan><tspan x="1225" dy="35.96">Specimen maintenance results</tspan><tspan x="1225" dy="35.96">Assay maintenance results</tspan><tspan x="1225" dy="35.96">Experiment and usage results</tspan><tspan x="1225" dy="35.96">Search results and reports</tspan></text>
+<text x="1500" y="1500" text-anchor="middle" stroke="none" font-size="25" ><tspan x="1500" dy="0">Rectangle = external entity   |   Circle = process   |   Parallel lines = data store   |   Arrow = named data flow</tspan></text>
+<text x="1500" y="1542" text-anchor="middle" stroke="none" font-size="24" ><tspan x="1500" dy="0">E1 represents administrator, researcher, technician, reviewer and viewer acting through permitted operations.</tspan></text>
+<text x="1500" y="1590" text-anchor="middle" stroke="none" font-size="24" ><tspan x="1500" dy="0">The context boundary excludes optional AI and news providers and supporting workflows outside the selected ER scope.</tspan></text>
+</g></svg>

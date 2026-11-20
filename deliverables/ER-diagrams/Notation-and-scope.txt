@@ -1,0 +1,62 @@
+CHEN NOTATION AND SCOPE
+Rectangles: entity types. Diamonds: relationship types. Ellipses: selected attributes. Underlining: primary-key attributes; ExperimentSample has a three-part composite key. Dashed ellipse: derived assay_count = COUNT(SampleTest rows for that sample), not a stored column.
+1 and N denote maximum cardinality. Double lines mean total participation (required FK) on the child side; single lines mean partial participation. Parent participation is partial: a parent may have no referring records.
+HAS_USAGE relationship attributes quantity_used map to ExperimentSample on the N side. HAS_TEST requested_at maps to SampleTest.
+Associative/event entities preserve distinct usage roles and repeated events. SampleRelationship has two named roles to Sample; this reifies the recursive derivation relationship without incorrectly collapsing repeated events.
+AncientSpecimen uses the inherited Sample key; EXTENDS is 1:1 with total participation by AncientSpecimen and partial participation by Sample. It is not labelled a weak entity merely because its PK is also an FK.
+No weak, composite or multivalued attribute is invented to imitate the textbook sample. Full physical schemas contain additional descriptive/security attributes not shown in this selected-attribute conceptual diagram.
+The 11-table model excludes ArchaeologicalSite; its outside-scope FK is explicitly listed below. Both diagrams omit RestrictedMaterial, AIAnalysis, ModelRegistry and AuditLog by the agreed selected scope.
+
+11-table model (19 in-scope relationships)
+AppUser, Sample, SampleType, StorageLocation, SampleRelationship, SampleTest, Experiment, ExperimentSample, ExperimentResult, Incident, AncientSpecimen
+AppUser 1:N Experiment via created_by; child participation total
+AppUser 1:N Experiment via lead_researcher_id; child participation partial
+SampleType 1:N Sample via sample_type_id; child participation total
+StorageLocation 1:N Sample via current_storage_location_id; child participation partial
+AppUser 1:N Sample via created_by; child participation partial
+Sample 1:1 AncientSpecimen via sample_id; child participation total
+Outside selected scope: AncientSpecimen.archaeological_site_id -> ArchaeologicalSite.archaeological_site_id
+Experiment 1:N ExperimentResult via experiment_id; child participation total
+AppUser 1:N ExperimentResult via recorded_by; child participation partial
+Experiment 1:N ExperimentSample via experiment_id; child participation total
+Sample 1:N ExperimentSample via sample_id; child participation total
+Sample 1:N Incident via sample_id; child participation partial
+StorageLocation 1:N Incident via storage_location_id; child participation partial
+AppUser 1:N Incident via reported_by; child participation total
+AppUser 1:N Incident via assigned_to; child participation partial
+Sample 1:N SampleRelationship via parent_sample_id; child participation total
+Sample 1:N SampleRelationship via child_sample_id; child participation total
+AppUser 1:N SampleRelationship via recorded_by; child participation partial
+Sample 1:N SampleTest via sample_id; child participation total
+AppUser 1:N SampleTest via performed_by; child participation partial
+
+16-table model (28 in-scope relationships)
+AppUser, Sample, SampleType, StorageLocation, SampleRelationship, SampleTest, Experiment, ExperimentSample, ExperimentResult, Incident, AncientSpecimen, SampleStorageHistory, SampleQuantityTransaction, Equipment, ExperimentEquipment, ArchaeologicalSite
+AppUser 1:N Experiment via created_by; child participation total
+AppUser 1:N Experiment via lead_researcher_id; child participation partial
+SampleType 1:N Sample via sample_type_id; child participation total
+StorageLocation 1:N Sample via current_storage_location_id; child participation partial
+AppUser 1:N Sample via created_by; child participation partial
+Sample 1:1 AncientSpecimen via sample_id; child participation total
+ArchaeologicalSite 1:N AncientSpecimen via archaeological_site_id; child participation partial
+Experiment 1:N ExperimentEquipment via experiment_id; child participation total
+Equipment 1:N ExperimentEquipment via equipment_id; child participation total
+Experiment 1:N ExperimentResult via experiment_id; child participation total
+AppUser 1:N ExperimentResult via recorded_by; child participation partial
+Experiment 1:N ExperimentSample via experiment_id; child participation total
+Sample 1:N ExperimentSample via sample_id; child participation total
+Sample 1:N Incident via sample_id; child participation partial
+StorageLocation 1:N Incident via storage_location_id; child participation partial
+AppUser 1:N Incident via reported_by; child participation total
+AppUser 1:N Incident via assigned_to; child participation partial
+Sample 1:N SampleQuantityTransaction via sample_id; child participation total
+Sample 1:N SampleQuantityTransaction via reference_sample_id; child participation partial
+AppUser 1:N SampleQuantityTransaction via performed_by; child participation partial
+Sample 1:N SampleRelationship via parent_sample_id; child participation total
+Sample 1:N SampleRelationship via child_sample_id; child participation total
+AppUser 1:N SampleRelationship via recorded_by; child participation partial
+Sample 1:N SampleStorageHistory via sample_id; child participation total
+StorageLocation 1:N SampleStorageHistory via storage_location_id; child participation partial
+AppUser 1:N SampleStorageHistory via moved_by; child participation partial
+Sample 1:N SampleTest via sample_id; child participation total
+AppUser 1:N SampleTest via performed_by; child participation partial

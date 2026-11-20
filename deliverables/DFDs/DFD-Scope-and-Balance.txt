@@ -1,0 +1,17 @@
+SampleMind academic DFD submission
+
+Level 0: Context with one process and no internal stores. The two aggregate flows list all five Level 1 request and response families.
+Level 1: Five processes with E1 and D1-D4.
+Level 2: Decomposition of 2.0 Manage specimens, preserving E1 requests/results, D1 actor reference data, and D2 existing records/changes. The three child write flows are components of the parent aggregate Specimen and reference changes.
+
+Stores
+D1 AppUser
+D2 SampleType, StorageLocation, Sample, SampleRelationship, AncientSpecimen
+D3 SampleTest
+D4 Experiment, ExperimentSample
+
+Scope: the approved nine-entity laboratory model only. Supporting incident, equipment, coursework, AI, news and TinyDB functions outside this selected model are not silently added. These diagrams are not asserted to cover the complete larger application.
+
+Notation: rectangles external entities; numbered circles processes; parallel lines stores; single-headed labelled arrows data flows. Repeated E1 and D labels refer to the same objects. No direct external-entity-to-store or store-to-store flow is used. Every process has an input and output. Labels describe data rather than control timing.
+
+Level 2 is optional in the supplied rubric but is included at the student's request. It expands one important Level 1 process, which is the normal meaning of a Level 2 DFD; it need not repeat the complete system.

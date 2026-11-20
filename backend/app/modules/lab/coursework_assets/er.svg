@@ -1,0 +1,419 @@
+
+
+
+
+<svg width="1348pt" height="1065pt"
+ viewBox="0.00 0.00 1348.00 1065.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(28.8 1036)">
+<title>Core</title>
+<polygon fill="white" stroke="none" points="-28.8,28.8 -28.8,-1036 1319.25,-1036 1319.25,28.8 -28.8,28.8"/>
+<text xml:space="preserve" text-anchor="middle" x="645.22" y="-983.4" font-family="Times,serif" font-size="22.00">SampleMind | six&#45;entity core Chen model</text>
+<text xml:space="preserve" text-anchor="middle" x="645.22" y="-957" font-family="Times,serif" font-size="22.00">Rectangles: entities | diamonds: relationships | ellipses: attributes</text>
+<text xml:space="preserve" text-anchor="middle" x="645.22" y="-930.6" font-family="Times,serif" font-size="22.00">Underlined: key | dashed: derived | double line: total participation</text>
+
+<g id="node1" class="node">
+<title>SampleType</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="106.28,-818 11.69,-818 11.69,-782 106.28,-782 106.28,-818"/>
+<text xml:space="preserve" text-anchor="middle" x="58.98" y="-795.8" font-family="Arial" font-size="14.00">SampleType</text>
+</g>
+
+<g id="node2" class="node">
+<title>SampleType.sample_type_id</title>
+<ellipse fill="white" stroke="#286c61" cx="298.92" cy="-902" rx="78.68" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="249.89" y="-898.8" font-family="Arial" text-decoration="underline" font-size="14.00">sample_type_id</text>
+</g>
+
+<g id="edge1" class="edge">
+<title>SampleType&#45;&#45;SampleType.sample_type_id</title>
+<path fill="none" stroke="#51736b" d="M95.16,-818.4C133.65,-838.54 189.96,-868 189.96,-868 189.96,-868 222.02,-878.1 251.2,-887.28"/>
+</g>
+
+<g id="node3" class="node">
+<title>SampleType.type_code</title>
+<ellipse fill="white" stroke="#286c61" cx="298.92" cy="-834" rx="55.6" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="298.92" y="-829.8" font-family="Arial" font-size="14.00">type_code</text>
+</g>
+
+<g id="edge2" class="edge">
+<title>SampleType&#45;&#45;SampleType.type_code</title>
+<path fill="none" stroke="#51736b" d="M106.71,-806.68C147.31,-812.48 205.98,-820.86 247.61,-826.81"/>
+</g>
+
+<g id="node4" class="node">
+<title>SampleType.type_name</title>
+<ellipse fill="white" stroke="#286c61" cx="298.92" cy="-766" rx="58.82" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="298.92" y="-761.8" font-family="Arial" font-size="14.00">type_name</text>
+</g>
+
+<g id="edge3" class="edge">
+<title>SampleType&#45;&#45;SampleType.type_name</title>
+<path fill="none" stroke="#51736b" d="M106.71,-793.32C146.5,-787.64 203.64,-779.47 245.09,-773.55"/>
+</g>
+
+<g id="node27" class="node">
+<title>classified_as</title>
+<polygon fill="#eaf0fa" stroke="#286c61" points="298.92,-716 208.93,-698 298.92,-680 388.92,-698 298.92,-716"/>
+<text xml:space="preserve" text-anchor="middle" x="298.92" y="-693.8" font-family="Arial" font-size="14.00">classified as</text>
+</g>
+
+<g id="edge21" class="edge">
+<title>SampleType&#45;&#45;classified_as</title>
+<path fill="none" stroke="#51736b" d="M95.16,-781.6C133.65,-761.46 189.96,-732 189.96,-732 189.96,-732 231.09,-719.05 262.57,-709.13"/>
+<text xml:space="preserve" text-anchor="middle" x="91.54" y="-769.9" font-family="Arial" font-size="13.00">1</text>
+</g>
+
+<g id="node5" class="node">
+<title>Sample</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="555.02,-580 491.55,-580 491.55,-544 555.02,-544 555.02,-580"/>
+<text xml:space="preserve" text-anchor="middle" x="523.29" y="-557.8" font-family="Arial" font-size="14.00">Sample</text>
+</g>
+
+<g id="node6" class="node">
+<title>Sample.sample_id</title>
+<ellipse fill="white" stroke="#286c61" cx="745.41" cy="-766" rx="55.05" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="713.5" y="-762.8" font-family="Arial" text-decoration="underline" font-size="14.00">sample_id</text>
+</g>
+
+<g id="edge4" class="edge">
+<title>Sample&#45;&#45;Sample.sample_id</title>
+<path fill="none" stroke="#51736b" d="M536.53,-580.19C566.04,-624.05 638.69,-732 638.69,-732 638.69,-732 674.99,-743.67 705.04,-753.34"/>
+</g>
+
+<g id="node7" class="node">
+<title>Sample.sample_code</title>
+<ellipse fill="white" stroke="#286c61" cx="745.41" cy="-698" rx="68.48" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="745.41" y="-693.8" font-family="Arial" font-size="14.00">sample_code</text>
+</g>
+
+<g id="edge5" class="edge">
+<title>Sample&#45;&#45;Sample.sample_code</title>
+<path fill="none" stroke="#51736b" d="M545,-580.47C577.97,-609.87 638.69,-664 638.69,-664 638.69,-664 671.68,-674.61 700.8,-683.97"/>
+</g>
+
+<g id="node8" class="node">
+<title>Sample.sample_name</title>
+<ellipse fill="white" stroke="#286c61" cx="745.41" cy="-630" rx="71.69" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="745.41" y="-625.8" font-family="Arial" font-size="14.00">sample_name</text>
+</g>
+
+<g id="edge6" class="edge">
+<title>Sample&#45;&#45;Sample.sample_name</title>
+<path fill="none" stroke="#51736b" d="M555.36,-571.6C592.81,-583.17 656.04,-602.7 698.97,-615.96"/>
+</g>
+
+<g id="node9" class="node">
+<title>Sample.sample_status</title>
+<ellipse fill="white" stroke="#286c61" cx="745.41" cy="-562" rx="73.3" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="745.41" y="-557.8" font-family="Arial" font-size="14.00">sample_status</text>
+</g>
+
+<g id="edge7" class="edge">
+<title>Sample&#45;&#45;Sample.sample_status</title>
+<path fill="none" stroke="#51736b" d="M555.36,-562C585.46,-562 632.22,-562 671.71,-562"/>
+</g>
+
+<g id="node29" class="node">
+<title>undergoes</title>
+<polygon fill="#eaf0fa" stroke="#286c61" points="745.41,-512 665.26,-494 745.41,-476 825.56,-494 745.41,-512"/>
+<text xml:space="preserve" text-anchor="middle" x="745.41" y="-489.8" font-family="Arial" font-size="14.00">undergoes</text>
+</g>
+
+<g id="edge25" class="edge">
+<title>Sample&#45;&#45;undergoes</title>
+<path fill="none" stroke="#51736b" d="M555.36,-552.4C596.24,-539.77 667.87,-517.65 710.24,-504.56"/>
+<text xml:space="preserve" text-anchor="middle" x="558.97" y="-540.7" font-family="Arial" font-size="13.00">1</text>
+</g>
+
+<g id="node31" class="node">
+<title>used_in</title>
+<polygon fill="#eaf0fa" stroke="#286c61" points="745.41,-444 685.76,-426 745.41,-408 805.06,-426 745.41,-444"/>
+<text xml:space="preserve" text-anchor="middle" x="745.41" y="-421.8" font-family="Arial" font-size="14.00">used in</text>
+</g>
+
+<g id="edge29" class="edge">
+<title>Sample&#45;&#45;used_in</title>
+<path fill="none" stroke="#51736b" d="M545,-543.53C577.97,-514.13 638.69,-460 638.69,-460 638.69,-460 683.95,-445.44 715.24,-435.38"/>
+<text xml:space="preserve" text-anchor="middle" x="541.39" y="-531.83" font-family="Arial" font-size="13.00">1</text>
+</g>
+
+<g id="node36" class="node">
+<title>assay_count</title>
+<ellipse fill="white" stroke="#286c61" stroke-dasharray="5,2" cx="745.41" cy="-358" rx="65.26" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="745.41" y="-353.8" font-family="Arial" font-size="14.00">assay_count</text>
+</g>
+
+<g id="edge35" class="edge">
+<title>Sample&#45;&#45;assay_count</title>
+<path fill="none" stroke="#51736b" stroke-dasharray="5,2" d="M536.53,-543.81C566.04,-499.95 638.69,-392 638.69,-392 638.69,-392 672.37,-381.17 701.71,-371.73"/>
+</g>
+
+<g id="node10" class="node">
+<title>StorageLocation</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="117.96,-546 0,-546 0,-510 117.96,-510 117.96,-546"/>
+<text xml:space="preserve" text-anchor="middle" x="58.98" y="-523.8" font-family="Arial" font-size="14.00">StorageLocation</text>
+</g>
+
+<g id="node11" class="node">
+<title>StorageLocation.storage_location_id</title>
+<ellipse fill="white" stroke="#286c61" cx="298.92" cy="-630" rx="94.79" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="238.21" y="-626.8" font-family="Arial" text-decoration="underline" font-size="14.00">storage_location_id</text>
+</g>
+
+<g id="edge8" class="edge">
+<title>StorageLocation&#45;&#45;StorageLocation.storage_location_id</title>
+<path fill="none" stroke="#51736b" d="M95.16,-546.4C133.65,-566.54 189.96,-596 189.96,-596 189.96,-596 219.99,-605.46 248.37,-614.39"/>
+</g>
+
+<g id="node12" class="node">
+<title>StorageLocation.location_code</title>
+<ellipse fill="white" stroke="#286c61" cx="298.92" cy="-562" rx="70.63" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="298.92" y="-557.8" font-family="Arial" font-size="14.00">location_code</text>
+</g>
+
+<g id="edge9" class="edge">
+<title>StorageLocation&#45;&#45;StorageLocation.location_code</title>
+<path fill="none" stroke="#51736b" d="M118.19,-536.32C154.1,-541.45 200.1,-548.02 236.58,-553.23"/>
+</g>
+
+<g id="node13" class="node">
+<title>StorageLocation.unit_type</title>
+<ellipse fill="white" stroke="#286c61" cx="298.92" cy="-494" rx="50.23" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="298.92" y="-489.8" font-family="Arial" font-size="14.00">unit_type</text>
+</g>
+
+<g id="edge10" class="edge">
+<title>StorageLocation&#45;&#45;StorageLocation.unit_type</title>
+<path fill="none" stroke="#51736b" d="M118.19,-519.68C159.33,-513.8 213.71,-506.03 251.85,-500.58"/>
+</g>
+
+<g id="node28" class="node">
+<title>currently_stores</title>
+<polygon fill="#eaf0fa" stroke="#286c61" points="298.92,-444 189.96,-426 298.92,-408 407.88,-426 298.92,-444"/>
+<text xml:space="preserve" text-anchor="middle" x="298.92" y="-421.8" font-family="Arial" font-size="14.00">currently stores</text>
+</g>
+
+<g id="edge23" class="edge">
+<title>StorageLocation&#45;&#45;currently_stores</title>
+<path fill="none" stroke="#51736b" d="M95.16,-509.6C133.65,-489.46 189.96,-460 189.96,-460 189.96,-460 228.78,-447.78 259.86,-437.99"/>
+<text xml:space="preserve" text-anchor="middle" x="91.54" y="-497.9" font-family="Arial" font-size="13.00">1</text>
+</g>
+
+<g id="node14" class="node">
+<title>SampleTest</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1040.65,-554 949.95,-554 949.95,-518 1040.65,-518 1040.65,-554"/>
+<text xml:space="preserve" text-anchor="middle" x="995.3" y="-531.8" font-family="Arial" font-size="14.00">SampleTest</text>
+</g>
+
+<g id="node15" class="node">
+<title>SampleTest.sample_test_id</title>
+<ellipse fill="white" stroke="#286c61" cx="1214.46" cy="-621" rx="75.99" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1167.38" y="-617.8" font-family="Arial" text-decoration="underline" font-size="14.00">sample_test_id</text>
+</g>
+
+<g id="edge11" class="edge">
+<title>SampleTest&#45;&#45;SampleTest.sample_test_id</title>
+<path fill="none" stroke="#51736b" d="M1041.03,-553.51C1080.02,-568.77 1136.04,-590.7 1173.54,-605.37"/>
+</g>
+
+<g id="node16" class="node">
+<title>SampleTest.test_type</title>
+<ellipse fill="white" stroke="#286c61" cx="1214.46" cy="-553" rx="50.23" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="1214.46" y="-548.8" font-family="Arial" font-size="14.00">test_type</text>
+</g>
+
+<g id="edge12" class="edge">
+<title>SampleTest&#45;&#45;SampleTest.test_type</title>
+<path fill="none" stroke="#51736b" d="M1041.03,-539.5C1077.16,-542.33 1127.92,-546.3 1165.01,-549.21"/>
+</g>
+
+<g id="node17" class="node">
+<title>SampleTest.test_status</title>
+<ellipse fill="white" stroke="#286c61" cx="1214.46" cy="-485" rx="57.74" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="1214.46" y="-480.8" font-family="Arial" font-size="14.00">test_status</text>
+</g>
+
+<g id="edge13" class="edge">
+<title>SampleTest&#45;&#45;SampleTest.test_status</title>
+<path fill="none" stroke="#51736b" d="M1041.03,-525.49C1077.91,-516.83 1130.02,-504.6 1167.29,-495.84"/>
+</g>
+
+<g id="node18" class="node">
+<title>SampleTest.result_value</title>
+<ellipse fill="white" stroke="#286c61" cx="1214.46" cy="-417" rx="63.11" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="1214.46" y="-412.8" font-family="Arial" font-size="14.00">result_value</text>
+</g>
+
+<g id="edge14" class="edge">
+<title>SampleTest&#45;&#45;SampleTest.result_value</title>
+<path fill="none" stroke="#51736b" d="M1034.26,-517.61C1050.79,-509.6 1066.47,-502 1066.47,-502 1066.47,-502 1138.47,-451 1138.47,-451 1138.47,-451 1159.63,-441.4 1179.48,-432.41"/>
+</g>
+
+<g id="node19" class="node">
+<title>Experiment</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="566.69,-206 479.88,-206 479.88,-170 566.69,-170 566.69,-206"/>
+<text xml:space="preserve" text-anchor="middle" x="523.29" y="-183.8" font-family="Arial" font-size="14.00">Experiment</text>
+</g>
+
+<g id="node20" class="node">
+<title>Experiment.experiment_id</title>
+<ellipse fill="white" stroke="#286c61" cx="745.41" cy="-290" rx="71.69" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="701.44" y="-286.8" font-family="Arial" text-decoration="underline" font-size="14.00">experiment_id</text>
+</g>
+
+<g id="edge15" class="edge">
+<title>Experiment&#45;&#45;Experiment.experiment_id</title>
+<path fill="none" stroke="#51736b" d="M555.25,-206.4C589.13,-226.54 638.69,-256 638.69,-256 638.69,-256 670.99,-266.39 699.88,-275.68"/>
+</g>
+
+<g id="node21" class="node">
+<title>Experiment.experiment_code</title>
+<ellipse fill="white" stroke="#286c61" cx="745.41" cy="-222" rx="85.12" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="745.41" y="-217.8" font-family="Arial" font-size="14.00">experiment_code</text>
+</g>
+
+<g id="edge16" class="edge">
+<title>Experiment&#45;&#45;Experiment.experiment_code</title>
+<path fill="none" stroke="#51736b" d="M566.99,-194.6C597.87,-199.37 640.25,-205.91 675.84,-211.41"/>
+</g>
+
+<g id="node22" class="node">
+<title>Experiment.experiment_name</title>
+<ellipse fill="white" stroke="#286c61" cx="745.41" cy="-154" rx="88.33" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="745.41" y="-149.8" font-family="Arial" font-size="14.00">experiment_name</text>
+</g>
+
+<g id="edge17" class="edge">
+<title>Experiment&#45;&#45;Experiment.experiment_name</title>
+<path fill="none" stroke="#51736b" d="M566.99,-181.4C597.37,-176.71 638.88,-170.3 674.11,-164.86"/>
+</g>
+
+<g id="node30" class="node">
+<title>includes_usage</title>
+<polygon fill="#eaf0fa" stroke="#286c61" points="745.41,-104 638.69,-86 745.41,-68 852.13,-86 745.41,-104"/>
+<text xml:space="preserve" text-anchor="middle" x="745.41" y="-81.8" font-family="Arial" font-size="14.00">includes usage</text>
+</g>
+
+<g id="edge27" class="edge">
+<title>Experiment&#45;&#45;includes_usage</title>
+<path fill="none" stroke="#51736b" d="M555.25,-169.6C589.13,-149.46 638.69,-120 638.69,-120 638.69,-120 676.7,-107.78 707.14,-97.99"/>
+<text xml:space="preserve" text-anchor="middle" x="551.63" y="-157.9" font-family="Arial" font-size="13.00">1</text>
+</g>
+
+<g id="node23" class="node">
+<title>ExperimentSample</title>
+<polygon fill="#edf5f0" stroke="#286c61" points="1062.44,-274 928.16,-274 928.16,-238 1062.44,-238 1062.44,-274"/>
+<text xml:space="preserve" text-anchor="middle" x="995.3" y="-251.8" font-family="Arial" font-size="14.00">ExperimentSample</text>
+</g>
+
+<g id="node24" class="node">
+<title>ExperimentSample.experiment_id</title>
+<ellipse fill="white" stroke="#286c61" cx="1214.46" cy="-324" rx="71.69" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1170.49" y="-320.8" font-family="Arial" text-decoration="underline" font-size="14.00">experiment_id</text>
+</g>
+
+<g id="edge18" class="edge">
+<title>ExperimentSample&#45;&#45;ExperimentSample.experiment_id</title>
+<path fill="none" stroke="#51736b" d="M1055.35,-274.49C1090.9,-285.62 1135.45,-299.57 1168.2,-309.83"/>
+</g>
+
+<g id="node25" class="node">
+<title>ExperimentSample.sample_id</title>
+<ellipse fill="white" stroke="#286c61" cx="1214.46" cy="-256" rx="55.05" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1182.55" y="-252.8" font-family="Arial" text-decoration="underline" font-size="14.00">sample_id</text>
+</g>
+
+<g id="edge19" class="edge">
+<title>ExperimentSample&#45;&#45;ExperimentSample.sample_id</title>
+<path fill="none" stroke="#51736b" d="M1062.93,-256C1093.73,-256 1129.84,-256 1158.98,-256"/>
+</g>
+
+<g id="node26" class="node">
+<title>ExperimentSample.usage_role</title>
+<ellipse fill="white" stroke="#286c61" cx="1214.46" cy="-188" rx="58.82" ry="18"/>
+<text xml:space="preserve" text-anchor="start" x="1179.82" y="-184.8" font-family="Arial" text-decoration="underline" font-size="14.00">usage_role</text>
+</g>
+
+<g id="edge20" class="edge">
+<title>ExperimentSample&#45;&#45;ExperimentSample.usage_role</title>
+<path fill="none" stroke="#51736b" d="M1055.35,-237.51C1092.4,-225.91 1139.25,-211.24 1172.3,-200.89"/>
+</g>
+
+<g id="edge22" class="edge">
+<title>classified_as&#45;&#45;Sample</title>
+<path fill="none" stroke="#51736b" d="M334.97,-685.91C366.46,-676 407.58,-663.05 407.88,-664 407.22,-663.25 467.94,-609.12 500.9,-579.73"/>
+<path fill="none" stroke="#51736b" d="M335.57,-687.82C367.06,-677.91 408.18,-664.95 407.88,-664 408.55,-664.75 469.27,-610.61 502.24,-581.22"/>
+<text xml:space="preserve" text-anchor="middle" x="496.88" y="-584.37" font-family="Arial" font-size="13.00">N</text>
+</g>
+
+<g id="edge24" class="edge">
+<title>currently_stores&#45;&#45;Sample</title>
+<path fill="none" stroke="#51736b" d="M337.99,-437.99C369.07,-447.78 407.88,-460 407.88,-460 407.88,-460 468.6,-514.13 501.57,-543.53"/>
+<text xml:space="preserve" text-anchor="middle" x="496.88" y="-531.83" font-family="Arial" font-size="13.00">N</text>
+</g>
+
+<g id="edge26" class="edge">
+<title>undergoes&#45;&#45;SampleTest</title>
+<path fill="none" stroke="#51736b" d="M792.91,-500.86C837.89,-508.49 905.7,-519.97 950.03,-527.48"/>
+<path fill="none" stroke="#51736b" d="M792.58,-502.84C837.56,-510.46 905.36,-521.95 949.69,-529.46"/>
+<text xml:space="preserve" text-anchor="middle" x="945.17" y="-516.77" font-family="Arial" font-size="13.00">N</text>
+</g>
+
+<g id="node32" class="node">
+<title>undergoes.requested_at</title>
+<ellipse fill="#fff8e8" stroke="#286c61" cx="995.3" cy="-468" rx="67.41" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="995.3" y="-463.8" font-family="Arial" font-size="14.00">requested_at</text>
+</g>
+
+<g id="edge31" class="edge">
+<title>undergoes&#45;&#45;undergoes.requested_at</title>
+<path fill="none" stroke="#51736b" d="M801.73,-488.2C840.4,-484.14 892.09,-478.72 932.17,-474.52"/>
+</g>
+
+<g id="edge28" class="edge">
+<title>includes_usage&#45;&#45;ExperimentSample</title>
+<path fill="none" stroke="#51736b" d="M783.99,-97.04C814.43,-106.82 852.43,-119.05 852.13,-120 852.82,-119.28 937.01,-199.81 975.82,-236.94"/>
+<path fill="none" stroke="#51736b" d="M783.38,-98.94C813.81,-108.73 851.82,-120.95 852.13,-120 851.44,-120.72 935.63,-201.26 974.43,-238.38"/>
+<text xml:space="preserve" text-anchor="middle" x="970.43" y="-225.96" font-family="Arial" font-size="13.00">N</text>
+</g>
+
+<g id="node33" class="node">
+<title>includes_usage.added_at</title>
+<ellipse fill="#fff8e8" stroke="#286c61" cx="995.3" cy="-154" rx="51.31" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="995.3" y="-149.8" font-family="Arial" font-size="14.00">added_at</text>
+</g>
+
+<g id="edge32" class="edge">
+<title>includes_usage&#45;&#45;includes_usage.added_at</title>
+<path fill="none" stroke="#51736b" d="M787.62,-97.31C833.88,-109.99 908.43,-130.45 954.22,-143.01"/>
+</g>
+
+<g id="node34" class="node">
+<title>includes_usage.quantity_used</title>
+<ellipse fill="#fff8e8" stroke="#286c61" cx="995.3" cy="-86" rx="71.17" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="995.3" y="-81.8" font-family="Arial" font-size="14.00">quantity_used</text>
+</g>
+
+<g id="edge33" class="edge">
+<title>includes_usage&#45;&#45;includes_usage.quantity_used</title>
+<path fill="none" stroke="#51736b" d="M854.78,-86C878.23,-86 902.43,-86 923.97,-86"/>
+</g>
+
+<g id="node35" class="node">
+<title>includes_usage.quantity_unit</title>
+<ellipse fill="#fff8e8" stroke="#286c61" cx="995.3" cy="-18" rx="65.8" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="995.3" y="-13.8" font-family="Arial" font-size="14.00">quantity_unit</text>
+</g>
+
+<g id="edge34" class="edge">
+<title>includes_usage&#45;&#45;includes_usage.quantity_unit</title>
+<path fill="none" stroke="#51736b" d="M787.62,-74.69C831.81,-62.57 901.83,-43.37 947.92,-30.72"/>
+</g>
+
+<g id="edge30" class="edge">
+<title>used_in&#45;&#45;ExperimentSample</title>
+<path fill="none" stroke="#51736b" d="M775.27,-415.67C806.56,-405.6 851.82,-391.05 852.13,-392 851.44,-391.28 935.63,-310.74 974.43,-273.62"/>
+<path fill="none" stroke="#51736b" d="M775.88,-417.57C807.18,-407.51 852.43,-392.95 852.13,-392 852.82,-392.72 937.01,-312.19 975.82,-275.06"/>
+<text xml:space="preserve" text-anchor="middle" x="970.43" y="-278.24" font-family="Arial" font-size="13.00">N</text>
+</g>
+</g>
+</svg>

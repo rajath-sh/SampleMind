@@ -39,6 +39,7 @@ export interface ExperimentListItem {
   experiment_id: number;
   experiment_code: string;
   experiment_name: string;
+  objective?: string;
   protocol_reference?: string;
   status: string;
   lead_researcher_name?: string;
@@ -112,6 +113,20 @@ export interface ResultCreatePayload {
   result_unit?: string;
   interpretation?: string;
   is_final?: boolean;
+}
+
+export interface ResultUpdatePayload {
+  result_title?: string;
+  observation?: string;
+  result_value?: number;
+  result_unit?: string;
+  interpretation?: string;
+  is_final?: boolean;
+}
+
+export interface ExperimentEquipmentAttachPayload {
+  equipment_id: number;
+  usage_notes?: string;
 }
 
 export interface ResultVerifyPayload {

@@ -83,3 +83,26 @@ export interface StorageLocationCreatePayload {
   temperature_min_c?: number;
   temperature_max_c?: number;
 }
+
+export interface StorageLocationUpdatePayload {
+  facility?: string;
+  room?: string;
+  unit_type?: string;
+  unit_label?: string;
+  rack?: string;
+  box?: string;
+  slot?: string;
+  temperature_min_c?: number;
+  temperature_max_c?: number;
+  is_active?: boolean;
+}
+
+export interface EquipmentUpdatePayload {
+  equipment_name?: string;
+  manufacturer?: string;
+  model_number?: string;
+  equipment_status?: string;
+  notes?: string;
+  last_calibrated_at?: string;
+  calibration_due_at?: string;
+}

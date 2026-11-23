@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, LoginCredentials } from './types';
+import { User, LoginCredentials, SignupCredentials } from './types';
 import { authService } from './authService';
 
 interface AuthContextType {
@@ -9,6 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (credentials: LoginCredentials) => Promise<void>;
+  signup: (credentials: SignupCredentials) => Promise<void>;
   logout: () => void;
   switchDemoRole: (roleEmail: string, rolePassword?: string) => Promise<void>;
 }
@@ -60,6 +61,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signup = async (credentials: SignupCredentials) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await authService.signup(credentials);
+      setToken(res.access_token);
+      const profile = await authService.getCurrentUser();
+      setUser(profile);
+    } catch (err: any) {
+      setError(err.message || 'Registration failed. Please check your details.');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     authService.logout();
     setToken(null);
@@ -91,6 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         error,
         login,
+        signup,
         logout,
         switchDemoRole,
       }}

@@ -17,14 +17,16 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  Radio,
   Sparkles,
   ChevronDown,
+  Edit2,
+  Save,
+  Trash2,
 } from 'lucide-react';
-import { ConceptInfo } from '../../components/ConceptInfo';
 import { useAuth } from '../auth/AuthContext';
 import { MoveSpecimenForm } from './components/MoveSpecimenForm';
 import { samplesService } from './samplesService';
+import { lineageService } from '../lineage/lineageService';
 import { storageService } from '../storage/storageService';
 import {
   SampleListItem,
@@ -42,9 +44,7 @@ import { SampleCustodyTimeline } from './components/SampleCustodyTimeline';
 import { SampleQuantityVisualizer } from './components/SampleQuantityVisualizer';
 import { SampleQualityMetricsPanel, QualityFilterType } from './components/SampleQualityMetricsPanel';
 import { SampleIntegrityAlertsPanel } from './components/SampleIntegrityAlertsPanel';
-import { SampleReadinessAssessment } from './components/SampleReadinessAssessment';
 import { SampleMaterialFlowStream } from './components/SampleMaterialFlowStream';
-import { SampleCryoSpatialMatrix } from './components/SampleCryoSpatialMatrix';
 
 export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSampleId }) => {
   const { user } = useAuth();
@@ -68,9 +68,9 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
   const [totalItems, setTotalItems] = useState(0);
 
   // Phase 4: Sorting & Scientific Visualisation Toggles
-  const [sortBy, setSortBy] = useState<string>('registered_at');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-  const [isFlowOpen, setIsFlowOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<string>('sample_id');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [isFlowOpen, setIsFlowOpen] = useState(true);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
 
@@ -84,12 +84,30 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isDeriveOpen, setIsDeriveOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [drawerTab, setDrawerTab] = useState<'overview' | 'lineage' | 'custody' | 'quantity' | 'cryo_grid'>('overview');
+  const [drawerTab, setDrawerTab] = useState<'overview' | 'lineage' | 'custody' | 'quantity'>('overview');
 
   // Selected sample context
   const [sampleDetail, setSampleDetail] = useState<SampleDetail | null>(null);
   const [storageHistory, setStorageHistory] = useState<StorageHistoryItem[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
+
+  // Edit Specimen State within Dossier
+  const [isEditingDossier, setIsEditingDossier] = useState(false);
+  const [editForm, setEditForm] = useState<{
+    sample_name: string;
+    quantity_value: number;
+    sample_status: string;
+    source_description: string;
+    notes: string;
+  }>({
+    sample_name: '',
+    quantity_value: 0,
+    sample_status: 'IN_STORAGE',
+    source_description: '',
+    notes: '',
+  });
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   // Register Form State
   const [regForm, setRegForm] = useState<SampleCreatePayload>({
@@ -230,6 +248,8 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
   const handleOpenDetail = useCallback(async (sampleId: number) => {
     setIsDetailOpen(true);
     setDetailLoading(true);
+    setIsEditingDossier(false);
+    setEditError(null);
     try {
       const [detail, history] = await Promise.all([
         samplesService.getSampleDetail(sampleId),
@@ -237,6 +257,13 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
       ]);
       setSampleDetail(detail);
       setStorageHistory(history);
+      setEditForm({
+        sample_name: detail.sample_name || '',
+        quantity_value: detail.quantity_value,
+        sample_status: detail.sample_status,
+        source_description: detail.source_description || '',
+        notes: detail.notes || '',
+      });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to load specimen dossier.';
       setError(msg);
@@ -244,6 +271,32 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
       setDetailLoading(false);
     }
   }, []);
+
+  const handleSaveDossierEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sampleDetail) return;
+    setIsSavingEdit(true);
+    setEditError(null);
+    try {
+      const updated = await samplesService.updateSample(sampleDetail.sample_id, {
+        sample_name: editForm.sample_name.trim(),
+        quantity_value: Number(editForm.quantity_value),
+        sample_status: editForm.sample_status,
+        source_description: editForm.source_description.trim() || undefined,
+        notes: editForm.notes.trim() || undefined,
+      });
+      setSampleDetail(updated);
+      setIsEditingDossier(false);
+      setSuccessMsg(`Specimen #${updated.sample_id} (${updated.sample_name}) updated successfully.`);
+      await fetchSamples();
+      void fetchMetricsAndAlerts();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update specimen details.';
+      setEditError(msg);
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
 
   useEffect(() => {
     if (initialSampleId) void handleOpenDetail(initialSampleId);
@@ -297,6 +350,21 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
       fetchMetricsAndAlerts();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Derivation failed.';
+      setError(msg);
+    }
+  };
+
+  const handleDeleteRelationship = async (relationshipId: number) => {
+    if (!window.confirm(`Are you sure you want to remove this lineage derivation link (#${relationshipId})?`)) return;
+    try {
+      await lineageService.deleteRelationship(relationshipId);
+      setSuccessMsg(`Lineage derivation link #${relationshipId} removed successfully.`);
+      if (sampleDetail) {
+        handleOpenDetail(sampleDetail.sample_id);
+      }
+      fetchSamples();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to remove derivation relationship.';
       setError(msg);
     }
   };
@@ -430,15 +498,13 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
               color: isFlowOpen ? '#fff' : undefined,
               borderColor: isFlowOpen ? 'var(--color-teal)' : undefined,
             }}
-            title="Toggle animated biological material flow stream diagram"
+            title={isFlowOpen ? 'Collapse Material Flow Stream diagram' : 'Show Material Flow Stream diagram'}
           >
             <Sparkles size={15} />
-            <span>Material Flow Stream</span>
-            {isFlowOpen && (
-              <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.25)', padding: '1px 6px', borderRadius: '10px' }}>
-                Active
-              </span>
-            )}
+            <span>{isFlowOpen ? 'Collapse Flow Stream' : 'Material Flow Stream'}</span>
+            <span style={{ fontSize: '10px', background: isFlowOpen ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.06)', padding: '1px 6px', borderRadius: '10px' }}>
+              {isFlowOpen ? 'Visible' : 'Hidden'}
+            </span>
           </button>
 
           {/* Export Dropdown */}
@@ -697,18 +763,18 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
 
       {/* Specimen Catalog Table */}
       <div className="card" style={{ overflow: 'hidden' }}>
-        <CompactTable label="samples" extra={[3, 5]} help={<DatabaseConcept topic="normalization" />}>
-          <table className="table">
+        <CompactTable label="samples" extra={[3, 5]} showLens={false} help={<DatabaseConcept topic="normalization" />}>
+          <table className="table" style={{ width: '100%', minWidth: '780px' }}>
           <thead>
             <tr>
               <th
-                style={{ width: '130px', cursor: 'pointer', userSelect: 'none' }}
-                onClick={() => handleSort('sample_code')}
+                style={{ width: '80px', cursor: 'pointer', userSelect: 'none' }}
+                onClick={() => handleSort('sample_id')}
                 title="Click to sort by Specimen ID"
               >
                 <div style={{ display: 'inline-flex', alignItems: 'center' }}>
                   <span>Specimen ID</span>
-                  {renderSortIcon('sample_code')}
+                  {renderSortIcon('sample_id')}
                 </div>
               </th>
               <th
@@ -722,7 +788,7 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                 </div>
               </th>
               <th
-                style={{ cursor: 'pointer', userSelect: 'none' }}
+                style={{ width: '90px', cursor: 'pointer', userSelect: 'none' }}
                 onClick={() => handleSort('sample_type_code')}
                 title="Click to sort by Specimen Type"
               >
@@ -732,7 +798,7 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                 </div>
               </th>
               <th
-                style={{ cursor: 'pointer', userSelect: 'none' }}
+                style={{ width: '130px', cursor: 'pointer', userSelect: 'none' }}
                 onClick={() => handleSort('quantity')}
                 title="Click to sort by Stock Quantity"
               >
@@ -741,9 +807,9 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                   {renderSortIcon('quantity')}
                 </div>
               </th>
-              <th>Storage Coordinate</th>
+              <th style={{ width: '160px' }}>Storage Coordinate</th>
               <th
-                style={{ cursor: 'pointer', userSelect: 'none' }}
+                style={{ width: '120px', cursor: 'pointer', userSelect: 'none' }}
                 onClick={() => handleSort('status')}
                 title="Click to sort by Status"
               >
@@ -752,7 +818,7 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                   {renderSortIcon('status')}
                 </div>
               </th>
-              <th style={{ textAlign: 'right' }}>Actions</th>
+              <th style={{ width: '170px', textAlign: 'center', whiteSpace: 'nowrap' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -777,8 +843,8 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                 return (
                   <tr key={s.sample_id}>
                     <td>
-                      <span className="font-mono" style={{ fontWeight: 700, color: 'var(--color-ink)' }}>
-                        {s.sample_code}
+                      <span className="font-mono" style={{ fontWeight: 700, color: 'var(--color-teal)' }}>
+                        #{s.sample_id}
                       </span>
                     </td>
                     <td>
@@ -819,12 +885,12 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                         {s.sample_status}
                       </span>
                     </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '8px' }}>
+                    <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                         <button
                           type="button"
                           className="btn btn-secondary"
-                          style={{ padding: '4px 10px', fontSize: '12px' }}
+                          style={{ padding: '5px 12px', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap' }}
                           onClick={() => handleOpenDetail(s.sample_id)}
                         >
                           Dossier
@@ -833,8 +899,10 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                           type="button"
                           className="btn btn-secondary"
                           style={{
-                            padding: '4px 10px',
+                            padding: '5px 12px',
                             fontSize: '12px',
+                            fontWeight: 600,
+                            whiteSpace: 'nowrap',
                             borderColor: cannotDerive ? undefined : 'var(--color-teal)',
                             color: cannotDerive ? 'var(--color-muted)' : 'var(--color-teal)',
                           }}
@@ -1366,20 +1434,45 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                 <FlaskConical size={22} color="var(--color-teal)" />
                 <div>
                   <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-ink)', lineHeight: 1.2 }}>
-                    Specimen Dossier: {sampleDetail?.sample_code || 'Loading...'}
+                    Specimen Dossier: {sampleDetail ? `#${sampleDetail.sample_id}` : 'Loading...'}
                   </h3>
                   <div style={{ fontSize: '12px', color: 'var(--color-muted)' }}>
                     {sampleDetail?.sample_name}
                   </div>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsDetailOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
-              >
-                <X size={20} />
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {canWrite && sampleDetail && (
+                  <button
+                    type="button"
+                    className={`btn ${isEditingDossier ? 'btn-secondary' : 'btn-primary'}`}
+                    style={{ padding: '6px 12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    onClick={() => {
+                      if (!isEditingDossier) {
+                        setEditForm({
+                          sample_name: sampleDetail.sample_name || '',
+                          quantity_value: sampleDetail.quantity_value,
+                          sample_status: sampleDetail.sample_status,
+                          source_description: sampleDetail.source_description || '',
+                          notes: sampleDetail.notes || '',
+                        });
+                        setEditError(null);
+                      }
+                      setIsEditingDossier(!isEditingDossier);
+                    }}
+                  >
+                    <Edit2 size={14} />
+                    {isEditingDossier ? 'Cancel Edit' : 'Edit Specimen'}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsDetailOpen(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             {/* Scientific Navigation Tabs */}
@@ -1483,30 +1576,6 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                     {sampleDetail.quantity_value.toFixed(1)} {sampleDetail.quantity_unit}
                   </span>
                 </button>
-                <ConceptInfo title="Quantity ledger and atomic derivation" steps={['Read locked parent', 'Verify available stock', 'Debit parent and credit child', 'Commit together']}>
-                  <p>Each quantity entry stores the change and resulting balance. Deriving a child commits both specimens, their lineage edge and the ledger changes in a single transaction.</p>
-                </ConceptInfo>
-
-                <button
-                  type="button"
-                  onClick={() => setDrawerTab('cryo_grid')}
-                  style={{
-                    padding: '8px 14px',
-                    border: 'none',
-                    background: 'none',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: drawerTab === 'cryo_grid' ? 700 : 500,
-                    color: drawerTab === 'cryo_grid' ? 'var(--color-teal)' : 'var(--color-muted)',
-                    borderBottom: drawerTab === 'cryo_grid' ? '2.5px solid var(--color-teal)' : '2.5px solid transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <Radio size={14} /> Cryo-Plate Matrix
-                </button>
               </div>
             )}
 
@@ -1520,8 +1589,123 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                 {/* TAB 1: Specimen Overview */}
                 {drawerTab === 'overview' && (
                   <>
-                    {/* Scientific Readiness & Multi-Parameter Viability Assessment */}
-                    <SampleReadinessAssessment sampleId={sampleDetail.sample_id} />
+                    {/* Inline Edit Form when active */}
+                    {isEditingDossier && (
+                      <form onSubmit={handleSaveDossierEdit} className="card" style={{ padding: '16px', border: '1.5px solid var(--color-teal)', backgroundColor: '#F8FCFA' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                          <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 750, color: 'var(--color-teal)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Edit2 size={16} /> Edit Specimen #{sampleDetail.sample_id} Attributes
+                          </h4>
+                          <span style={{ fontSize: '12px', color: 'var(--color-muted)' }}>Direct Table Sync</span>
+                        </div>
+
+                        {editError && (
+                          <div style={{ padding: '8px 12px', backgroundColor: '#FEE2E2', color: '#991B1B', borderRadius: 'var(--radius-control)', fontSize: '12px', marginBottom: '12px' }}>
+                            {editError}
+                          </div>
+                        )}
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <label className="label" style={{ fontSize: '12px' }}>Specimen Title / Origin *</label>
+                            <input
+                              type="text"
+                              required
+                              className="input"
+                              value={editForm.sample_name}
+                              onChange={e => setEditForm({ ...editForm, sample_name: e.target.value })}
+                            />
+                          </div>
+
+                          <div>
+                            <label className="label" style={{ fontSize: '12px' }}>Quantity Stock ({sampleDetail.quantity_unit}) *</label>
+                            <input
+                              type="number"
+                              step="any"
+                              min="0"
+                              required
+                              className="input font-mono"
+                              value={editForm.quantity_value}
+                              onChange={e => {
+                                const val = parseFloat(e.target.value) || 0;
+                                setEditForm({
+                                  ...editForm,
+                                  quantity_value: val,
+                                  sample_status: val === 0 && editForm.sample_status !== 'DEPLETED' ? 'DEPLETED' : editForm.sample_status
+                                });
+                              }}
+                            />
+                          </div>
+
+                          <div>
+                            <label className="label" style={{ fontSize: '12px' }}>Status *</label>
+                            <select
+                              className="input"
+                              value={editForm.sample_status}
+                              onChange={e => {
+                                const newStatus = e.target.value;
+                                setEditForm({
+                                  ...editForm,
+                                  sample_status: newStatus,
+                                  quantity_value: newStatus === 'DEPLETED' ? 0 : editForm.quantity_value
+                                });
+                              }}
+                            >
+                              <option value="REGISTERED">REGISTERED</option>
+                              <option value="IN_STORAGE">IN_STORAGE</option>
+                              <option value="IN_USE">IN_USE</option>
+                              <option value="DEPLETED">DEPLETED</option>
+                              <option value="QUARANTINED">QUARANTINED</option>
+                              <option value="DISPOSED">DISPOSED</option>
+                              <option value="MISSING">MISSING</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <label className="label" style={{ fontSize: '12px' }}>Provenance & Source</label>
+                            <input
+                              type="text"
+                              className="input"
+                              value={editForm.source_description}
+                              onChange={e => setEditForm({ ...editForm, source_description: e.target.value })}
+                              placeholder="Provenance details"
+                            />
+                          </div>
+                          <div>
+                            <label className="label" style={{ fontSize: '12px' }}>Storage Precautions & Notes</label>
+                            <input
+                              type="text"
+                              className="input"
+                              value={editForm.notes}
+                              onChange={e => setEditForm({ ...editForm, notes: e.target.value })}
+                              placeholder="Handling instructions"
+                            />
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => setIsEditingDossier(false)}
+                            disabled={isSavingEdit}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={isSavingEdit}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                          >
+                            <Save size={14} />
+                            {isSavingEdit ? 'Saving Changes...' : 'Save & Update Table'}
+                          </button>
+                        </div>
+                      </form>
+                    )}
 
                     {/* Specimen Key Properties Grid */}
                     <div style={{
@@ -1589,14 +1773,6 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                             Direct Lineage Connections
                           </h4>
                         </div>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          style={{ padding: '3px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                          onClick={() => setDrawerTab('lineage')}
-                        >
-                          View Visual DAG Diagram <ArrowRight size={11} />
-                        </button>
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
@@ -1616,14 +1792,35 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                                   <span className="font-mono" style={{ fontWeight: 700, fontSize: '12px' }}>{p.related_sample_code}</span>
                                   <div style={{ fontSize: '11px', color: 'var(--color-muted)' }}>{p.transformation_type}</div>
                                 </div>
-                                <button
-                                  type="button"
-                                  className="btn btn-secondary"
-                                  style={{ padding: '2px 8px', fontSize: '11px' }}
-                                  onClick={() => handleOpenDetail(p.related_sample_id)}
-                                >
-                                  Jump <ArrowRight size={11} style={{ verticalAlign: '-1px' }} />
-                                </button>
+                                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                                  <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    style={{ padding: '2px 8px', fontSize: '11px' }}
+                                    onClick={() => handleOpenDetail(p.related_sample_id)}
+                                  >
+                                    Jump <ArrowRight size={11} style={{ verticalAlign: '-1px' }} />
+                                  </button>
+                                  {canWrite && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-secondary"
+                                      style={{
+                                        padding: '2px 6px',
+                                        fontSize: '11px',
+                                        color: 'var(--color-danger)',
+                                        borderColor: 'rgba(201, 79, 63, 0.3)',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '2px',
+                                      }}
+                                      onClick={() => handleDeleteRelationship(p.relationship_id)}
+                                      title="Remove derivation relationship"
+                                    >
+                                      <Trash2 size={11} /> Unlink
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                             ))
                           )}
@@ -1647,14 +1844,35 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                                     {c.transformation_type} ({c.quantity_transferred} {c.quantity_unit || 'mg'})
                                   </div>
                                 </div>
-                                <button
-                                  type="button"
-                                  className="btn btn-secondary"
-                                  style={{ padding: '2px 8px', fontSize: '11px' }}
-                                  onClick={() => handleOpenDetail(c.related_sample_id)}
-                                >
-                                  Jump <ArrowRight size={11} style={{ verticalAlign: '-1px' }} />
-                                </button>
+                                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                                  <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    style={{ padding: '2px 8px', fontSize: '11px' }}
+                                    onClick={() => handleOpenDetail(c.related_sample_id)}
+                                  >
+                                    Jump <ArrowRight size={11} style={{ verticalAlign: '-1px' }} />
+                                  </button>
+                                  {canWrite && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-secondary"
+                                      style={{
+                                        padding: '2px 6px',
+                                        fontSize: '11px',
+                                        color: 'var(--color-danger)',
+                                        borderColor: 'rgba(201, 79, 63, 0.3)',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '2px',
+                                      }}
+                                      onClick={() => handleDeleteRelationship(c.relationship_id)}
+                                      title="Remove derivation relationship"
+                                    >
+                                      <Trash2 size={11} /> Unlink
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                             ))
                           )}
@@ -1736,14 +1954,6 @@ export const SamplesPage: React.FC<{ initialSampleId?: number }> = ({ initialSam
                   <SampleQuantityVisualizer
                     sampleId={sampleDetail.sample_id}
                     sampleCode={sampleDetail.sample_code}
-                    onSelectSample={handleOpenDetail}
-                  />
-                )}
-
-                {/* TAB 5: 96-Well Cryogenic Spatial Coordinate Matrix with Sonar Pulse */}
-                {drawerTab === 'cryo_grid' && (
-                  <SampleCryoSpatialMatrix
-                    sampleId={sampleDetail.sample_id}
                     onSelectSample={handleOpenDetail}
                   />
                 )}

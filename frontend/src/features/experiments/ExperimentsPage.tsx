@@ -15,7 +15,12 @@ import {
   Wrench,
   ChevronRight,
   Filter,
+  Edit2,
+  Trash2,
 } from 'lucide-react';
+import { storageService } from '../storage/storageService';
+import { Equipment } from '../storage/types';
+import { apiRequest } from '../../common/apiClient';
 import { experimentsService } from './experimentsService';
 import {
   ExperimentListItem,
@@ -24,6 +29,7 @@ import {
   ExperimentCreatePayload,
   ResultCreatePayload,
   ResultVerifyPayload,
+  ResultUpdatePayload,
 } from './types';
 
 interface ExperimentsPageProps {
@@ -65,6 +71,36 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
   const [isVerifyResultModalOpen, setIsVerifyResultModalOpen] = useState(false);
   const [activeResultToVerify, setActiveResultToVerify] = useState<ResultDetail | null>(null);
 
+  // Edit Experiment Modal State
+  const [isEditExpModalOpen, setIsEditExpModalOpen] = useState(false);
+  const [editExpForm, setEditExpForm] = useState<ExperimentCreatePayload>({
+    experiment_code: '',
+    experiment_name: '',
+    objective: '',
+    protocol_reference: '',
+    status: 'planned',
+  });
+
+  // Allocate Equipment Modal State
+  const [isAllocateEquipmentModalOpen, setIsAllocateEquipmentModalOpen] = useState(false);
+  const [availableEquipment, setAvailableEquipment] = useState<Equipment[]>([]);
+  const [allocateEquipmentForm, setAllocateEquipmentForm] = useState({
+    equipment_id: 0,
+    usage_notes: '',
+  });
+
+  // Edit Result Modal State
+  const [isEditResultModalOpen, setIsEditResultModalOpen] = useState(false);
+  const [activeResultToEdit, setActiveResultToEdit] = useState<ResultDetail | null>(null);
+  const [editResultForm, setEditResultForm] = useState<ResultUpdatePayload>({
+    result_title: '',
+    result_value: 0,
+    result_unit: '',
+    interpretation: 'OPTIMAL',
+    observation: '',
+    is_final: false,
+  });
+
   // Form states
   const [newExpForm, setNewExpForm] = useState<ExperimentCreatePayload>({
     experiment_code: '',
@@ -75,7 +111,7 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
   });
 
   const [attachSampleForm, setAttachSampleForm] = useState({
-    sample_id: 1,
+    sample_identifier: '1',
     usage_role: 'input',
     quantity_used: 10,
     quantity_unit: 'µL',
@@ -192,13 +228,70 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
     }
   };
 
+  const handleOpenEditExp = () => {
+    if (!selectedExpDetail) return;
+    setEditExpForm({
+      experiment_code: selectedExpDetail.experiment_code,
+      experiment_name: selectedExpDetail.experiment_name,
+      objective: selectedExpDetail.objective || '',
+      protocol_reference: selectedExpDetail.protocol_reference || '',
+      status: selectedExpDetail.status || 'planned',
+    });
+    setIsEditExpModalOpen(true);
+  };
+
+  const handleUpdateExp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedExpId || !editExpForm.experiment_name.trim()) {
+      setErrorMessage('Experiment name is required.');
+      return;
+    }
+
+    try {
+      const updated = await experimentsService.updateExperiment(selectedExpId, {
+        experiment_name: editExpForm.experiment_name,
+        objective: editExpForm.objective,
+        protocol_reference: editExpForm.protocol_reference,
+        status: editExpForm.status,
+      });
+      setSelectedExpDetail(updated);
+      setSuccessMessage(`Experiment '${updated.experiment_code}' updated successfully.`);
+      setIsEditExpModalOpen(false);
+      loadExperiments();
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to update experiment.');
+    }
+  };
+
   const handleAttachSample = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedExpId) return;
 
     try {
+      let resolvedSampleId: number;
+      const rawInput = attachSampleForm.sample_identifier.trim();
+
+      // Check if user entered a direct numeric ID
+      if (/^\d+$/.test(rawInput)) {
+        resolvedSampleId = Number(rawInput);
+      } else {
+        // Look up specimen by sample_code (e.g. S001, DEMO-ROOT)
+        const searchRes = await apiRequest<{ items: Array<{ sample_id: number; sample_code: string }> }>(
+          `/samples?search=${encodeURIComponent(rawInput)}&page_size=10`
+        );
+        const match = searchRes.items.find(
+          (s: { sample_id: number; sample_code: string }) => s.sample_code.toUpperCase() === rawInput.toUpperCase()
+        ) || searchRes.items[0];
+
+        if (!match) {
+          throw new Error(`Specimen '${rawInput}' not found in biobank inventory.`);
+        }
+        resolvedSampleId = match.sample_id;
+      }
+
       await experimentsService.attachSample(selectedExpId, {
-        sample_id: Number(attachSampleForm.sample_id),
+        sample_id: resolvedSampleId,
         usage_role: attachSampleForm.usage_role,
         quantity_used: Number(attachSampleForm.quantity_used),
         quantity_unit: attachSampleForm.quantity_unit,
@@ -260,6 +353,116 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
     } catch (err: unknown) {
       const e = err as Error;
       setErrorMessage(e.message || 'Failed to verify result.');
+    }
+  };
+
+  const handleOpenAllocateEquipment = async () => {
+    try {
+      const eqList = await storageService.listEquipment();
+      setAvailableEquipment(eqList);
+      if (eqList.length > 0) {
+        setAllocateEquipmentForm({
+          equipment_id: eqList[0].equipment_id,
+          usage_notes: '',
+        });
+      }
+      setIsAllocateEquipmentModalOpen(true);
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to load equipment catalog.');
+    }
+  };
+
+  const handleAllocateEquipment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedExpId || !allocateEquipmentForm.equipment_id) {
+      setErrorMessage('Please select an instrument to allocate.');
+      return;
+    }
+
+    try {
+      await experimentsService.attachEquipment(selectedExpId, {
+        equipment_id: Number(allocateEquipmentForm.equipment_id),
+        usage_notes: allocateEquipmentForm.usage_notes || undefined,
+      });
+      setSuccessMessage('Equipment successfully allocated to experiment.');
+      setIsAllocateEquipmentModalOpen(false);
+      loadExperimentDetail(selectedExpId);
+      loadExperiments();
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to allocate equipment.');
+    }
+  };
+
+  const handleOpenEditResult = (r: ResultDetail) => {
+    setActiveResultToEdit(r);
+    setEditResultForm({
+      result_title: r.result_title || '',
+      result_value: r.result_value !== undefined ? r.result_value : 0,
+      result_unit: r.result_unit || '',
+      interpretation: r.interpretation || 'OPTIMAL',
+      observation: r.observation || '',
+      is_final: r.is_final || false,
+    });
+    setIsEditResultModalOpen(true);
+  };
+
+  const handleUpdateResult = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeResultToEdit) return;
+
+    try {
+      await experimentsService.updateResult(activeResultToEdit.experiment_result_id, editResultForm);
+      setSuccessMessage(`Result '${activeResultToEdit.result_code}' updated successfully.`);
+      setIsEditResultModalOpen(false);
+      setActiveResultToEdit(null);
+      if (selectedExpId) {
+        loadExperimentDetail(selectedExpId);
+      }
+      if (activeTab === 'results') {
+        loadResults();
+      }
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to update result.');
+    }
+  };
+
+  const handleDeleteExperiment = async (expId: number, expCode: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete Experiment ${expCode}? This will also delete linked cohort assignments and results.`)) {
+      return;
+    }
+    try {
+      await experimentsService.deleteExperiment(expId);
+      setSuccessMessage(`Experiment ${expCode} deleted successfully.`);
+      if (selectedExpId === expId) {
+        setSelectedExpId(null);
+        setSelectedExpDetail(null);
+      }
+      loadExperiments();
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to delete experiment.');
+    }
+  };
+
+  const handleDeleteResult = async (resultId: number, resultCode: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete Result ${resultCode}?`)) {
+      return;
+    }
+    try {
+      await experimentsService.deleteResult(resultId);
+      setSuccessMessage(`Result ${resultCode} deleted successfully.`);
+      if (selectedExpId) {
+        loadExperimentDetail(selectedExpId);
+      }
+      if (activeTab === 'results') {
+        loadResults();
+      }
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to delete result.');
     }
   };
 
@@ -488,7 +691,7 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
 
             {/* Table */}
             <div style={{ overflowX: 'auto' }}>
-              <CompactTable label="experiments" extra={[3, 5, 6, 7, 8]} help={<DatabaseConcept topic="experiment" />}>
+              <CompactTable label="experiments" extra={[3, 5, 6, 7, 8]} showLens={false} help={<DatabaseConcept topic="experiment" />}>
                 <table className="table" style={{ width: '100%', fontSize: '13px' }}>
                 <thead>
                   <tr>
@@ -528,7 +731,25 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
                         <td className="font-mono" style={{ fontWeight: 600, color: 'var(--color-teal)' }}>
                           {exp.experiment_code}
                         </td>
-                        <td style={{ fontWeight: 500, color: 'var(--color-ink)' }}>{exp.experiment_name}</td>
+                        <td>
+                          <div style={{ fontWeight: 600, color: 'var(--color-ink)' }}>{exp.experiment_name}</div>
+                          {exp.objective && (
+                            <div
+                              title={exp.objective}
+                              style={{
+                                fontSize: '11px',
+                                color: 'var(--color-muted)',
+                                maxWidth: '280px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                marginTop: '2px',
+                              }}
+                            >
+                              🎯 {exp.objective}
+                            </div>
+                          )}
+                        </td>
                         <td style={{ color: 'var(--color-muted)', fontSize: '12px' }}>
                           {exp.protocol_reference || '—'}
                         </td>
@@ -559,20 +780,43 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
                         </td>
                         <td style={{ color: 'var(--color-muted)' }}>{exp.lead_researcher_name || 'Unassigned'}</td>
                         <td>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedExpId(exp.experiment_id)}
-                            className="btn btn-secondary"
-                            style={{
-                              padding: '4px 10px',
-                              fontSize: '12px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                            }}
-                          >
-                            Workspace <ChevronRight size={13} />
-                          </button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedExpId(exp.experiment_id)}
+                              className="btn btn-secondary"
+                              style={{
+                                padding: '4px 10px',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                              }}
+                            >
+                              Workspace <ChevronRight size={13} />
+                            </button>
+                            {canWrite && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteExperiment(exp.experiment_id, exp.experiment_code)}
+                                style={{
+                                  padding: '4px 8px',
+                                  fontSize: '12px',
+                                  borderRadius: '4px',
+                                  border: '1px solid #FECACA',
+                                  backgroundColor: '#FEF2F2',
+                                  color: 'var(--color-danger)',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                                title="Delete experiment"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -653,13 +897,27 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
                         {selectedExpDetail.experiment_name}
                       </h3>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedExpId(null)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
-                    >
-                      <X size={18} />
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {canWrite && (
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{ padding: '3px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          onClick={handleOpenEditExp}
+                          title="Edit experiment details"
+                        >
+                          <Edit2 size={12} />
+                          Edit
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedExpId(null)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Status Quick-Update & Metadata */}
@@ -776,9 +1034,28 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
 
                   {/* Section 2: Laboratory Equipment */}
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, marginBottom: '8px' }}>
-                      <Wrench size={14} color="var(--color-teal)" />
-                      <span>Allocated Equipment ({selectedExpDetail.equipment.length})</span>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '8px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700 }}>
+                        <Wrench size={14} color="var(--color-teal)" />
+                        <span>Allocated Equipment ({selectedExpDetail.equipment.length})</span>
+                      </div>
+                      {canWrite && (
+                        <button
+                          type="button"
+                          onClick={handleOpenAllocateEquipment}
+                          className="btn btn-secondary"
+                          style={{ padding: '2px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          <Plus size={12} /> Allocate
+                        </button>
+                      )}
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -958,7 +1235,7 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
           </div>
 
           <div style={{ overflowX: 'auto' }}>
-            <CompactTable label="results" extra={[2, 4, 5, 6]} help={<DatabaseConcept topic="results" />}>
+            <CompactTable label="results" extra={[2, 4, 5, 6]} showLens={false} help={<DatabaseConcept topic="results" />}>
               <table className="table" style={{ width: '100%', fontSize: '13px' }}>
               <thead>
                 <tr>
@@ -1030,21 +1307,55 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
                         )}
                       </td>
                       <td>
-                        {!r.is_final ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveResultToVerify(r);
-                              setIsVerifyResultModalOpen(true);
-                            }}
-                            className="btn btn-secondary"
-                            style={{ padding: '3px 8px', fontSize: '11px' }}
-                          >
-                            Verify
-                          </button>
-                        ) : (
-                          <span style={{ fontSize: '11px', color: 'var(--color-muted)' }}>Verified</span>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {canWrite && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditResult(r)}
+                              className="btn btn-secondary"
+                              style={{ padding: '3px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                              title="Edit result fields"
+                            >
+                              <Edit2 size={11} /> Edit
+                            </button>
+                          )}
+                          {!r.is_final ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveResultToVerify(r);
+                                setIsVerifyResultModalOpen(true);
+                              }}
+                              className="btn btn-secondary"
+                              style={{ padding: '3px 8px', fontSize: '11px' }}
+                            >
+                              Verify
+                            </button>
+                          ) : (
+                            <span style={{ fontSize: '11px', color: 'var(--color-muted)' }}>Verified</span>
+                          )}
+                          {canWrite && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteResult(r.experiment_result_id, r.result_code)}
+                              style={{
+                                padding: '3px 8px',
+                                fontSize: '11px',
+                                borderRadius: '4px',
+                                border: '1px solid #FECACA',
+                                backgroundColor: '#FEF2F2',
+                                color: 'var(--color-danger)',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                              }}
+                              title="Delete result"
+                            >
+                              <Trash2 size={11} />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -1270,17 +1581,19 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
             <form onSubmit={handleAttachSample} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-                  Specimen ID *
+                  Specimen ID or Code *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   required
-                  min={1}
-                  value={attachSampleForm.sample_id}
-                  onChange={(e) => setAttachSampleForm({ ...attachSampleForm, sample_id: Number(e.target.value) })}
+                  value={attachSampleForm.sample_identifier}
+                  onChange={(e) => setAttachSampleForm({ ...attachSampleForm, sample_identifier: e.target.value })}
                   className="input font-mono"
-                  placeholder="e.g. 1 (Specimen ID)"
+                  placeholder="e.g. 1 or S001, DEMO-ROOT..."
                 />
+                <span style={{ fontSize: '11px', color: 'var(--color-muted)' }}>
+                  Enter either numeric specimen ID (e.g. 1) or specimen code (e.g. S001, DEMO-ALQ-ARCH).
+                </span>
               </div>
 
               <div>
@@ -1515,6 +1828,120 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
         </div>
       )}
 
+      {/* Modal: Edit Experiment */}
+      {isEditExpModalOpen && selectedExpDetail && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(23, 43, 58, 0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '20px',
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              width: '100%',
+              maxWidth: '520px',
+              padding: '24px',
+              backgroundColor: '#FFFFFF',
+              boxShadow: 'var(--shadow-lg)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '18px',
+              }}
+            >
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ink)', margin: 0 }}>
+                Edit Experiment ({selectedExpDetail.experiment_code})
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsEditExpModalOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateExp} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label className="label">Experiment Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={editExpForm.experiment_name}
+                  onChange={(e) => setEditExpForm({ ...editExpForm, experiment_name: e.target.value })}
+                  className="input"
+                />
+              </div>
+
+              <div>
+                <label className="label">Protocol Reference</label>
+                <input
+                  type="text"
+                  value={editExpForm.protocol_reference || ''}
+                  onChange={(e) => setEditExpForm({ ...editExpForm, protocol_reference: e.target.value })}
+                  className="input font-mono"
+                  placeholder="e.g. PROTO-ILLUMINA-NGS-04"
+                />
+              </div>
+
+              <div>
+                <label className="label">Workflow State</label>
+                <select
+                  value={editExpForm.status}
+                  onChange={(e) => setEditExpForm({ ...editExpForm, status: e.target.value })}
+                  className="input"
+                >
+                  <option value="planned">Planned</option>
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="label">Scientific Objective</label>
+                <textarea
+                  rows={3}
+                  value={editExpForm.objective || ''}
+                  onChange={(e) => setEditExpForm({ ...editExpForm, objective: e.target.value })}
+                  className="input"
+                  placeholder="Scientific hypotheses and methodology..."
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsEditExpModalOpen(false)}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '13px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ fontSize: '13px' }}
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Modal: Verify Result */}
       {isVerifyResultModalOpen && activeResultToVerify && (
         <div
@@ -1607,6 +2034,259 @@ export const ExperimentsPage: React.FC<ExperimentsPageProps> = ({ initialTab = '
                   style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
                   <Lock size={14} /> Confirm & Lock Result
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Allocate Equipment */}
+      {isAllocateEquipmentModalOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(23, 43, 58, 0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '20px',
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              width: '100%',
+              maxWidth: '460px',
+              padding: '24px',
+              backgroundColor: '#FFFFFF',
+              boxShadow: 'var(--shadow-lg)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '18px',
+              }}
+            >
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ink)', margin: 0 }}>
+                Allocate Equipment
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsAllocateEquipmentModalOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAllocateEquipment} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label className="label">Select Instrument *</label>
+                {availableEquipment.length === 0 ? (
+                  <p style={{ fontSize: '12px', color: 'var(--color-muted)' }}>No equipment found in registry.</p>
+                ) : (
+                  <select
+                    className="input"
+                    value={allocateEquipmentForm.equipment_id}
+                    onChange={(e) =>
+                      setAllocateEquipmentForm({
+                        ...allocateEquipmentForm,
+                        equipment_id: Number(e.target.value),
+                      })
+                    }
+                  >
+                    {availableEquipment.map((eq) => (
+                      <option key={eq.equipment_id} value={eq.equipment_id}>
+                        {eq.equipment_code} - {eq.equipment_name} ({eq.equipment_status})
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <div>
+                <label className="label">Usage Notes</label>
+                <textarea
+                  rows={2}
+                  className="input"
+                  placeholder="e.g. Reserved for thermal cycling run 2"
+                  value={allocateEquipmentForm.usage_notes}
+                  onChange={(e) =>
+                    setAllocateEquipmentForm({
+                      ...allocateEquipmentForm,
+                      usage_notes: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsAllocateEquipmentModalOpen(false)}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '13px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ fontSize: '13px' }}
+                  disabled={availableEquipment.length === 0}
+                >
+                  Allocate Equipment
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Result */}
+      {isEditResultModalOpen && activeResultToEdit && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(23, 43, 58, 0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '20px',
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              width: '100%',
+              maxWidth: '520px',
+              padding: '24px',
+              backgroundColor: '#FFFFFF',
+              boxShadow: 'var(--shadow-lg)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '18px',
+              }}
+            >
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ink)', margin: 0 }}>
+                  Edit Scientific Result
+                </h3>
+                <span className="font-mono" style={{ fontSize: '12px', color: 'var(--color-teal)' }}>
+                  {activeResultToEdit.result_code} ({activeResultToEdit.experiment_code})
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditResultModalOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateResult} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label className="label">Result Title *</label>
+                <input
+                  type="text"
+                  required
+                  className="input"
+                  value={editResultForm.result_title}
+                  onChange={(e) => setEditResultForm({ ...editResultForm, result_title: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label className="label">Metric Value</label>
+                  <input
+                    type="number"
+                    step="any"
+                    className="input font-mono"
+                    value={editResultForm.result_value ?? ''}
+                    onChange={(e) =>
+                      setEditResultForm({
+                        ...editResultForm,
+                        result_value: e.target.value === '' ? undefined : Number(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="label">Unit</label>
+                  <input
+                    type="text"
+                    className="input font-mono"
+                    placeholder="%, µg/mL, CFU, etc."
+                    value={editResultForm.result_unit || ''}
+                    onChange={(e) => setEditResultForm({ ...editResultForm, result_unit: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="label">Interpretation</label>
+                <select
+                  className="input"
+                  value={editResultForm.interpretation || 'OPTIMAL'}
+                  onChange={(e) => setEditResultForm({ ...editResultForm, interpretation: e.target.value })}
+                >
+                  <option value="OPTIMAL">OPTIMAL</option>
+                  <option value="PASS">PASS</option>
+                  <option value="FAIL">FAIL</option>
+                  <option value="INCONCLUSIVE">INCONCLUSIVE</option>
+                  <option value="ELEVATED">ELEVATED</option>
+                  <option value="LOW">LOW</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="label">Scientific Observation / Notes</label>
+                <textarea
+                  rows={3}
+                  className="input"
+                  value={editResultForm.observation || ''}
+                  onChange={(e) => setEditResultForm({ ...editResultForm, observation: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  id="edit_result_is_final"
+                  checked={editResultForm.is_final || false}
+                  onChange={(e) => setEditResultForm({ ...editResultForm, is_final: e.target.checked })}
+                />
+                <label htmlFor="edit_result_is_final" style={{ fontSize: '13px', cursor: 'pointer', userSelect: 'none' }}>
+                  Mark as Scientifically Final / Verified
+                </label>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsEditResultModalOpen(false)}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '13px' }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" style={{ fontSize: '13px' }}>
+                  Save Result Changes
                 </button>
               </div>
             </form>

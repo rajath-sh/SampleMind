@@ -26,6 +26,7 @@ from .schemas import (
     StorageLocationWithSamples,
     OccupancyGridResponse,
     EquipmentCreate,
+    EquipmentUpdate,
     EquipmentStatusUpdate,
     EquipmentDetail,
 )
@@ -142,6 +143,28 @@ def update_location(
     )
 
 
+@storage_router.delete(
+    "/locations/{location_id}",
+    response_model=APIResponse[bool],
+    summary="Delete a storage location (Admin / Lab Manager)",
+)
+def delete_location(
+    location_id: int,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, "ADMIN", "RESEARCHER"])),
+):
+    """Deletes a physical storage coordinate."""
+    success = StorageService.delete_location(
+        db=db,
+        location_id=location_id,
+        actor_id=current_user.user_id
+    )
+    return APIResponse(
+        message="Storage location deleted successfully.",
+        data=success
+    )
+
+
 @storage_router.get(
     "/occupancy-grid/{unit_label}",
     response_model=APIResponse[OccupancyGridResponse],
@@ -227,6 +250,52 @@ def register_equipment(
     return APIResponse(
         message=f"Equipment '{new_eq.equipment_name}' registered successfully.",
         data=EquipmentDetail.from_orm(new_eq)
+    )
+
+
+@equipment_router.put(
+    "/{equipment_id}",
+    response_model=APIResponse[EquipmentDetail],
+    summary="Update instrument specifications and metadata (Admin, Researcher)",
+)
+def update_equipment(
+    equipment_id: int,
+    req: EquipmentUpdate,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, "ADMIN", "RESEARCHER"])),
+):
+    """Updates specifications and metadata of an analytical instrument."""
+    updated = EquipmentService.update_equipment(
+        db=db,
+        equipment_id=equipment_id,
+        req=req,
+        actor_id=current_user.user_id
+    )
+    return APIResponse(
+        message=f"Equipment '{updated.equipment_name}' updated successfully.",
+        data=EquipmentDetail.from_orm(updated)
+    )
+
+
+@equipment_router.delete(
+    "/{equipment_id}",
+    response_model=APIResponse[bool],
+    summary="Delete a laboratory instrument (Admin / Lab Manager)",
+)
+def delete_equipment(
+    equipment_id: int,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, "ADMIN", "RESEARCHER"])),
+):
+    """Deletes an instrument from the laboratory equipment catalog."""
+    success = EquipmentService.delete_equipment(
+        db=db,
+        equipment_id=equipment_id,
+        actor_id=current_user.user_id
+    )
+    return APIResponse(
+        message="Equipment deleted successfully.",
+        data=success
     )
 
 

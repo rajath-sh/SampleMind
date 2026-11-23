@@ -231,3 +231,31 @@ html[data-motion="reduced"] *, html[data-motion="reduced"] *::before, html[data-
 .dependency-arrow { color: #287d78; font-size: 2rem; }
 .dependency-attributes { display: flex; flex-wrap: wrap; gap: .3rem; flex: 1 1 250px; }
 .dependency-attributes button[aria-pressed="true"] { background: #d7ebe1; border-color: #287d78; }
+
+/* Global table styling: clean spacing and faint column/row borders */
+table.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+table.table th,
+table.table td {
+  padding: 10px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  vertical-align: middle;
+}
+
+table.table thead th {
+  background-color: #edf5f2;
+  color: #285a54;
+  font-weight: 650;
+  border-bottom: 2px solid rgba(40, 125, 120, 0.25);
+  white-space: nowrap;
+}
+
+table.table tbody tr:hover {
+  background-color: #f7faf8;
+}
+

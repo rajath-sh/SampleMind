@@ -33,7 +33,9 @@ class StorageLocationCreate(BaseModel):
 
 class StorageLocationUpdate(BaseModel):
     """Payload to update an existing storage location's environmental conditions or status."""
+    facility: Optional[str] = None
     room: Optional[str] = None
+    unit_type: Optional[str] = None
     unit_label: Optional[str] = None
     rack: Optional[str] = None
     box: Optional[str] = None
@@ -117,6 +119,17 @@ class EquipmentCreate(BaseModel):
     manufacturer: Optional[str] = Field(None, max_length=120)
     model_number: Optional[str] = Field(None, max_length=100)
     equipment_status: str = Field(default="available", description="available, in_use, maintenance, retired")
+    last_calibrated_at: Optional[datetime] = None
+    calibration_due_at: Optional[datetime] = None
+    notes: Optional[str] = None
+
+
+class EquipmentUpdate(BaseModel):
+    """Payload to update laboratory instrument details."""
+    equipment_name: Optional[str] = None
+    manufacturer: Optional[str] = None
+    model_number: Optional[str] = None
+    equipment_status: Optional[str] = None
     last_calibrated_at: Optional[datetime] = None
     calibration_due_at: Optional[datetime] = None
     notes: Optional[str] = None

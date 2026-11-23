@@ -5,7 +5,9 @@ import {
   OccupancyGridResponse,
   Equipment,
   StorageLocationCreatePayload,
+  StorageLocationUpdatePayload,
   EquipmentCreatePayload,
+  EquipmentUpdatePayload,
 } from './types';
 
 interface ApiResponseEnvelope<T> {
@@ -31,6 +33,21 @@ export const storageService = {
     const res = await apiRequest<ApiResponseEnvelope<StorageLocation>>('/storage/locations', {
       method: 'POST',
       body: JSON.stringify(payload),
+    });
+    return res.data;
+  },
+
+  async updateLocation(locationId: number, payload: StorageLocationUpdatePayload): Promise<StorageLocation> {
+    const res = await apiRequest<ApiResponseEnvelope<StorageLocation>>(`/storage/locations/${locationId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+    return res.data;
+  },
+
+  async deleteLocation(locationId: number): Promise<boolean> {
+    const res = await apiRequest<ApiResponseEnvelope<boolean>>(`/storage/locations/${locationId}`, {
+      method: 'DELETE',
     });
     return res.data;
   },
@@ -61,6 +78,21 @@ export const storageService = {
     const res = await apiRequest<ApiResponseEnvelope<Equipment>>(`/equipment/${equipmentId}/status`, {
       method: 'PUT',
       body: JSON.stringify({ equipment_status: status, notes }),
+    });
+    return res.data;
+  },
+
+  async updateEquipment(equipmentId: number, payload: EquipmentUpdatePayload): Promise<Equipment> {
+    const res = await apiRequest<ApiResponseEnvelope<Equipment>>(`/equipment/${equipmentId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+    return res.data;
+  },
+
+  async deleteEquipment(equipmentId: number): Promise<boolean> {
+    const res = await apiRequest<ApiResponseEnvelope<boolean>>(`/equipment/${equipmentId}`, {
+      method: 'DELETE',
     });
     return res.data;
   },

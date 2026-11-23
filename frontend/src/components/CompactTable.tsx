@@ -3,10 +3,11 @@ import { TableLens } from './TableLens';
 import { useId, useRef, useState, type ReactNode } from 'react';
 import { Columns3 } from 'lucide-react';
 
-export function CompactTable({ label, extra, help, children }: {
+export function CompactTable({ label, extra, help, showLens = true, children }: {
   label: string;
   extra: number[];
   help?: ReactNode;
+  showLens?: boolean;
   children: ReactNode;
 }) {
   const { user } = useAuth();
@@ -37,7 +38,7 @@ export function CompactTable({ label, extra, help, children }: {
           <Columns3 size={15} aria-hidden="true" />{showAll ? 'Show fewer columns' : 'Show all columns'}
         </button>}
       </div>}
-      <TableLens label={label} tableRef={tableRef} />
+      {showLens && <TableLens label={label} tableRef={tableRef} />}
       <div className="compact-table-scroll" id={tableId} ref={tableRef}>{children}</div>
     </div>
   );

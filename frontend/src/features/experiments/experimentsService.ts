@@ -67,6 +67,14 @@ export const experimentsService = {
     return res.data;
   },
 
+  async attachEquipment(experimentId: number, payload: { equipment_id: number; usage_notes?: string }): Promise<boolean> {
+    const res = await apiRequest<ApiResponseEnvelope<boolean>>(`/experiments/${experimentId}/equipment`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return res.data;
+  },
+
   async getExperimentResults(experimentId: number): Promise<ResultDetail[]> {
     const res = await apiRequest<ApiResponseEnvelope<ResultDetail[]>>(`/experiments/${experimentId}/results`);
     return res.data || [];
@@ -101,6 +109,35 @@ export const experimentsService = {
     const res = await apiRequest<ApiResponseEnvelope<ResultDetail>>(`/results/${resultId}/verify`, {
       method: 'PUT',
       body: JSON.stringify(payload),
+    });
+    return res.data;
+  },
+
+  async updateResult(resultId: number, payload: {
+    result_title?: string;
+    result_value?: number;
+    result_unit?: string;
+    interpretation?: string;
+    observation?: string;
+    is_final?: boolean;
+  }): Promise<ResultDetail> {
+    const res = await apiRequest<ApiResponseEnvelope<ResultDetail>>(`/results/${resultId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+    return res.data;
+  },
+
+  async deleteExperiment(experimentId: number): Promise<boolean> {
+    const res = await apiRequest<ApiResponseEnvelope<boolean>>(`/experiments/${experimentId}`, {
+      method: 'DELETE',
+    });
+    return res.data;
+  },
+
+  async deleteResult(resultId: number): Promise<boolean> {
+    const res = await apiRequest<ApiResponseEnvelope<boolean>>(`/results/${resultId}`, {
+      method: 'DELETE',
     });
     return res.data;
   },

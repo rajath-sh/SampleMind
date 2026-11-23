@@ -19,7 +19,7 @@ const concepts = {
   cycle: {
     title: 'Lineage constraint',
     steps: ['Propose an edge', 'Check for a return path', 'Reject cycles'],
-    description: 'The application checks reachability while lineage writers are serialized. A SQLite trigger also rejects edges that would close a cycle.',
+    description: 'The application checks reachability while lineage writers are serialized. A database constraint trigger also rejects edges that would close a cycle.',
   },
   assays: {
     title: 'Assay referential integrity',

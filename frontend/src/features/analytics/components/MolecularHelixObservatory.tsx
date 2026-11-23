@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Dna,
-  Play,
-  Pause,
   RotateCw,
-  Zap,
-  Activity,
-  Flame,
   ArrowRight,
-  Maximize2,
-  Minimize2,
+  ChevronDown,
+  ChevronUp,
+  MoveHorizontal,
 } from 'lucide-react';
 import { ConceptInfo } from '../../../components/ConceptInfo';
 import { samplesService } from '../../samples/samplesService';
@@ -36,20 +32,18 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
   totalSamples,
   onOpenSample,
 }) => {
-  const [isPlaying, setIsPlaying] = useState(() => document.documentElement.dataset.motion !== "reduced" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  const [speed, setSpeed] = useState<number>(1.0);
-  const [mode, setMode] = useState<'orbit' | 'scan' | 'denature'>('orbit');
   const [selectedPair, setSelectedPair] = useState<NucleotidePair | null>(null);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [laserPos, setLaserPos] = useState<number>(0);
-  const [denatureFactor, setDenatureFactor] = useState<number>(0); // 0 = annealed, 1 = fully separated
-
-  // Animation frame loop state
   const [rotationAngle, setRotationAngle] = useState(0);
-  const lastTimeRef = useRef<number>(performance.now());
+  const [isDragging, setIsDragging] = useState(false);
+  const isPointerDownRef = useRef(false);
+  const hasDraggedRef = useRef(false);
+  const dragStartXRef = useRef(0);
 
   const [samples, setSamples] = useState<SampleListItem[]>([]);
   const [sampleError, setSampleError] = useState('');
+
+  // Fetch the latest 12 registered specimens from the database
   useEffect(() => {
     let active = true;
     samplesService.listSamples({ pageSize: 12, sortBy: 'registered_at', sortDir: 'desc' })
@@ -64,48 +58,49 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
     return samples.map((sample, index) => {
       const base = bases[index % bases.length];
       return {
-        id: sample.sample_id, base1: base, base2: complement[base],
+        id: sample.sample_id,
+        base1: base,
+        base2: complement[base],
         hBonds: base === 'G' || base === 'C' ? 3 : 2,
-        specimenCode: sample.sample_code, specimenType: sample.sample_type_code,
-        sampleName: sample.sample_name, status: sample.sample_status,
+        specimenCode: sample.sample_code,
+        specimenType: sample.sample_type_code,
+        sampleName: sample.sample_name,
+        status: sample.sample_status,
         storage: sample.current_storage_location_code || 'Unassigned',
       };
     });
   }, [samples]);
 
-  // 60FPS Animation Driver
+  // Keep a specimen selected always (defaults to the first/latest record)
   useEffect(() => {
-    if (!isPlaying) return;
-    let animId: number;
-    lastTimeRef.current = performance.now();
+    if (nucleotidePairs.length > 0 && !selectedPair) {
+      setSelectedPair(nucleotidePairs[0]);
+    }
+  }, [nucleotidePairs, selectedPair]);
 
-    const animate = (time: number) => {
-      const delta = (time - lastTimeRef.current) / 1000;
-      lastTimeRef.current = time;
+  // Mouse / Pointer drag-to-rotate interaction handlers without swallowing clicks
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    isPointerDownRef.current = true;
+    hasDraggedRef.current = false;
+    dragStartXRef.current = e.clientX;
+  };
 
-      if (isPlaying) {
-        setRotationAngle((prev) => (prev + delta * speed * 1.5) % (Math.PI * 2));
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isPointerDownRef.current) return;
+    const deltaX = e.clientX - dragStartXRef.current;
+    if (Math.abs(deltaX) > 3) {
+      hasDraggedRef.current = true;
+      setIsDragging(true);
+    }
+    dragStartXRef.current = e.clientX;
+    setRotationAngle((prev) => (prev + deltaX * 0.012) % (Math.PI * 2));
+  };
 
-        // Scan laser sweep motion
-        if (mode === 'scan') {
-          setLaserPos((prev) => (prev + delta * 0.8) % 1);
-        }
-
-        // Thermal denaturation animation
-        if (mode === 'denature') {
-          const cycle = (Math.sin(time * 0.002) + 1) / 2;
-          setDenatureFactor(cycle);
-        } else {
-          setDenatureFactor(0);
-        }
-      }
-
-      animId = requestAnimationFrame(animate);
-    };
-
-    animId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animId);
-  }, [isPlaying, speed, mode]);
+  const handlePointerUp = () => {
+    isPointerDownRef.current = false;
+    setIsDragging(false);
+  };
 
   // Color map for base pairs
   const getBaseColor = (base: 'A' | 'T' | 'G' | 'C') => {
@@ -139,17 +134,14 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
     return nucleotidePairs.map((pair, idx) => {
       const y = 30 + idx * ySpacing;
       // Pitch: 1.5 full helical turns across the 12 rungs
-      const theta = rotationAngle + (idx / numSteps) * Math.PI * 3;
-
-      // Separation factor for PCR denaturation simulation
-      const strandSpread = 1 + denatureFactor * 1.6;
+      const theta = rotationAngle + (idx / Math.max(1, numSteps)) * Math.PI * 3;
 
       // 3D coordinates (x = horizontal, z = depth into screen)
       const centerX = helixWidth / 2;
-      const x1 = centerX + Math.cos(theta) * radius * strandSpread;
+      const x1 = centerX + Math.cos(theta) * radius;
       const z1 = Math.sin(theta); // -1 to +1
 
-      const x2 = centerX - Math.cos(theta) * radius * strandSpread;
+      const x2 = centerX - Math.cos(theta) * radius;
       const z2 = -Math.sin(theta);
 
       // Depth sorting & perspective scale
@@ -158,10 +150,6 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
 
       const alpha1 = 0.35 + ((z1 + 1) / 2) * 0.65;
       const alpha2 = 0.35 + ((z2 + 1) / 2) * 0.65;
-
-      // Check if this pair intersects with the scan laser
-      const normalizedY = idx / (numSteps - 1);
-      const isLaserHit = mode === 'scan' && Math.abs(normalizedY - laserPos) < 0.08;
 
       return {
         pair,
@@ -176,10 +164,9 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
         scale2,
         alpha2,
         avgZ: (z1 + z2) / 2,
-        isLaserHit,
       };
     });
-  }, [nucleotidePairs, rotationAngle, denatureFactor, mode, laserPos, ySpacing, numSteps]);
+  }, [nucleotidePairs, rotationAngle, ySpacing, numSteps]);
 
   // Generate continuous spline paths for the two sugar-phosphate backbones
   const strand1Path = useMemo(() => {
@@ -195,6 +182,10 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
       return i === 0 ? `M ${r.x2} ${r.y}` : `${acc} L ${r.x2} ${r.y}`;
     }, '');
   }, [projectedRungs]);
+
+  const selectRung = (pair: NucleotidePair) => {
+    setSelectedPair(pair);
+  };
 
   return (
     <div style={{
@@ -242,13 +233,13 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
             justifyContent: 'center',
             boxShadow: '0 0 12px rgba(56, 189, 248, 0.2)',
           }}>
-            <Dna size={20} color="#38BDF8" className={isPlaying ? 'animate-pulse' : ''} />
+            <Dna size={20} color="#38BDF8" />
           </div>
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '15px', fontWeight: 700, color: '#F8FAFC', letterSpacing: '-0.01em' }}>
-                BioTrace Molecular Core: Interactive DNA Helix & Laboratory Activity
+                BioTrace Molecular Core: Interactive Specimen DNA Helix
               </span>
               <span style={{
                 fontSize: '10px',
@@ -262,164 +253,100 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
                 alignItems: 'center',
                 gap: '5px',
               }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981', animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
-                SPECIMEN INVENTORY
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981' }} />
+                LATEST 12 SPECIMENS
               </span>
             </div>
             <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>
-              Recent specimen records arranged on an illustrative DNA helix
+              Arranged from the 12 most recently registered specimen records in the database • Drag with mouse to rotate
             </div>
           </div>
         </div>
 
-        <ConceptInfo title="Helix specimen index" steps={['Order sample rows', 'Map one specimen per rung', 'Select a rung', 'Open specimen record']}>
-          <p>Each rung opens a real specimen record from the SQL inventory. The base letters and DNA animation illustrate complementarity and denaturation.</p>
+        <ConceptInfo title="Latest 12 Specimen Helix" steps={['Fetch latest 12 database records', 'Map one specimen per rung', 'Drag with mouse to rotate 3D view', 'Click rung to inspect specimen record']}>
+          <p>This interactive 3D visualization presents the 12 most recently registered specimen records from the database. Click and drag horizontally with your mouse to rotate the helix. Click any rung to inspect the specimen record.</p>
         </ConceptInfo>
 
         {/* Action Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          {/* Mode Switcher */}
+          {/* Single Orbit View Indicator */}
           <div style={{
-            display: 'flex',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
             backgroundColor: 'rgba(30, 41, 59, 0.7)',
-            padding: '3px',
+            padding: '4px 10px',
             borderRadius: '8px',
             border: '1px solid rgba(148, 163, 184, 0.2)',
+            fontSize: '11px',
+            fontWeight: 600,
+            color: '#38BDF8',
           }}>
-            <button
-              type="button"
-              onClick={() => setMode('orbit')}
-              style={{
-                padding: '4px 9px',
-                fontSize: '11px',
-                fontWeight: 600,
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                backgroundColor: mode === 'orbit' ? '#0284C7' : 'transparent',
-                color: mode === 'orbit' ? '#FFFFFF' : '#94A3B8',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                transition: 'all 0.18s ease',
-              }}
-            >
-              <RotateCw size={11} />
-              Orbit
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('scan')}
-              style={{
-                padding: '4px 9px',
-                fontSize: '11px',
-                fontWeight: 600,
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                backgroundColor: mode === 'scan' ? '#0D9488' : 'transparent',
-                color: mode === 'scan' ? '#FFFFFF' : '#94A3B8',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                transition: 'all 0.18s ease',
-              }}
-            >
-              <Zap size={11} />
-              Laser Scan
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('denature')}
-              style={{
-                padding: '4px 9px',
-                fontSize: '11px',
-                fontWeight: 600,
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                backgroundColor: mode === 'denature' ? '#DC2626' : 'transparent',
-                color: mode === 'denature' ? '#FFFFFF' : '#94A3B8',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                transition: 'all 0.18s ease',
-              }}
-              title="Simulate 95°C Thermal PCR Strand Separation"
-            >
-              <Flame size={11} />
-              PCR 95°C
-            </button>
+            <RotateCw size={12} />
+            <span>Orbit</span>
           </div>
 
-          {/* Velocity Control */}
-          <div style={{
-            display: 'flex',
-            backgroundColor: 'rgba(30, 41, 59, 0.7)',
-            padding: '3px',
-            borderRadius: '8px',
-            border: '1px solid rgba(148, 163, 184, 0.2)',
-          }}>
-            {[0.5, 1.0, 2.2].map((s) => (
+          {isExpanded && (
+            <>
+              {/* Mouse Drag Hint */}
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                padding: '4px 10px',
+                borderRadius: '8px',
+                border: '1px solid rgba(56, 189, 248, 0.25)',
+                fontSize: '11px',
+                color: '#CBD5E1',
+              }}>
+                <MoveHorizontal size={13} color="#38BDF8" />
+                <span>Drag mouse to rotate</span>
+              </div>
+
+              {/* Reset View Button */}
               <button
-                key={s}
                 type="button"
-                onClick={() => setSpeed(s)}
+                onClick={() => setRotationAngle(0)}
                 style={{
-                  padding: '4px 8px',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  fontFamily: 'monospace',
-                  border: 'none',
-                  borderRadius: '5px',
+                  padding: '4px 9px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                  color: '#94A3B8',
+                  border: '1px solid rgba(148, 163, 184, 0.25)',
                   cursor: 'pointer',
-                  backgroundColor: speed === s ? '#38BDF8' : 'transparent',
-                  color: speed === s ? '#0F172A' : '#94A3B8',
-                  transition: 'all 0.18s ease',
+                  fontSize: '11px',
+                  fontWeight: 500,
                 }}
+                title="Reset rotation angle to default"
               >
-                {s}x
+                Reset
               </button>
-            ))}
-          </div>
+            </>
+          )}
 
-          {/* Play/Pause */}
-          <button
-            type="button"
-            onClick={() => setIsPlaying(!isPlaying)}
-            style={{
-              padding: '6px 10px',
-              borderRadius: '8px',
-              backgroundColor: isPlaying ? 'rgba(56, 189, 248, 0.14)' : 'rgba(148, 163, 184, 0.1)',
-              color: isPlaying ? '#38BDF8' : '#94A3B8',
-              border: '1px solid rgba(148, 163, 184, 0.25)',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '11px',
-            }}
-          >
-            {isPlaying ? <Pause size={13} /> : <Play size={13} />}
-          </button>
-
-          {/* Collapse/Expand */}
+          {/* Prominent Collapse / Expand Button */}
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
             style={{
-              padding: '6px 8px',
+              padding: '5px 12px',
               borderRadius: '8px',
-              backgroundColor: 'transparent',
-              color: '#94A3B8',
-              border: '1px solid rgba(148, 163, 184, 0.25)',
+              backgroundColor: isExpanded ? 'rgba(30, 41, 59, 0.85)' : 'rgba(14, 165, 233, 0.2)',
+              color: isExpanded ? '#CBD5E1' : '#38BDF8',
+              border: isExpanded ? '1px solid rgba(148, 163, 184, 0.3)' : '1px solid rgba(56, 189, 248, 0.45)',
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
+              gap: '6px',
+              fontSize: '11px',
+              fontWeight: 600,
+              transition: 'all 0.15s ease',
             }}
-            title={isExpanded ? 'Collapse Kinetic Helix' : 'Expand Kinetic Helix'}
+            title={isExpanded ? 'Collapse Specimen Helix view' : 'Expand Specimen Helix view'}
           >
-            {isExpanded ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            <span>{isExpanded ? 'Collapse' : 'Expand'}</span>
           </button>
         </div>
       </div>
@@ -427,64 +354,57 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
       {/* Main Observatory Body */}
       {isExpanded && (
         <div style={{ padding: '16px 20px', position: 'relative' }}>
-          {/* Top Real-time Scientific Telemetry Strip */}
+          {/* Informational Status Strip */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '10px',
-            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '8px',
+            marginBottom: '14px',
             backgroundColor: 'rgba(15, 23, 42, 0.65)',
-            padding: '10px 14px',
-            borderRadius: '10px',
+            padding: '8px 14px',
+            borderRadius: '8px',
             border: '1px solid rgba(148, 163, 184, 0.15)',
+            fontSize: '11px',
+            color: '#94A3B8',
           }}>
             <div>
-              <div style={{ fontSize: '10px', color: '#94A3B8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.04em' }}>
-                GC Equilibrium Content
-              </div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: '#38BDF8', fontFamily: 'monospace', marginTop: '2px' }}>
-                52.8% (Balanced Isochore)
-              </div>
+              Displaying <strong style={{ color: '#38BDF8', fontFamily: 'monospace' }}>latest {numSteps} registered specimens</strong> from database
             </div>
-
-            <div>
-              <div style={{ fontSize: '10px', color: '#94A3B8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.04em' }}>
-                Mean Phred Quality Score
-              </div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: '#34D399', fontFamily: 'monospace', marginTop: '2px' }}>
-                Q40.8 (99.99% Accuracy)
-              </div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: '10px', color: '#94A3B8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.04em' }}>
-                Active Simulation State
-              </div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: mode === 'denature' ? '#FB7185' : mode === 'scan' ? '#FBBF24' : '#818CF8', marginTop: '2px' }}>
-                {mode === 'denature' ? `PCR Denaturation (${(denatureFactor * 100).toFixed(0)}% Open)` : mode === 'scan' ? 'Spectrometer Laser Scan' : 'Bioluminescent 3D Orbit'}
-              </div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: '10px', color: '#94A3B8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.04em' }}>
-                Spectrophotometry Ratio
-              </div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: '#F8FAFC', fontFamily: 'monospace', marginTop: '2px' }}>
-                Mapped records: {numSteps}
-              </div>
+            <div style={{ color: '#CBD5E1', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <MoveHorizontal size={12} color="#38BDF8" />
+              <span>Click and drag horizontally with mouse to rotate • Click any rung to view specimen dossier</span>
             </div>
           </div>
 
           {sampleError && <p role="alert" className="lab-error">{sampleError}</p>}
           {!sampleError && numSteps === 0 && <p style={{ color: '#CBD5E1' }}>No specimen rows to display.</p>}
-          {/* SVG 3D Double Helix Render Canvas */}
-          <div style={{ position: 'relative', overflowX: 'auto', textAlign: 'center' }}>
+
+          {/* SVG 3D Double Helix Render Canvas - Mouse Drag Controlled with Reliable Click Detection */}
+          <div
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+            style={{
+              position: 'relative',
+              overflow: 'hidden',
+              textAlign: 'center',
+              cursor: isDragging ? 'grabbing' : 'grab',
+              userSelect: 'none',
+              touchAction: 'none',
+              borderRadius: '8px',
+              backgroundColor: 'rgba(7, 13, 30, 0.4)',
+              border: isDragging ? '1px dashed #38BDF8' : '1px solid rgba(148, 163, 184, 0.1)',
+              transition: 'border 0.15s ease',
+            }}
+          >
             <svg
               viewBox={`0 0 ${helixWidth} ${helixHeight}`}
               style={{
                 width: '100%',
                 maxHeight: '280px',
-                minWidth: '700px',
                 display: 'block',
                 margin: '0 auto',
                 filter: 'drop-shadow(0 0 16px rgba(14, 165, 233, 0.15))',
@@ -496,36 +416,7 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
                   <feGaussianBlur stdDeviation="4" result="blur" />
                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
                 </filter>
-
-                {/* Laser scan gradient */}
-                <linearGradient id="laserBeam" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#0D9488" stopOpacity="0" />
-                  <stop offset="50%" stopColor="#2DD4BF" stopOpacity="0.9" />
-                  <stop offset="100%" stopColor="#0D9488" stopOpacity="0" />
-                </linearGradient>
               </defs>
-
-              {/* Laser Spectrometer Beam (when scan mode active) */}
-              {mode === 'scan' && (
-                <g>
-                  <line
-                    x1="40"
-                    y1={30 + laserPos * (helixHeight - 60)}
-                    x2={helixWidth - 40}
-                    y2={30 + laserPos * (helixHeight - 60)}
-                    stroke="url(#laserBeam)"
-                    strokeWidth="3.5"
-                    filter="url(#helixGlow)"
-                  />
-                  <circle
-                    cx={helixWidth / 2}
-                    cy={30 + laserPos * (helixHeight - 60)}
-                    r="6"
-                    fill="#2DD4BF"
-                    filter="url(#helixGlow)"
-                  />
-                </g>
-              )}
 
               {/* 5' to 3' and 3' to 5' Sugar-Phosphate Backbones */}
               <path
@@ -547,20 +438,42 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
               {projectedRungs
                 .slice()
                 .sort((a, b) => a.avgZ - b.avgZ) // Render back-facing rungs first, front-facing last
-                .map(({ pair, y, x1, scale1, alpha1, x2, scale2, alpha2, isLaserHit }) => {
+                .map(({ pair, y, x1, scale1, alpha1, x2, scale2, alpha2 }) => {
                   const isSelected = selectedPair?.id === pair.id;
                   const color1 = getBaseColor(pair.base1);
                   const color2 = getBaseColor(pair.base2);
 
                   // Midpoint of the hydrogen bond
                   const midX = (x1 + x2) / 2;
+                  const minX = Math.min(x1, x2);
+                  const maxX = Math.max(x1, x2);
 
                   return (
                     <g
                       key={pair.id}
                       style={{ cursor: 'pointer' }}
-                      onClick={() => setSelectedPair(pair)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        selectRung(pair);
+                      }}
+                      onPointerUp={(e) => {
+                        if (!hasDraggedRef.current) {
+                          e.stopPropagation();
+                          selectRung(pair);
+                        }
+                      }}
                     >
+                      {/* Generous transparent hit-box line so clicking anywhere near the rung works easily */}
+                      <line
+                        x1={minX - 18}
+                        y1={y}
+                        x2={maxX + 18}
+                        y2={y}
+                        stroke="transparent"
+                        strokeWidth="28"
+                        cursor="pointer"
+                      />
+
                       {/* Hydrogen Bond Connecting Line */}
                       <line
                         x1={x1}
@@ -568,8 +481,8 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
                         x2={midX}
                         y2={y}
                         stroke={color1}
-                        strokeWidth={isSelected ? 4 : isLaserHit ? 3.5 : 2.2}
-                        strokeOpacity={alpha1}
+                        strokeWidth={isSelected ? 4.5 : 2.2}
+                        strokeOpacity={isSelected ? 1 : alpha1}
                       />
                       <line
                         x1={midX}
@@ -577,31 +490,29 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
                         x2={x2}
                         y2={y}
                         stroke={color2}
-                        strokeWidth={isSelected ? 4 : isLaserHit ? 3.5 : 2.2}
-                        strokeOpacity={alpha2}
+                        strokeWidth={isSelected ? 4.5 : 2.2}
+                        strokeOpacity={isSelected ? 1 : alpha2}
                       />
 
-                      {/* Hydrogen Bond Central Dot (2 vs 3 dots based on bond count) */}
-                      {denatureFactor < 0.6 && (
-                        <circle
-                          cx={midX}
-                          cy={y}
-                          r={pair.hBonds === 3 ? 3 : 2}
-                          fill="#FFFFFF"
-                          fillOpacity={0.8}
-                        />
-                      )}
+                      {/* Hydrogen Bond Central Dot */}
+                      <circle
+                        cx={midX}
+                        cy={y}
+                        r={isSelected ? 4 : (pair.hBonds === 3 ? 3 : 2)}
+                        fill="#FFFFFF"
+                        fillOpacity={isSelected ? 1 : 0.8}
+                      />
 
                       {/* Strand 1 Nucleotide Node */}
                       <circle
                         cx={x1}
                         cy={y}
-                        r={6 * scale1}
+                        r={isSelected ? 7.5 * scale1 : 6 * scale1}
                         fill={color1}
-                        fillOpacity={alpha1}
+                        fillOpacity={isSelected ? 1 : alpha1}
                         stroke="#FFFFFF"
-                        strokeWidth={isSelected ? 2 : 1}
-                        filter={isLaserHit || isSelected ? 'url(#helixGlow)' : undefined}
+                        strokeWidth={isSelected ? 2.5 : 1}
+                        filter={isSelected ? 'url(#helixGlow)' : undefined}
                       />
 
                       {/* Strand 1 Base Letter */}
@@ -624,12 +535,12 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
                       <circle
                         cx={x2}
                         cy={y}
-                        r={6 * scale2}
+                        r={isSelected ? 7.5 * scale2 : 6 * scale2}
                         fill={color2}
-                        fillOpacity={alpha2}
+                        fillOpacity={isSelected ? 1 : alpha2}
                         stroke="#FFFFFF"
-                        strokeWidth={isSelected ? 2 : 1}
-                        filter={isLaserHit || isSelected ? 'url(#helixGlow)' : undefined}
+                        strokeWidth={isSelected ? 2.5 : 1}
+                        filter={isSelected ? 'url(#helixGlow)' : undefined}
                       />
 
                       {/* Strand 2 Base Letter */}
@@ -648,16 +559,23 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
                         </text>
                       )}
 
-                      {/* Hover/Selection Callout Tag */}
+                      {/* Selection Callout Tag directly on the rung */}
                       {isSelected && (
-                        <g transform={`translate(${helixWidth - 190}, ${y - 12})`}>
+                        <g
+                          transform={`translate(${helixWidth - 215}, ${y - 12})`}
+                          cursor="pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onOpenSample) onOpenSample(pair.id);
+                          }}
+                        >
                           <rect
-                            width="180"
+                            width="205"
                             height="24"
                             rx="5"
-                            fill="#1E293B"
+                            fill="#0F172A"
                             stroke="#38BDF8"
-                            strokeWidth="1.2"
+                            strokeWidth="1.5"
                           />
                           <text
                             x="10"
@@ -667,7 +585,7 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
                             fontWeight="700"
                             fontFamily="monospace"
                           >
-                            Locus #{pair.id}: {pair.base1}≡{pair.base2} ({pair.specimenCode})
+                            #{pair.id} · {pair.specimenCode} (Open) →
                           </text>
                         </g>
                       )}
@@ -677,7 +595,7 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
             </svg>
           </div>
 
-          {/* Interactive Selected Nucleotide Locus Dossier Card */}
+          {/* Interactive Selected Specimen Dossier Card - SHOWN ALWAYS */}
           {selectedPair && (
             <div style={{
               marginTop: '14px',
@@ -731,10 +649,10 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
               </div>
 
               {/* Metrics & Jump Action */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
                 <div style={{ fontSize: '11px', color: '#CBD5E1', display: 'flex', gap: '12px' }}>
-                  <div>Status <strong>{selectedPair.status}</strong></div>
-                  <div>Storage <strong>{selectedPair.storage}</strong></div>
+                  <div>Status: <strong style={{ color: '#F8FAFC' }}>{selectedPair.status}</strong></div>
+                  <div>Storage: <strong style={{ color: '#F8FAFC' }}>{selectedPair.storage}</strong></div>
                 </div>
 
                 {onOpenSample && (
@@ -742,80 +660,29 @@ export const MolecularHelixObservatory: React.FC<Props> = ({
                     type="button"
                     onClick={() => onOpenSample(selectedPair.id)}
                     style={{
-                      padding: '5px 12px',
+                      padding: '7px 15px',
                       borderRadius: '6px',
                       backgroundColor: '#0284C7',
                       color: '#FFFFFF',
                       border: 'none',
-                      fontSize: '11px',
+                      fontSize: '12px',
                       fontWeight: 600,
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '6px',
+                      boxShadow: '0 2px 8px rgba(2, 132, 199, 0.35)',
+                      transition: 'background 0.15s ease',
                     }}
+                    title={`Open complete laboratory dossier for specimen ${selectedPair.specimenCode}`}
                   >
-                    Open specimen dossier
-                    <ArrowRight size={12} />
+                    <span>Open specimen dossier</span>
+                    <ArrowRight size={13} />
                   </button>
                 )}
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedPair(null)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#94A3B8',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    padding: '2px',
-                  }}
-                  title="Close specimen inspector"
-                >
-                  ✕
-                </button>
               </div>
             </div>
           )}
-
-          {/* Real-time Illumina Base Calls Ticker Stream */}
-          <div style={{
-            marginTop: '12px',
-            padding: '8px 14px',
-            backgroundColor: 'rgba(11, 19, 41, 0.7)',
-            borderRadius: '6px',
-            border: '1px solid rgba(148, 163, 184, 0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: '10px',
-            color: '#94A3B8',
-            flexWrap: 'wrap',
-            gap: '8px',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Activity size={12} color="#10B981" />
-              <span>Illustrative base sequence</span>
-              <span style={{
-                fontFamily: 'monospace',
-                fontWeight: 700,
-                color: '#38BDF8',
-                letterSpacing: '0.12em',
-                backgroundColor: 'rgba(15, 23, 42, 0.8)',
-                padding: '2px 8px',
-                borderRadius: '4px',
-              }}>
-                5'-ATCGGCTAGGCTAAGCTTAGCG-3'
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span>Base Complementarity: <strong style={{ color: '#F8FAFC' }}>Watson-Crick Canonical</strong></span>
-              <span>•</span>
-              <span>Choose a rung to inspect its specimen record.</span>
-            </div>
-          </div>
         </div>
       )}
     </div>

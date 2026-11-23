@@ -254,6 +254,10 @@ class IncidentService:
         if not incident:
             raise EntityNotFoundException("Incident", incident_id)
 
+        if data.incident_type is not None:
+            incident.incident_type = data.incident_type.strip()
+        if data.description is not None:
+            incident.description = data.description.strip()
         if data.status is not None:
             incident.status = data.status.strip().lower()
             if incident.status in ("closed", "mitigated") and not incident.closed_at:
@@ -278,6 +282,31 @@ class IncidentService:
         db.refresh(incident)
 
         return IncidentService.get_incident_detail(db, incident_id)
+
+    @staticmethod
+    def delete_incident(db: Session, incident_id: int, actor_id: Optional[int] = None) -> bool:
+        """Deletes an incident record and its associated audit logs/messages."""
+        incident = db.query(Incident).filter(Incident.incident_id == incident_id).first()
+        if not incident:
+            raise EntityNotFoundException("Incident", incident_id)
+
+        # Clean up related audit logs for this incident entity
+        db.query(AuditLog).filter(
+            AuditLog.entity_type == "Incident",
+            AuditLog.entity_id == incident_id,
+        ).delete(synchronize_session=False)
+
+        code = incident.incident_code
+        db.delete(incident)
+        db.add(AuditLog(
+            actor_user_id=actor_id,
+            action="DELETE",
+            entity_type="Incident",
+            entity_id=incident_id,
+            details={"incident_code": code, "deleted": True},
+        ))
+        db.commit()
+        return True
 
     # -------------------------------------------------------------------------
     # Signature Blast Radius Tracing Query

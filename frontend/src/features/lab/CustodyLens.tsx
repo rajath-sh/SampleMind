@@ -65,7 +65,7 @@ export function CustodyLens({ onOpenLineage }: { onOpenLineage: (id: number) => 
   const selected = result?.documents.find(doc => doc.audit_id === selection);
   return (
     <section className="card lab-panel">
-      <div className="lab-title"><ScanLine size={20} /><h2>Custody lens</h2>
+      <div className="lab-title"><ScanLine size={20} /><h2>NoSQL Explorer</h2>
         <ConceptInfo title="Document aggregates and traceability" steps={['SQL transaction', 'Committed audit row', 'Replay by audit ID', 'Search nested document']}
          >
           <p>The document view collects committed registrations, transformations, tests and incidents in a searchable projection.</p>

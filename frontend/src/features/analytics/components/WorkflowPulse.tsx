@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   TestTubes,
   Lock,
-  ArrowRight,
   Info,
   Layers,
   ChevronRight,
@@ -242,25 +241,6 @@ export const WorkflowPulse: React.FC<WorkflowPulseProps> = ({
           </div>
 
           {/* Pipeline Summary Footer */}
-          <div
-            style={{
-              marginTop: '16px',
-              padding: '12px 16px',
-              backgroundColor: 'var(--color-pale-teal)',
-              borderRadius: 'var(--radius-control)',
-              border: '1px solid rgba(40, 125, 120, 0.2)',
-              fontSize: '12.5px',
-              color: 'var(--color-teal)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            <ArrowRight size={16} />
-            <span>
-              <strong>Scientific Throughput Summary:</strong> {pulse.pipeline_summary}
-            </span>
-          </div>
         </>
       )}
     </div>

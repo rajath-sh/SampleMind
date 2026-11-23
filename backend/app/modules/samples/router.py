@@ -79,7 +79,7 @@ def list_samples(
     sort_by: Optional[str] = Query("registered_at", description="Sort column (code, name, type, quantity, status, registered_at)"),
     sort_dir: Optional[str] = Query("desc", description="Sort direction (asc, desc)"),
     page: int = Query(1, ge=1, description="Page number (1-indexed)"),
-    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+    page_size: int = Query(20, ge=1, le=10000, description="Items per page"),
     db: Session = Depends(get_db),
     current_user: AppUser = Depends(get_current_user),
 ):

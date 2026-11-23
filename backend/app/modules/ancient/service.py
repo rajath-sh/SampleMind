@@ -178,6 +178,28 @@ class AncientService:
 
         return AncientService.get_site(db, site_id)
 
+    @staticmethod
+    def delete_site(
+        db: Session,
+        site_id: int,
+        actor_id: Optional[int] = None
+    ) -> bool:
+        """Deletes an archaeological site and unlinks associated specimens."""
+        site = db.query(ArchaeologicalSite).filter(
+            ArchaeologicalSite.archaeological_site_id == site_id
+        ).first()
+        if not site:
+            raise EntityNotFoundException("ArchaeologicalSite", site_id)
+
+        # Unlink any ancient specimens pointing to this site
+        db.query(AncientSpecimen).filter(
+            AncientSpecimen.archaeological_site_id == site_id
+        ).update({"archaeological_site_id": None})
+
+        db.delete(site)
+        db.commit()
+        return True
+
     # -------------------------------------------------------------------------
     # Ancient Specimen Provenance Extensions
     # -------------------------------------------------------------------------
@@ -329,6 +351,23 @@ class AncientService:
         db.commit()
 
         return AncientService.get_ancient_specimen(db, sample_id)
+
+    @staticmethod
+    def delete_ancient_specimen(
+        db: Session,
+        sample_id: int,
+        actor_id: Optional[int] = None
+    ) -> bool:
+        """Deletes the ancient provenance record for a specimen."""
+        specimen = db.query(AncientSpecimen).filter(
+            AncientSpecimen.sample_id == sample_id
+        ).first()
+        if not specimen:
+            raise EntityNotFoundException("AncientSpecimen", sample_id)
+
+        db.delete(specimen)
+        db.commit()
+        return True
 
     @staticmethod
     def list_ancient_specimens(

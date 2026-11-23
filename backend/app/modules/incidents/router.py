@@ -121,6 +121,24 @@ def update_incident(
     )
 
 
+@incidents_router.delete(
+    "/{incident_id}",
+    response_model=APIResponse[dict],
+    summary="Delete an incident record",
+)
+def delete_incident(
+    incident_id: int,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, UserRole.RESEARCHER.value, "LAB_MANAGER"])),
+):
+    IncidentService.delete_incident(db, incident_id, actor_id=current_user.user_id)
+    return APIResponse(
+        success=True,
+        message=f"Incident #{incident_id} successfully deleted.",
+        data={"incident_id": incident_id, "deleted": True},
+    )
+
+
 @incidents_router.get(
     "/{incident_id}/downstream-impact",
     response_model=APIResponse[IncidentBlastRadiusResponse],

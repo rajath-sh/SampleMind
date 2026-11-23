@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   GitFork,
   ArrowDown,
@@ -6,7 +6,9 @@ import {
   Sparkles,
   RefreshCw,
   AlertCircle,
+  Trash2,
 } from 'lucide-react';
+import { useAuth } from '../../auth/AuthContext';
 import { lineageService } from '../../lineage/lineageService';
 import { LineageGraphResponse, LineageNodeItem } from '../../lineage/types';
 
@@ -21,38 +23,42 @@ export const SampleLineagePreview: React.FC<SampleLineagePreviewProps> = ({
   sampleCode,
   onSelectSample,
 }) => {
+  const { user } = useAuth();
+  const canWrite = user?.role === 'ADMIN' || user?.role === 'RESEARCHER';
   const [graph, setGraph] = useState<LineageGraphResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<LineageNodeItem | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
-    async function loadLineage() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await lineageService.getLineageGraph(sampleId, 'all', 6);
-        if (isMounted) {
-          setGraph(data);
-          const focal = data.nodes.find((n) => n.sample_id === sampleId) || data.nodes[0] || null;
-          setSelectedNode(focal);
-        }
-      } catch (err: unknown) {
-        if (isMounted) {
-          const msg = err instanceof Error ? err.message : 'Failed to load lineage DAG.';
-          setError(msg);
-        }
-      } finally {
-        if (isMounted) setLoading(false);
-      }
+  const loadLineage = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await lineageService.getLineageGraph(sampleId, 'all', 6);
+      setGraph(data);
+      const focal = data.nodes.find((n) => n.sample_id === sampleId) || data.nodes[0] || null;
+      setSelectedNode(focal);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load lineage DAG.';
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
-
-    loadLineage();
-    return () => {
-      isMounted = false;
-    };
   }, [sampleId]);
+
+  useEffect(() => {
+    loadLineage();
+  }, [loadLineage]);
+
+  const handleDeleteEdge = async (relationshipId: number) => {
+    if (!window.confirm(`Are you sure you want to remove derivation relationship #${relationshipId}?`)) return;
+    try {
+      await lineageService.deleteRelationship(relationshipId);
+      loadLineage();
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to delete derivation relationship.');
+    }
+  };
 
   if (loading) {
     return (
@@ -175,8 +181,8 @@ export const SampleLineagePreview: React.FC<SampleLineagePreviewProps> = ({
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span className="font-mono" style={{ fontWeight: 700, fontSize: '12px', color: 'var(--color-ink)' }}>
-                        {node.sample_code}
+                      <span className="font-mono" style={{ fontWeight: 750, fontSize: '13px', color: 'var(--color-teal)' }}>
+                        #{node.sample_id} ({node.sample_code})
                       </span>
                       <span className="badge badge-sand" style={{ fontSize: '9px', padding: '1px 5px' }}>
                         Gen {node.generation}
@@ -193,6 +199,55 @@ export const SampleLineagePreview: React.FC<SampleLineagePreviewProps> = ({
                         {node.quantity_value.toFixed(1)} {node.quantity_unit}
                       </span>
                     </div>
+
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      style={{
+                        width: '100%',
+                        padding: '3px 0',
+                        fontSize: '11px',
+                        marginTop: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px',
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectSample(node.sample_id);
+                      }}
+                    >
+                      Inspect Ancestor Dossier <ExternalLink size={11} />
+                    </button>
+                    {(() => {
+                      const incomingEdge = graph.edges.find((e) => e.source === node.sample_id && e.target === sampleId);
+                      if (!incomingEdge || !canWrite) return null;
+                      return (
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{
+                            width: '100%',
+                            padding: '3px 0',
+                            fontSize: '11px',
+                            marginTop: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '4px',
+                            color: 'var(--color-danger)',
+                            borderColor: 'rgba(201, 79, 63, 0.3)',
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteEdge(incomingEdge.relationship_id);
+                          }}
+                        >
+                          <Trash2 size={11} /> Unlink Ancestor
+                        </button>
+                      );
+                    })()}
                   </div>
                 );
               })}
@@ -211,8 +266,30 @@ export const SampleLineagePreview: React.FC<SampleLineagePreviewProps> = ({
                   color: 'var(--color-teal)',
                   fontWeight: 600,
                   marginTop: '2px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
                 }}>
-                  {e.transformation_type} ({e.quantity_transferred} {e.quantity_unit || ''})
+                  <span>{e.transformation_type} ({e.quantity_transferred} {e.quantity_unit || ''})</span>
+                  {canWrite && (
+                    <button
+                      type="button"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: 'var(--color-danger)',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        padding: 0,
+                        lineHeight: 1,
+                      }}
+                      title="Remove derivation edge"
+                      onClick={() => handleDeleteEdge(e.relationship_id)}
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -237,8 +314,8 @@ export const SampleLineagePreview: React.FC<SampleLineagePreviewProps> = ({
                 Focal Specimen
               </span>
             </div>
-            <div className="font-mono" style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-ink)' }}>
-              {focal.sample_code}
+            <div className="font-mono" style={{ fontSize: '17px', fontWeight: 800, color: 'var(--color-teal)' }}>
+              #{focal.sample_id} ({focal.sample_code})
             </div>
             <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ink)', marginTop: '2px' }}>
               {focal.sample_name}
@@ -301,8 +378,8 @@ export const SampleLineagePreview: React.FC<SampleLineagePreviewProps> = ({
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span className="font-mono" style={{ fontWeight: 700, fontSize: '12px', color: 'var(--color-ink)' }}>
-                        {node.sample_code}
+                      <span className="font-mono" style={{ fontWeight: 750, fontSize: '13px', color: 'var(--color-teal)' }}>
+                        #{node.sample_id} ({node.sample_code})
                       </span>
                       <span className="badge badge-sand" style={{ fontSize: '9px', padding: '1px 5px' }}>
                         Gen +{node.generation}
@@ -348,6 +425,31 @@ export const SampleLineagePreview: React.FC<SampleLineagePreviewProps> = ({
                     >
                       Inspect Aliquot Dossier <ExternalLink size={11} />
                     </button>
+
+                    {edge && canWrite && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{
+                          width: '100%',
+                          padding: '3px 0',
+                          fontSize: '11px',
+                          marginTop: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '4px',
+                          color: 'var(--color-danger)',
+                          borderColor: 'rgba(201, 79, 63, 0.3)',
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteEdge(edge.relationship_id);
+                        }}
+                      >
+                        <Trash2 size={11} /> Unlink Child Aliquot
+                      </button>
+                    )}
                   </div>
                 );
               })}

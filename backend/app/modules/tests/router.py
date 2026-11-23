@@ -262,3 +262,23 @@ def update_test(
         message=f"Assay #{test_id} updated successfully: Status={updated.test_status}.",
         data=updated
     )
+
+
+@router.delete(
+    "/{test_id}",
+    response_model=APIResponse[dict],
+    summary="Delete an analytical test record",
+)
+def delete_test(
+    test_id: int,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, "ADMIN", "RESEARCHER"])),
+):
+    """
+    Deletes an assay record by ID.
+    """
+    TestService.delete_test(db=db, test_id=test_id, actor_id=current_user.user_id)
+    return APIResponse(
+        message=f"Assay #{test_id} deleted successfully.",
+        data={"deleted": True, "test_id": test_id}
+    )

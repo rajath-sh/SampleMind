@@ -25,11 +25,11 @@ import {
   TrendingUp,
   Printer,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 import { testsService } from './testsService';
 import { samplesService } from '../samples/samplesService';
 import { TestQualityPanel } from './TestQualityPanel';
-import { CapillaryElectropherogramObservatory } from './CapillaryElectropherogramObservatory';
 import {
   TestListItem,
   TestDetail,
@@ -111,7 +111,6 @@ export const TestsPage: React.FC<{ initialAssayId?: number }> = ({ initialAssayI
   const [qualityMetrics, setQualityMetrics] = useState<TestQualityMetricsResponse | null>(null);
   const [metricsLoading, setMetricsLoading] = useState(false);
   const [selectedTestIdForViz, setSelectedTestIdForViz] = useState<number | undefined>(undefined);
-  const [showObservatory, setShowObservatory] = useState(false);
 
   // Create Form State
   const [createForm, setCreateForm] = useState<TestCreatePayload>({
@@ -367,6 +366,25 @@ export const TestsPage: React.FC<{ initialAssayId?: number }> = ({ initialAssayI
     }
   };
 
+  // Delete Assay
+  const handleDeleteTest = async (testId?: number) => {
+    const targetId = testId ?? selectedTest?.sample_test_id;
+    if (!targetId) return;
+    if (!window.confirm(`Are you sure you want to permanently delete Assay #${targetId}?`)) {
+      return;
+    }
+    try {
+      await testsService.deleteTest(targetId);
+      setSuccessMsg(`Assay #${targetId} deleted successfully.`);
+      if (isUpdateOpen) setIsUpdateOpen(false);
+      fetchTests();
+      fetchMetrics();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete assay.';
+      setError(msg);
+    }
+  };
+
   // Submit Batch Scheduling
   const handleBatchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -445,16 +463,6 @@ export const TestsPage: React.FC<{ initialAssayId?: number }> = ({ initialAssayI
         </div>
 
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className={`btn ${showObservatory ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setShowObservatory(!showObservatory)}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-            title="Toggle Live Capillary Electropherogram Observatory"
-          >
-            <Activity size={15} />
-            {showObservatory ? 'Hide Observatory' : 'Show Observatory'}
-          </button>
           <button
             type="button"
             className="btn btn-secondary"
@@ -553,15 +561,6 @@ export const TestsPage: React.FC<{ initialAssayId?: number }> = ({ initialAssayI
         }}
       />
 
-      {/* Phase 3: Live Capillary Electropherogram & Kinetic Observatory */}
-      {showObservatory && (
-        <CapillaryElectropherogramObservatory
-          tests={tests}
-          selectedTestId={selectedTestIdForViz}
-          onSelectTest={(test) => setSelectedTestIdForViz(test.sample_test_id)}
-        />
-      )}
-
       {/* Filters Toolbar */}
       <div className="card" style={{ padding: '16px 20px', display: 'flex', gap: '14px', flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ flex: '1 1 240px', position: 'relative' }}>
@@ -618,7 +617,7 @@ export const TestsPage: React.FC<{ initialAssayId?: number }> = ({ initialAssayI
 
       {/* Analytical Assays Table */}
       <div className="card" style={{ overflow: 'hidden' }}>
-        <CompactTable label="assays" extra={[1, 5, 7]} help={<DatabaseConcept topic="assays" />}>
+        <CompactTable label="assays" extra={[1, 5, 7]} showLens={false} help={<DatabaseConcept topic="assays" />}>
           <table className="table">
           <thead>
             <tr>
@@ -722,20 +721,6 @@ export const TestsPage: React.FC<{ initialAssayId?: number }> = ({ initialAssayI
                       <div style={{ display: 'inline-flex', gap: '6px' }}>
                         <button
                           type="button"
-                          className={`btn ${isSelected ? 'btn-primary' : 'btn-secondary'}`}
-                          style={{ padding: '4px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedTestIdForViz(t.sample_test_id);
-                            if (!showObservatory) setShowObservatory(true);
-                          }}
-                          title="Inspect in Live Capillary Electropherogram Observatory"
-                        >
-                          <Activity size={13} />
-                          Scan
-                        </button>
-                        <button
-                          type="button"
                           className="btn btn-secondary"
                           style={{ padding: '4px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
                           onClick={(e) => {
@@ -769,6 +754,20 @@ export const TestsPage: React.FC<{ initialAssayId?: number }> = ({ initialAssayI
                         >
                           Update
                         </button>
+                        {canWrite && (
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            style={{ padding: '4px 8px', fontSize: '11px', color: 'var(--color-danger)', borderColor: '#FECACA', backgroundColor: '#FEF2F2' }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteTest(t.sample_test_id);
+                            }}
+                            title="Delete assay"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1316,21 +1315,43 @@ export const TestsPage: React.FC<{ initialAssayId?: number }> = ({ initialAssayI
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setIsUpdateOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={updateForm.test_status === 'cancelled' && !updateForm.cancellation_reason?.trim()}
-                >
-                  Record Outcome
-                </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                <div>
+                  {canWrite && (
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      style={{
+                        color: 'var(--color-danger)',
+                        borderColor: 'rgba(201, 79, 63, 0.4)',
+                        backgroundColor: '#FFF1F0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                      onClick={() => handleDeleteTest()}
+                    >
+                      <Trash2 size={14} />
+                      Delete Assay
+                    </button>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setIsUpdateOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={updateForm.test_status === 'cancelled' && !updateForm.cancellation_reason?.trim()}
+                  >
+                    Record Outcome
+                  </button>
+                </div>
               </div>
             </form>
           </div>

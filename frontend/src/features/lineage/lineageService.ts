@@ -46,4 +46,11 @@ export const lineageService = {
     });
     return res.data;
   },
+
+  async deleteRelationship(relationshipId: number): Promise<void> {
+    await apiRequest<ApiResponseEnvelope<{ relationship_id: number; deleted: boolean }>>(
+      `/lineage/relationships/${relationshipId}`,
+      { method: 'DELETE' }
+    );
+  },
 };

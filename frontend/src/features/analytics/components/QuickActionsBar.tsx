@@ -4,8 +4,8 @@ import {
   FlaskConical,
   TestTubes,
   AlertTriangle,
-  BrainCircuit,
   GitFork,
+  CheckCircle2,
   RefreshCw,
   BarChart3,
 } from 'lucide-react';
@@ -95,12 +95,12 @@ export const QuickActionsBar: React.FC<QuickActionsBarProps> = ({
 
         <button
           type="button"
-          onClick={() => onNavigateSection('ai_analysis')}
+          onClick={() => onNavigateSection('cohort')}
           className="btn btn-secondary"
           style={{ fontSize: '11.5px', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 9px' }}
         >
-          <BrainCircuit size={13} />
-          AI Risk
+          <CheckCircle2 size={13} color="var(--color-teal)" />
+          Cohort Review
         </button>
 
         <button

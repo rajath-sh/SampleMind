@@ -27,7 +27,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
     items: List[T] = Field(default_factory=list, description="Page of items")
     total: int = Field(..., ge=0, description="Total matching records across all pages")
     page: int = Field(default=1, ge=1, description="Current page number (1-indexed)")
-    page_size: int = Field(default=20, ge=1, le=100, description="Number of items per page")
+    page_size: int = Field(default=20, ge=1, le=10000, description="Number of items per page")
     total_pages: int = Field(..., ge=0, description="Total number of pages available")
 
 

@@ -5,13 +5,29 @@ import { useAuth } from '../auth/AuthContext';
 
 interface LibraryFile { id: number; name: string; section: string; media: string; owner: number }
 interface Catalog { hidden_generated: string[]; sections: Record<string, string>; files: LibraryFile[] }
-const sections: Record<string, string> = {synopsis: '1. Synopsis', requirements: '2. Requirements', er: '3. Chen ER diagram', tests: '4. Test options', dfd: '5. Data flow diagrams', normalization: '6. Normalized tables', security: '7. Forms, security & validation'};
-const guidance: Record<string, string> = {synopsis: 'Upload your approved synopsis; no replacement synopsis is generated.', requirements: 'Software/hardware, functional and nonfunctional requirements, acceptance criteria and syllabus traceability.', er: 'Six core entities: Chen notation, relationship attributes, derived attributes and relational mapping. Full database reference is optional.', tests: 'Six SQL queries, a rollback exercise, six executable TinyDB checks and integrity/security cases.', dfd: 'Balanced context (level 0) and level 1 diagrams, flow dictionary and process/store explanations.', normalization: 'Worked UNF to 1NF to 2NF to 3NF decomposition, lossless joins and explicit BCNF assumptions.', security: 'Form inputs, validations, access control, transaction boundaries and upload protection.'};
+const sections: Record<string, string> = {
+  synopsis: '1. Synopsis',
+  requirements: '2. Requirements',
+  er: '3. Chen ER diagram',
+  dfd: '4. Data flow diagrams',
+  normalization: '5. Normalized tables',
+  security: '6. Forms, security & validation',
+  report: '7. Project report',
+};
+const guidance: Record<string, string> = {
+  synopsis: 'Upload your approved synopsis; no replacement synopsis is generated.',
+  requirements: 'Software/hardware, functional and nonfunctional requirements, acceptance criteria and syllabus traceability.',
+  er: 'Six core entities: Chen notation, relationship attributes, derived attributes and relational mapping. Full database reference is optional.',
+  dfd: 'Balanced context (level 0) and level 1 diagrams, flow dictionary and process/store explanations.',
+  normalization: 'Worked UNF to 1NF to 2NF to 3NF decomposition, lossless joins and explicit BCNF assumptions.',
+  security: 'Form inputs, validations, access control, transaction boundaries and upload protection.',
+  report: 'Upload your final project report (.pdf, .docx, or .html); no replacement report is generated.',
+};
 const base = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 export function CourseworkPage() {
   const { user } = useAuth();
-  const canManage = user?.role === 'ADMIN' || user?.role === 'RESEARCHER';
+  const canManage = Boolean(user);
   const [catalog, setCatalog] = useState<Catalog>();
   const [section, setSection] = useState('synopsis');
   const [fileId, setFileId] = useState<number>();
@@ -34,7 +50,8 @@ export function CourseworkPage() {
   }, [deleted, revision]);
 
   const endpoint = fileId ? `/uploads/${fileId}` : `/generated/${section}?variant=${variant}`;
-  const hasPreview = !deleted && (fileId !== undefined || (section !== 'synopsis' && !hideGenerated[section]));
+  const isUploadOnly = section === 'synopsis' || section === 'report';
+  const hasPreview = !deleted && (fileId !== undefined || (!isUploadOnly && !hideGenerated[section]));
   useEffect(() => {
     setPreview('');
     if (!hasPreview) return;
@@ -67,6 +84,7 @@ export function CourseworkPage() {
   async function upload(file: File) {
     setBusy(true); setError('');
     try {
+      if (file.size > 100 * 1024 * 1024) throw new Error('File exceeds the 100 MB maximum size limit.');
       const form = new FormData(); form.set('section', section); form.set('file', file);
       const response = await fetch(`${base}/coursework/uploads`, { method: 'POST',
         headers: { Authorization: `Bearer ${localStorage.getItem('samplemind_token')}` }, body: form });
@@ -94,7 +112,7 @@ export function CourseworkPage() {
     </nav>
     <section className="card lab-panel" role="tabpanel" id="coursework-panel" aria-labelledby={`tab-${section}`}>
       <h2>{sections[section]}</h2><p className="lab-muted">{guidance[section]}</p>
-      {section !== 'synopsis' && <label className="search-label">Generated content
+      {!isUploadOnly && <label className="search-label">Generated content
         <select className="input-field" value={variant} onChange={event => { setVariant(event.target.value); setFileId(undefined); setError(''); }}>
           <option value="default">{section === 'er' ? 'Core Chen diagram (6 entities)' : section === 'dfd' ? 'Context + level 1 diagrams (SVG)' : 'Complete document (HTML)'}</option>
           {section === 'er' && <><option value="attributes">Full database attribute atlas (optional)</option><option value="full">Full database ER reference (optional)</option></>}
@@ -103,17 +121,17 @@ export function CourseworkPage() {
         </select>
       </label>}
       <div className="lab-chips">
-        {canManage && <label className="btn-secondary">Upload material
-          <input type="file" accept=".pdf,.docx,.svg,.html,.png,.jpg,.jpeg,.txt" disabled={busy}
+        {canManage && <><label className="btn-secondary">Upload material
+          <input type="file" accept=".pdf,.docx,.svg,.html,.htm,.png,.jpg,.jpeg,.txt,.md,.markdown" disabled={busy}
             onChange={event => { const file = event.target.files?.[0]; if (file) void upload(file); event.target.value = ''; }} />
-        </label>}
+        </label><span className="lab-muted" style={{ fontSize: '11px', alignSelf: 'center' }}>(Up to 100 MB)</span></>}
         <button className="btn-secondary" type="button" onClick={() => { setDeleted(!deleted); setFileId(undefined); }}>
           {deleted ? 'Active materials' : 'Removed uploads'}
         </button>
         {hasPreview && <button className="btn-primary" type="button" onClick={download}>Download displayed material</button>}
       </div>
       {error && <div role="alert"><p className="lab-error">{error}</p><button type="button" className="btn-secondary" onClick={() => { setError(''); setRevision(value => value + 1); }}>Retry loading</button></div>}
-      {!deleted && section !== 'synopsis' && <div className="lab-chips">
+      {!deleted && !isUploadOnly && <div className="lab-chips">
         <button className="btn-secondary" type="button" disabled={busy || (!canManage && hideGenerated[section])} onClick={async () => {
           if (!hideGenerated[section]) { setFileId(undefined); return; }
           setBusy(true); setError('');
@@ -150,7 +168,7 @@ export function CourseworkPage() {
             <img src={preview} alt={catalog?.sections[section] || 'Uploaded diagram'} style={{ width: zoom + '%', maxWidth: 'none', display: 'block' }} />
           </div>
         </div> : <iframe title={catalog?.sections[section] || 'DBMS material'} src={preview}
-          sandbox="" style={{ width: '100%', height: '75vh', border: '1px solid #ccdcd6', borderRadius: 8, background: 'white' }} />)
+          sandbox="allow-same-origin allow-scripts" style={{ width: '100%', height: '75vh', border: '1px solid #ccdcd6', borderRadius: 8, background: 'white' }} />)
         : <p className="lab-muted">{hasPreview ? 'Loading material...' : 'Choose or upload a material to display.'}</p>}
     </section>
   </div>;

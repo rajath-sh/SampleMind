@@ -11,17 +11,19 @@ import {
   AlertCircle,
   Clock,
   X,
-  Grid,
   Filter,
   Loader2,
+  Edit2,
+  Trash2,
+  Search,
 } from 'lucide-react';
 import { storageService } from './storageService';
 import {
   StorageLocation,
   Equipment,
-  OccupancyGridResponse,
-  BoxOccupancySlot,
   StorageLocationWithSamples,
+  StorageLocationUpdatePayload,
+  EquipmentUpdatePayload,
 } from './types';
 
 export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; initialLocationId?: number }> = ({ initialTab = 'locations', initialLocationId }) => {
@@ -32,9 +34,6 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
   // Storage state
   const [locations, setLocations] = useState<StorageLocation[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<StorageLocationWithSamples | null>(null);
-  const [gridData, setGridData] = useState<OccupancyGridResponse | null>(null);
-  const [selectedGridUnit, setSelectedGridUnit] = useState<string>('');
-  const [selectedSlotDetail, setSelectedSlotDetail] = useState<BoxOccupancySlot | null>(null);
   const [unitTypeFilter, setUnitTypeFilter] = useState<string>('');
 
   // Equipment state
@@ -48,6 +47,13 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
   // Modals
   const [showLocationModal, setShowLocationModal] = useState<boolean>(false);
   const [showEquipmentModal, setShowEquipmentModal] = useState<boolean>(false);
+
+  // Edit & Delete Modals & State
+  const [editingLocation, setEditingLocation] = useState<StorageLocation | null>(null);
+  const [editLocForm, setEditLocForm] = useState<StorageLocationUpdatePayload>({});
+  const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
+  const [editEqForm, setEditEqForm] = useState<EquipmentUpdatePayload>({});
+  const [residentSearch, setResidentSearch] = useState<string>('');
 
   // Forms
   const [newLocCode, setNewLocCode] = useState('');
@@ -74,18 +80,6 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
       if (activeTab === 'locations') {
         const locs = await storageService.listLocations(unitTypeFilter || undefined);
         setLocations(locs);
-        // Find distinct unit labels for the occupancy grid
-        const labels = Array.from(new Set(locs.map((l) => l.unit_label).filter(Boolean))) as string[];
-        const targetLabel = selectedGridUnit || labels[0] || (locs[0] ? locs[0].unit_label || locs[0].location_code : '');
-        if (targetLabel) {
-          setSelectedGridUnit(targetLabel);
-          try {
-            const grid = await storageService.getOccupancyGrid(targetLabel);
-            setGridData(grid);
-          } catch (gridErr) {
-            console.warn('Grid error:', gridErr);
-          }
-        }
       } else {
         const eq = await storageService.listEquipment(statusFilter || undefined);
         setEquipmentList(eq);
@@ -100,17 +94,6 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
   useEffect(() => {
     loadData();
   }, [activeTab, unitTypeFilter, statusFilter]);
-
-  const handleSelectUnitForGrid = async (label: string) => {
-    setSelectedGridUnit(label);
-    setSelectedSlotDetail(null);
-    try {
-      const grid = await storageService.getOccupancyGrid(label);
-      setGridData(grid);
-    } catch (err: any) {
-      console.warn('Error fetching grid for', label, err);
-    }
-  };
 
   const handleViewLocationDetails = useCallback(async (locationId: number) => {
     try {
@@ -173,6 +156,77 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
       loadData();
     } catch (err: any) {
       setError(err.message || 'Failed to update equipment status.');
+    }
+  };
+
+  const handleOpenEditLocation = (loc: StorageLocation) => {
+    setEditingLocation(loc);
+    setEditLocForm({
+      facility: loc.facility,
+      room: loc.room || '',
+      unit_type: loc.unit_type,
+      unit_label: loc.unit_label || '',
+      rack: loc.rack || '',
+      box: loc.box || '',
+      slot: loc.slot || '',
+      temperature_min_c: loc.temperature_min_c,
+      temperature_max_c: loc.temperature_max_c,
+      is_active: loc.is_active,
+    });
+  };
+
+  const handleSaveEditLocation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLocation) return;
+    try {
+      await storageService.updateLocation(editingLocation.storage_location_id, editLocForm);
+      setEditingLocation(null);
+      loadData();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update storage location.');
+    }
+  };
+
+  const handleDeleteLocation = async (locId: number) => {
+    if (!window.confirm('Are you sure you want to delete this storage location?')) return;
+    try {
+      await storageService.deleteLocation(locId);
+      loadData();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete storage location.');
+    }
+  };
+
+  const handleOpenEditEquipment = (eq: Equipment) => {
+    setEditingEquipment(eq);
+    setEditEqForm({
+      equipment_name: eq.equipment_name,
+      manufacturer: eq.manufacturer || '',
+      model_number: eq.model_number || '',
+      equipment_status: eq.equipment_status,
+      notes: eq.notes || '',
+    });
+  };
+
+  const handleSaveEditEquipment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingEquipment) return;
+    try {
+      await storageService.updateEquipment(editingEquipment.equipment_id, editEqForm);
+      setEditingEquipment(null);
+      loadData();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update equipment.');
+    }
+  };
+
+  const handleDeleteEquipment = async (eqId: number) => {
+    if (!window.confirm('Are you sure you want to delete this equipment instrument?')) return;
+    try {
+      await storageService.deleteEquipment(eqId);
+      loadData();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete equipment.');
     }
   };
 
@@ -336,157 +390,6 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
                 Linked physical samples
               </div>
             </div>
-
-            <div className="card" style={{ padding: '16px' }}>
-              <div style={{ fontSize: '12px', color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
-                Grid Occupancy
-              </div>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--color-teal)', marginTop: '4px' }}>
-                {gridData ? `${gridData.occupancy_percentage}%` : 'N/A'}
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--color-muted)', marginTop: '4px' }}>
-                {gridData ? `${gridData.occupied_slots} / ${gridData.total_slots} slots filled` : 'Select freezer'}
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive 2D Box Slot Occupancy Grid Section (Section 5.9 & A5) */}
-          <div className="card" style={{ padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Grid size={18} style={{ color: 'var(--color-teal)' }} />
-                  <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-ink)' }}>
-                    Interactive 2D Box/Slot Occupancy Grid
-                  </h2>
-                </div>
-                <p style={{ fontSize: '12px', color: 'var(--color-muted)', marginTop: '2px' }}>
-                  Slot occupancy visualization. Occupied coordinates in teal; available slots in neutral surface.
-                </p>
-              </div>
-
-              {/* Unit selector pills */}
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {Array.from(new Set(locations.map((l) => l.unit_label).filter(Boolean))).map((label) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => handleSelectUnitForGrid(label as string)}
-                    style={{
-                      padding: '4px 10px',
-                      borderRadius: 'var(--radius-control)',
-                      border: `1px solid ${selectedGridUnit === label ? 'var(--color-teal)' : 'var(--color-border)'}`,
-                      backgroundColor: selectedGridUnit === label ? 'var(--color-pale-teal)' : 'var(--color-surface)',
-                      color: selectedGridUnit === label ? 'var(--color-teal)' : 'var(--color-ink)',
-                      fontSize: '12px',
-                      fontWeight: selectedGridUnit === label ? 600 : 400,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Grid Visualization Canvas */}
-            {gridData && gridData.slots.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(76px, 1fr))',
-                  gap: '8px',
-                  backgroundColor: 'var(--color-background)',
-                  padding: '16px',
-                  borderRadius: 'var(--radius-card)',
-                  border: '1px solid var(--color-border)',
-                }}>
-                  {gridData.slots.map((slotItem) => (
-                    <button
-                      type="button"
-                      aria-pressed={selectedSlotDetail?.storage_location_id === slotItem.storage_location_id}
-                      key={slotItem.storage_location_id}
-                      onClick={() => setSelectedSlotDetail(slotItem)}
-                      style={{
-                        padding: '10px 6px',
-                        borderRadius: '6px',
-                        border: `1px solid ${slotItem.occupied ? 'var(--color-teal)' : 'var(--color-border)'}`,
-                        backgroundColor: slotItem.occupied ? 'var(--color-teal)' : 'var(--color-surface)',
-                        color: slotItem.occupied ? '#FFFFFF' : 'var(--color-muted)',
-                        cursor: 'pointer',
-                        textAlign: 'center',
-                        transition: 'transform 0.1s ease',
-                      }}
-                      title={slotItem.location_code + " · " + slotItem.specimens.length + " specimens"}
-                    >
-                      <div style={{ fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
-                        {slotItem.slot}
-                      </div>
-                      <div style={{
-                        fontSize: '10px',
-                        marginTop: '3px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        fontWeight: slotItem.occupied ? 600 : 400,
-                      }}>
-                        {slotItem.occupied ? `${slotItem.specimens.length} specimen(s)` : 'Available'}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Selected Slot Inspector Banner */}
-                {selectedSlotDetail && (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 16px',
-                    backgroundColor: selectedSlotDetail.occupied ? 'var(--color-pale-teal)' : '#F5F7F6',
-                    borderRadius: 'var(--radius-control)',
-                    border: '1px solid var(--color-border)',
-                  }}>
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ink)' }}>
-                        Slot coordinate <span className="font-mono">{selectedSlotDetail.location_code} · {selectedSlotDetail.slot}</span>
-                      </div>
-                      {selectedSlotDetail.occupied ? (
-                        <div style={{ fontSize: '12px', color: 'var(--color-teal)', marginTop: '2px' }}>
-                          {selectedSlotDetail.specimens.map(specimen => (
-                            <div key={specimen.sample_id}>
-                              <strong>{specimen.sample_code}</strong> · {specimen.sample_name} · {specimen.sample_status}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div style={{ fontSize: '12px', color: 'var(--color-muted)', marginTop: '2px' }}>
-                          This coordinate slot is currently free and ready for specimen allocation.
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSlotDetail(null)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
-                    >
-                      <X size={15} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div style={{
-                textAlign: 'center',
-                padding: '32px',
-                color: 'var(--color-muted)',
-                fontSize: '13px',
-                backgroundColor: 'var(--color-background)',
-                borderRadius: 'var(--radius-control)',
-              }}>
-                No 2D grid slots configured for unit '{selectedGridUnit}'. Select another unit or register slots above.
-              </div>
-            )}
           </div>
 
           {/* Locations Table */}
@@ -528,7 +431,7 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
               </div>
             </div>
 
-            <CompactTable label="storage locations" extra={[3, 4, 5]} help={<DatabaseConcept topic="storage" />}>
+            <CompactTable label="storage locations" extra={[3, 4, 5]} showLens={false} help={<DatabaseConcept topic="storage" />}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
                 <tr style={{ backgroundColor: 'var(--color-background)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
@@ -538,7 +441,7 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
                   <th style={{ padding: '12px 16px', fontWeight: 600 }}>Coordinate Hierarchy</th>
                   <th style={{ padding: '12px 16px', fontWeight: 600 }}>Temp Range</th>
                   <th style={{ padding: '12px 16px', fontWeight: 600 }}>Stored Samples</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Action</th>
+                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -580,22 +483,66 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
                         </span>
                       </td>
                       <td style={{ padding: '12px 16px' }}>
-                        <button
-                          type="button"
-                          onClick={() => handleViewLocationDetails(loc.storage_location_id)}
-                          style={{
-                            padding: '4px 8px',
-                            fontSize: '12px',
-                            borderRadius: '4px',
-                            border: '1px solid var(--color-border)',
-                            backgroundColor: '#FFFFFF',
-                            cursor: 'pointer',
-                            color: 'var(--color-teal)',
-                            fontWeight: 500,
-                          }}
-                        >
-                          View Details
-                        </button>
+                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleViewLocationDetails(loc.storage_location_id)}
+                            style={{
+                              padding: '4px 8px',
+                              fontSize: '12px',
+                              borderRadius: '4px',
+                              border: '1px solid var(--color-border)',
+                              backgroundColor: '#FFFFFF',
+                              cursor: 'pointer',
+                              color: 'var(--color-teal)',
+                              fontWeight: 500,
+                            }}
+                          >
+                            Details
+                          </button>
+                          {canWrite && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditLocation(loc)}
+                                style={{
+                                  padding: '4px 8px',
+                                  fontSize: '12px',
+                                  borderRadius: '4px',
+                                  border: '1px solid var(--color-border)',
+                                  backgroundColor: '#FFFFFF',
+                                  cursor: 'pointer',
+                                  color: 'var(--color-ink)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                                title="Edit storage location"
+                              >
+                                <Edit2 size={12} /> Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteLocation(loc.storage_location_id)}
+                                style={{
+                                  padding: '4px 8px',
+                                  fontSize: '12px',
+                                  borderRadius: '4px',
+                                  border: '1px solid #FECACA',
+                                  backgroundColor: '#FEF2F2',
+                                  cursor: 'pointer',
+                                  color: 'var(--color-danger)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                                title="Delete storage location"
+                              >
+                                <Trash2 size={12} /> Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -656,7 +603,7 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
               </div>
             </div>
 
-            <CompactTable label="equipment" extra={[3, 5]} help={<DatabaseConcept topic="equipment" />}>
+            <CompactTable label="equipment" extra={[3, 5]} showLens={false} help={<DatabaseConcept topic="equipment" />}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
                 <tr style={{ backgroundColor: 'var(--color-background)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
@@ -706,7 +653,28 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
                           )}
                         </td>
                         <td style={{ padding: '12px 16px' }}>
-                          <div style={{ display: 'flex', gap: '6px' }}>
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            {canWrite && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditEquipment(eq)}
+                                style={{
+                                  padding: '4px 8px',
+                                  fontSize: '11px',
+                                  borderRadius: '4px',
+                                  border: '1px solid var(--color-border)',
+                                  backgroundColor: '#FFFFFF',
+                                  color: 'var(--color-ink)',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                                title="Edit instrument"
+                              >
+                                <Edit2 size={11} /> Edit
+                              </button>
+                            )}
                             {eq.equipment_status !== 'available' && (
                               <button disabled={!canWrite}
                                 type="button"
@@ -722,7 +690,7 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
                                   fontWeight: 600,
                                 }}
                               >
-                                Mark Available
+                                Available
                               </button>
                             )}
                             {eq.equipment_status !== 'maintenance' && (
@@ -740,7 +708,28 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
                                   fontWeight: 600,
                                 }}
                               >
-                                Maintenance
+                                Maint
+                              </button>
+                            )}
+                            {canWrite && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteEquipment(eq.equipment_id)}
+                                style={{
+                                  padding: '4px 8px',
+                                  fontSize: '11px',
+                                  borderRadius: '4px',
+                                  border: '1px solid #FECACA',
+                                  backgroundColor: '#FEF2F2',
+                                  color: 'var(--color-danger)',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                                title="Delete instrument"
+                              >
+                                <Trash2 size={11} /> Delete
                               </button>
                             )}
                           </div>
@@ -1092,42 +1081,320 @@ export const StoragePage: React.FC<{ initialTab?: 'locations' | 'equipment'; ini
               </div>
             </div>
 
-            <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ink)', marginBottom: '10px' }}>
-              Resident Specimens List
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ink)', margin: 0 }}>
+                Resident Specimens List
+              </h3>
+              <div style={{ position: 'relative', width: '220px' }}>
+                <Search size={14} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
+                <input
+                  type="text"
+                  placeholder="Filter specimens..."
+                  value={residentSearch}
+                  onChange={(e) => setResidentSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '4px 8px 4px 28px',
+                    fontSize: '12px',
+                    borderRadius: '4px',
+                    border: '1px solid var(--color-border)',
+                  }}
+                />
+              </div>
+            </div>
 
             {selectedLocation.samples.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {selectedLocation.samples.map((s) => (
-                  <div
-                    key={s.sample_id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '10px 12px',
-                      border: '1px solid var(--color-border)',
-                      borderRadius: '6px',
-                      backgroundColor: '#FFFFFF',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ink)' }}>
-                        <span className="font-mono" style={{ color: 'var(--color-teal)' }}>{s.sample_code}</span> — {s.sample_name}
+                {selectedLocation.samples
+                  .filter((s) => {
+                    if (!residentSearch.trim()) return true;
+                    const query = residentSearch.toLowerCase().trim();
+                    return (
+                      s.sample_code.toLowerCase().includes(query) ||
+                      s.sample_name.toLowerCase().includes(query) ||
+                      s.sample_status.toLowerCase().includes(query)
+                    );
+                  })
+                  .map((s) => (
+                    <div
+                      key={s.sample_id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '10px 12px',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: '6px',
+                        backgroundColor: '#FFFFFF',
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ink)' }}>
+                          <span className="font-mono" style={{ color: 'var(--color-teal)' }}>{s.sample_code}</span> — {s.sample_name}
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'var(--color-muted)' }}>
+                          Stock: {s.quantity_value} {s.quantity_unit}
+                        </div>
                       </div>
-                      <div style={{ fontSize: '11px', color: 'var(--color-muted)' }}>
-                        Stock: {s.quantity_value} {s.quantity_unit}
-                      </div>
+                      <span className="badge badge-success">{s.sample_status}</span>
                     </div>
-                    <span className="badge badge-success">{s.sample_status}</span>
-                  </div>
-                ))}
+                  ))}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-muted)', fontSize: '13px' }}>
                 No specimens currently located in this storage coordinate.
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL: EDIT STORAGE LOCATION
+         ========================================================================= */}
+      {editingLocation && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(23, 43, 58, 0.45)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 100,
+          padding: '20px',
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '520px',
+            backgroundColor: 'var(--color-surface)',
+            borderRadius: 'var(--radius-card)',
+            padding: '24px',
+            boxShadow: 'var(--shadow-elevated)',
+            border: '1px solid var(--color-border)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <div>
+                <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--color-ink)' }}>Edit Storage Location</h2>
+                <span className="font-mono" style={{ fontSize: '12px', color: 'var(--color-teal)' }}>{editingLocation.location_code}</span>
+              </div>
+              <button type="button" onClick={() => setEditingLocation(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditLocation} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Facility</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={editLocForm.facility || ''}
+                    onChange={(e) => setEditLocForm({ ...editLocForm, facility: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Room</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={editLocForm.room || ''}
+                    onChange={(e) => setEditLocForm({ ...editLocForm, room: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Unit Type</label>
+                  <select
+                    className="input-field"
+                    value={editLocForm.unit_type || 'freezer'}
+                    onChange={(e) => setEditLocForm({ ...editLocForm, unit_type: e.target.value })}
+                  >
+                    <option value="freezer">Freezer</option>
+                    <option value="cabinet">Cabinet</option>
+                    <option value="bench">Bench</option>
+                    <option value="shelf">Shelf</option>
+                    <option value="liquid_nitrogen">Liquid Nitrogen</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Unit Label</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={editLocForm.unit_label || ''}
+                    onChange={(e) => setEditLocForm({ ...editLocForm, unit_label: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Rack</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={editLocForm.rack || ''}
+                    onChange={(e) => setEditLocForm({ ...editLocForm, rack: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Box</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={editLocForm.box || ''}
+                    onChange={(e) => setEditLocForm({ ...editLocForm, box: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Slot</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={editLocForm.slot || ''}
+                    onChange={(e) => setEditLocForm({ ...editLocForm, slot: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Min Temp (°C)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    className="input-field"
+                    value={editLocForm.temperature_min_c ?? ''}
+                    onChange={(e) => setEditLocForm({ ...editLocForm, temperature_min_c: e.target.value === '' ? undefined : parseFloat(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Max Temp (°C)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    className="input-field"
+                    value={editLocForm.temperature_max_c ?? ''}
+                    onChange={(e) => setEditLocForm({ ...editLocForm, temperature_max_c: e.target.value === '' ? undefined : parseFloat(e.target.value) })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button type="button" className="btn-secondary" onClick={() => setEditingLocation(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL: EDIT EQUIPMENT
+         ========================================================================= */}
+      {editingEquipment && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(23, 43, 58, 0.45)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 100,
+          padding: '20px',
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '500px',
+            backgroundColor: 'var(--color-surface)',
+            borderRadius: 'var(--radius-card)',
+            padding: '24px',
+            boxShadow: 'var(--shadow-elevated)',
+            border: '1px solid var(--color-border)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <div>
+                <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--color-ink)' }}>Edit Equipment Instrument</h2>
+                <span className="font-mono" style={{ fontSize: '12px', color: 'var(--color-navy)' }}>{editingEquipment.equipment_code}</span>
+              </div>
+              <button type="button" onClick={() => setEditingEquipment(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditEquipment} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Instrument Name *</label>
+                <input
+                  type="text"
+                  className="input-field"
+                  required
+                  value={editEqForm.equipment_name || ''}
+                  onChange={(e) => setEditEqForm({ ...editEqForm, equipment_name: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Manufacturer</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={editEqForm.manufacturer || ''}
+                    onChange={(e) => setEditEqForm({ ...editEqForm, manufacturer: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Model Number</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={editEqForm.model_number || ''}
+                    onChange={(e) => setEditEqForm({ ...editEqForm, model_number: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Operational Status</label>
+                <select
+                  className="input-field"
+                  value={editEqForm.equipment_status || 'available'}
+                  onChange={(e) => setEditEqForm({ ...editEqForm, equipment_status: e.target.value })}
+                >
+                  <option value="available">Available (Operational)</option>
+                  <option value="maintenance">Under Maintenance</option>
+                  <option value="in_use">In Use</option>
+                  <option value="retired">Retired</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Notes</label>
+                <textarea
+                  rows={2}
+                  className="input-field"
+                  value={editEqForm.notes || ''}
+                  onChange={(e) => setEditEqForm({ ...editEqForm, notes: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button type="button" className="btn-secondary" onClick={() => setEditingEquipment(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

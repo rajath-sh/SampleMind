@@ -52,6 +52,8 @@ export interface IncidentCreatePayload {
 }
 
 export interface IncidentUpdatePayload {
+  incident_type?: string;
+  description?: string;
   status?: string;
   severity?: string;
   assigned_to?: number;

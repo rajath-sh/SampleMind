@@ -76,6 +76,22 @@ class ResultCreateRequest(BaseModel):
     is_final: bool = False
 
 
+class ResultUpdateRequest(BaseModel):
+    """Payload to update an experimental result."""
+    result_title: Optional[str] = None
+    observation: Optional[str] = None
+    result_value: Optional[float] = None
+    result_unit: Optional[str] = None
+    interpretation: Optional[str] = None
+    is_final: Optional[bool] = None
+
+
+class ExperimentEquipmentAttachRequest(BaseModel):
+    """Payload to allocate an instrument to an experiment."""
+    equipment_id: int
+    usage_notes: Optional[str] = None
+
+
 class ResultVerifyRequest(BaseModel):
     """Payload to formally verify and lock an experimental result."""
     is_final: bool = True
@@ -140,6 +156,7 @@ class ExperimentListItem(BaseModel):
     experiment_id: int
     experiment_code: str
     experiment_name: str
+    objective: Optional[str] = None
     protocol_reference: Optional[str] = None
     status: str
     lead_researcher_name: Optional[str] = None

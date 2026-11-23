@@ -28,7 +28,7 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [selectedLink, setSelectedLink] = useState<any | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [selectedNode, setSelectedNode] = useState<any | null>(null);
   const [animateParticles, setAnimateParticles] = useState(true);
   const [speedMode, setSpeedMode] = useState<'laminar' | 'standard' | 'kinetic'>('standard');
   const [autoSync, setAutoSync] = useState(true);
@@ -72,11 +72,11 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
     const destinations = data.nodes.filter((n) => n.category === 'destination');
 
     const colX = {
-      source: 45,
-      transformation: 375,
-      destination: 715,
+      source: 30,
+      transformation: 385,
+      destination: 735,
     };
-    const nodeWidth = 145;
+    const nodeWidth = 148;
     const svgHeight = 370;
     const topMargin = 45;
     const usableHeight = svgHeight - topMargin - 25;
@@ -188,7 +188,7 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
     );
   }
 
-  const activeFocusNode = selectedNode || hoveredNode;
+  const activeFocusNode = selectedNode ? selectedNode.id : hoveredNode;
   const activeFocusLink = selectedLink ? selectedLink.id : hoveredLink;
 
   return (
@@ -389,10 +389,10 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
       </div>
 
       {/* SVG Canvas Area */}
-      <div style={{ position: 'relative', overflowX: 'auto', padding: '10px 0' }}>
+      <div style={{ position: 'relative', width: '100%', overflowX: 'auto', padding: '10px 0' }}>
         <svg
-          viewBox="0 0 940 370"
-          style={{ width: '100%', minWidth: '880px', height: '370px', display: 'block' }}
+          viewBox="0 0 1020 370"
+          style={{ width: '100%', height: 'auto', display: 'block' }}
         >
           <defs>
             {/* Gradients for ribbons */}
@@ -414,13 +414,13 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
           </defs>
 
           {/* Column Header Titles */}
-          <text x="45" y="24" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
+          <text x="30" y="24" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
             STAGE 1: BIOLOGICAL ACCESSION ORIGINS
           </text>
-          <text x="375" y="24" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
+          <text x="385" y="24" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
             STAGE 2: BIOCHEMICAL TRANSFORMATION
           </text>
-          <text x="715" y="24" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
+          <text x="735" y="24" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
             STAGE 3: CURRENT INVENTORY DISPOSITION
           </text>
 
@@ -452,7 +452,10 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
                   cursor="pointer"
                   onMouseEnter={() => setHoveredLink(p.id)}
                   onMouseLeave={() => setHoveredLink(null)}
-                  onClick={() => setSelectedLink(selectedLink?.id === p.id ? null : p)}
+                  onClick={() => {
+                    setSelectedNode(null);
+                    setSelectedLink(selectedLink?.id === p.id ? null : p);
+                  }}
                 />
 
                 {/* Animated fluid wave dashed line overlay */}
@@ -477,9 +480,7 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
           {/* Nodes */}
           {Array.from(layout.nodePosMap.values()).map(({ x, y, width, height, node }) => {
             const isNodeHovered = hoveredNode === node.id;
-            const isNodeSelected = selectedNode === node.id;
-            const isDest = node.category === 'destination';
-            const isSource = node.category === 'source';
+            const isNodeSelected = selectedNode?.id === node.id;
 
             return (
               <g
@@ -489,14 +490,8 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
                 onMouseEnter={() => setHoveredNode(node.id)}
                 onMouseLeave={() => setHoveredNode(null)}
                 onClick={() => {
-                  setSelectedNode(selectedNode === node.id ? null : node.id);
-                  if (isDest && onSelectDestination) {
-                    const statusKey = node.id.replace('dest_', '');
-                    onSelectDestination(statusKey);
-                  } else if (isSource && onSelectSampleType) {
-                    const typeKey = node.id.replace('src_', '');
-                    onSelectSampleType(typeKey);
-                  }
+                  setSelectedLink(null);
+                  setSelectedNode(selectedNode?.id === node.id ? null : node);
                 }}
               >
                 {/* Node Box */}
@@ -656,6 +651,32 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
               </button>
             )}
 
+            {selectedLink.sourceNode.category === 'source' && onSelectSampleType && (
+              <button
+                type="button"
+                onClick={() => {
+                  const typeKey = selectedLink.sourceNode.id.replace('src_', '');
+                  onSelectSampleType(typeKey);
+                }}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: '#0284C7',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <Filter size={11} />
+                Filter Table by '{selectedLink.sourceNode.label}'
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => setSelectedLink(null)}
@@ -675,7 +696,118 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
         </div>
       )}
 
-      {/* Legend & interaction hint */}
+      {/* Interactive Selected Node Inspector Bar */}
+      {selectedNode && (
+        <div style={{
+          padding: '12px 20px',
+          borderTop: '1px solid rgba(148, 163, 184, 0.15)',
+          backgroundColor: '#0E1726',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              padding: '4px 8px',
+              borderRadius: '6px',
+              backgroundColor: 'rgba(56, 189, 248, 0.15)',
+              border: `1px solid ${selectedNode.color || '#38BDF8'}`,
+              fontSize: '11px',
+              fontWeight: 700,
+              color: selectedNode.color || '#38BDF8',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}>
+              <Layers size={13} />
+              <span>SELECTED {selectedNode.category ? selectedNode.category.toUpperCase() : 'NODE'}</span>
+            </div>
+
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#F8FAFC' }}>
+                {selectedNode.label}
+              </div>
+              <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                Specimens involved: <strong style={{ color: '#F8FAFC' }}>{selectedNode.sample_count}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {selectedNode.category === 'destination' && onSelectDestination && (
+              <button
+                type="button"
+                onClick={() => {
+                  const statusKey = selectedNode.id.replace('dest_', '');
+                  onSelectDestination(statusKey);
+                }}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: '#0284C7',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <Filter size={11} />
+                Filter Table by '{selectedNode.label}'
+              </button>
+            )}
+
+            {selectedNode.category === 'source' && onSelectSampleType && (
+              <button
+                type="button"
+                onClick={() => {
+                  const typeKey = selectedNode.id.replace('src_', '');
+                  onSelectSampleType(typeKey);
+                }}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: '#0284C7',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <Filter size={11} />
+                Filter Table by '{selectedNode.label}'
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setSelectedNode(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#94A3B8',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'inline-flex',
+              }}
+              title="Clear selection"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Interaction hint (Legend removed) */}
       <div style={{
         padding: '8px 20px',
         borderTop: '1px solid rgba(148, 163, 184, 0.1)',
@@ -688,24 +820,7 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
         flexWrap: 'wrap',
         gap: '8px',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <span><strong>Legend:</strong></span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3B82F6' }} />
-            Primary Specimen Types
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#0D9488' }} />
-            Biochemical Transformation
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-            Storage Disposition
-          </span>
-        </div>
-        <div>
-          <span>Tip: Click any <strong>ribbon stream</strong> or <strong>destination node</strong> to isolate and inspect channels.</span>
-        </div>
+        <span>Tip: Click any <strong>individual ribbon stream</strong> or <strong>stage node</strong> to inspect and filter the table.</span>
       </div>
     </div>
   );

@@ -143,6 +143,7 @@ from app.modules.lab.console import router as console_router
 app.include_router(console_router)
 
 from app.modules.lab.reports import router as reports_router
+from app.modules.lab import table_reports
 app.include_router(reports_router)
 
 from app.modules.lab.chat import router as chat_router

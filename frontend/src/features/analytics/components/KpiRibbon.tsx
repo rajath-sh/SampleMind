@@ -5,8 +5,6 @@ import {
   TestTubes,
   CheckCircle2,
   AlertTriangle,
-  BrainCircuit,
-  Scroll,
   Lock,
   Info,
 } from 'lucide-react';
@@ -249,61 +247,7 @@ export const KpiRibbon: React.FC<KpiRibbonProps> = ({
           </div>
         </div>
 
-        {/* Card 6: AI Risk Advisory */}
-        <div
-          className="card"
-          style={{ padding: '16px 18px', cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative' }}
-          onClick={() => onNavigateSection('ai_analysis')}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-muted)', textTransform: 'uppercase' }}>
-              AI Risk Advisories
-            </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <div style={{ padding: '5px', borderRadius: '6px', backgroundColor: 'var(--color-pale-teal)', color: 'var(--color-teal)' }}>
-                <BrainCircuit size={16} />
-              </div>
-            </div>
-          </div>
-          <div className="font-mono" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--color-ink)', lineHeight: 1 }}>
-            {kpis.high_risk_ai_predictions}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px', fontSize: '11.5px', color: 'var(--color-muted)' }}>
-            <span className="badge badge-sand" style={{ padding: '1px 6px', fontSize: '10.5px' }}>
-              HIGH Degradation Risk
-            </span>
-            <span>•</span>
-            <span>{kpis.pending_ai_reviews} Pending Review</span>
-          </div>
-        </div>
-
-        {/* Card 7: Ancient Archaeological Specimens */}
-        <div
-          className="card"
-          style={{ padding: '16px 18px', cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative' }}
-          onClick={() => onNavigateSection('ancient')}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-muted)', textTransform: 'uppercase' }}>
-              Ancient Provenance
-            </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <div style={{ padding: '5px', borderRadius: '6px', backgroundColor: 'var(--color-pale-teal)', color: 'var(--color-teal)' }}>
-                <Scroll size={16} />
-              </div>
-            </div>
-          </div>
-          <div className="font-mono" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--color-ink)', lineHeight: 1 }}>
-            {kpis.ancient_specimens_count}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px', fontSize: '11.5px', color: 'var(--color-muted)' }}>
-            <span className="badge badge-sand" style={{ padding: '1px 6px', fontSize: '10.5px' }}>
-              Calibrated BP Chronometrics
-            </span>
-          </div>
-        </div>
-
-        {/* Card 8: Scientific Results Status */}
+        {/* Card 6: Scientific Results Status */}
         <div
           className="card"
           style={{ padding: '16px 18px', cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative' }}

@@ -1,6 +1,7 @@
 import { SummaryReport, type ReportDocument } from './SummaryReport';
 import { DatabaseConcept } from '../../components/DatabaseConcept';
 import { CompactTable } from '../../components/CompactTable';
+// import { AIRiskAdvisoryPage } from '../ai/AIRiskAdvisoryPage';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   FlaskConical,
@@ -24,8 +25,11 @@ import {
   ActivityFeedItem,
 } from './types';
 
-export const ReportsAnalyticsPage: React.FC<{ onSendToAI: (report: ReportDocument) => void }> = ({ onSendToAI }) => {
-  const [activeTab, setActiveTab] = useState<'inventory' | 'storage' | 'incidents' | 'experiments' | 'audit'>('inventory');
+export const ReportsAnalyticsPage: React.FC<{ 
+  onSendToAI: (report: ReportDocument) => void;
+  initialTab?: 'inventory' | 'storage' | 'incidents' | 'experiments' | 'audit' | 'risk';
+}> = ({ onSendToAI, initialTab = 'inventory' }) => {
+  const [activeTab, setActiveTab] = useState<'inventory' | 'storage' | 'incidents' | 'experiments' | 'audit' | 'risk'>(initialTab);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -224,7 +228,7 @@ export const ReportsAnalyticsPage: React.FC<{ onSendToAI: (report: ReportDocumen
               15 Database Relations Online
             </div>
             <div style={{ padding: '6px 12px', borderRadius: '6px', backgroundColor: 'var(--color-background)', border: '1px solid var(--color-border)', fontSize: '12px', color: 'var(--color-ink)', fontWeight: 600 }}>
-              Dual SQLite / PG Engine Active
+              MySQL 8.0 Relational Engine Active
             </div>
           </div>
         </div>
@@ -498,6 +502,29 @@ export const ReportsAnalyticsPage: React.FC<{ onSendToAI: (report: ReportDocumen
           <Clock size={16} />
           Audit Trail Activity Feed ({activityFeed.length})
         </button>
+
+        {/* Risk Analysis subtab hidden for live-evaluation clarity (code preserved below):
+        <button
+          type="button"
+          onClick={() => setActiveTab('risk')}
+          style={{
+            padding: '12px 18px',
+            border: 'none',
+            background: 'none',
+            fontSize: '13px',
+            fontWeight: activeTab === 'risk' ? 600 : 500,
+            color: activeTab === 'risk' ? 'var(--color-teal)' : 'var(--color-muted)',
+            borderBottom: activeTab === 'risk' ? '2px solid var(--color-teal)' : '2px solid transparent',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <BrainCircuit size={16} />
+          Risk Analysis & Predictions
+        </button>
+        */}
       </div>
 
       {/* TAB CONTENT 1: Inventory Breakdown */}
@@ -840,6 +867,13 @@ export const ReportsAnalyticsPage: React.FC<{ onSendToAI: (report: ReportDocumen
           </div>
         </div>
       )}
+      {/* Subtab 6: AI Risk Analysis & Advisory - hidden for live-evaluation clarity (code preserved):
+      {activeTab === 'risk' && (
+        <div style={{ marginTop: '16px' }}>
+          <AIRiskAdvisoryPage />
+        </div>
+      )}
+      */}
     </div>
   );
 };

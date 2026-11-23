@@ -15,11 +15,14 @@ import {
   ChevronRight,
   Filter,
   Compass,
+  Edit2,
+  Trash2,
 } from 'lucide-react';
 import { ancientService } from './ancientService';
 import {
   SiteSummary,
   SiteCreatePayload,
+  SiteUpdatePayload,
   AncientSpecimenListItem,
   AncientSpecimenDetail,
   AncientSpecimenCreatePayload,
@@ -57,6 +60,13 @@ export const AncientSpecimensPage: React.FC<AncientSpecimensPageProps> = ({ init
   const [isNewSpecimenModalOpen, setIsNewSpecimenModalOpen] = useState(false);
   const [isNewSiteModalOpen, setIsNewSiteModalOpen] = useState(false);
   const [isEditSpecimenModalOpen, setIsEditSpecimenModalOpen] = useState(false);
+  const [editingSite, setEditingSite] = useState<SiteSummary | null>(null);
+  const [editSiteForm, setEditSiteForm] = useState<SiteUpdatePayload>({
+    site_name: '',
+    region: '',
+    country: '',
+    context_notes: '',
+  });
 
   // Form states
   const [newSpecimenForm, setNewSpecimenForm] = useState<AncientSpecimenCreatePayload>({
@@ -211,6 +221,69 @@ export const AncientSpecimensPage: React.FC<AncientSpecimensPageProps> = ({ init
     } catch (err: unknown) {
       const e = err as Error;
       setErrorMessage(e.message || 'Failed to update provenance.');
+    }
+  };
+
+  const handleDeleteSpecimen = async (sampleId: number, sampleCode: string) => {
+    if (!window.confirm(`Are you sure you want to delete the ancient provenance record for specimen ${sampleCode}?`)) {
+      return;
+    }
+    try {
+      await ancientService.deleteAncientSpecimen(sampleId);
+      setSuccessMessage(`Ancient provenance record for ${sampleCode} removed.`);
+      if (selectedSampleId === sampleId) {
+        setSelectedSampleId(null);
+        setSelectedDetail(null);
+      }
+      loadSpecimens();
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to delete ancient specimen.');
+    }
+  };
+
+  const handleOpenEditSpecimen = (sampleId: number) => {
+    setSelectedSampleId(sampleId);
+    void loadSpecimenDetail(sampleId);
+    setIsEditSpecimenModalOpen(true);
+  };
+
+  const handleOpenEditSite = (site: SiteSummary) => {
+    setEditingSite(site);
+    setEditSiteForm({
+      site_name: site.site_name,
+      region: site.region || '',
+      country: site.country || '',
+      context_notes: site.context_notes || '',
+    });
+  };
+
+  const handleUpdateSite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSite) return;
+    try {
+      await ancientService.updateSite(editingSite.archaeological_site_id, editSiteForm);
+      setSuccessMessage(`Excavation site ${editSiteForm.site_name} updated successfully.`);
+      setEditingSite(null);
+      loadSites();
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to update excavation site.');
+    }
+  };
+
+  const handleDeleteSite = async (siteId: number, siteName: string) => {
+    if (!window.confirm(`Are you sure you want to delete excavation site "${siteName}"? Associated specimens will have their site unlinked.`)) {
+      return;
+    }
+    try {
+      await ancientService.deleteSite(siteId);
+      setSuccessMessage(`Excavation site "${siteName}" deleted.`);
+      loadSites();
+      loadSpecimens();
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to delete excavation site.');
     }
   };
 
@@ -450,7 +523,7 @@ export const AncientSpecimensPage: React.FC<AncientSpecimensPageProps> = ({ init
 
             {/* Table */}
             <div style={{ overflowX: 'auto' }}>
-              <CompactTable label="ancient specimens" extra={[3, 5, 7]} help={<DatabaseConcept topic="ancient" />}>
+              <CompactTable label="ancient specimens" extra={[3, 5, 7]} showLens={false} help={<DatabaseConcept topic="ancient" />}>
                 <table className="table" style={{ width: '100%', fontSize: '13px' }}>
                 <thead>
                   <tr>
@@ -461,7 +534,7 @@ export const AncientSpecimensPage: React.FC<AncientSpecimensPageProps> = ({ init
                     <th>Excavation Layer</th>
                     <th>Preservation</th>
                     <th>Site Provenance</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -534,20 +607,60 @@ export const AncientSpecimensPage: React.FC<AncientSpecimensPageProps> = ({ init
                           )}
                         </td>
                         <td>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedSampleId(spec.sample_id)}
-                            className="btn btn-secondary"
-                            style={{
-                              padding: '4px 10px',
-                              fontSize: '12px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                            }}
-                          >
-                            Dossier <ChevronRight size={13} />
-                          </button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedSampleId(spec.sample_id)}
+                              className="btn btn-secondary"
+                              style={{
+                                padding: '4px 10px',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                              }}
+                            >
+                              Dossier <ChevronRight size={13} />
+                            </button>
+                            {canWrite && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenEditSpecimen(spec.sample_id)}
+                                  className="btn btn-secondary"
+                                  style={{
+                                    padding: '4px 8px',
+                                    fontSize: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                  }}
+                                  title="Edit provenance"
+                                >
+                                  <Edit2 size={12} /> Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteSpecimen(spec.sample_id, spec.sample_code)}
+                                  style={{
+                                    padding: '4px 8px',
+                                    fontSize: '12px',
+                                    borderRadius: '4px',
+                                    border: '1px solid #FECACA',
+                                    backgroundColor: '#FEF2F2',
+                                    color: 'var(--color-danger)',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                  }}
+                                  title="Delete ancient provenance"
+                                >
+                                  <Trash2 size={12} /> Delete
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -761,7 +874,7 @@ export const AncientSpecimensPage: React.FC<AncientSpecimensPageProps> = ({ init
           </div>
 
           <div style={{ overflowX: 'auto' }}>
-            <CompactTable label="archaeological sites" extra={[3, 6, 7]}>
+            <CompactTable label="archaeological sites" extra={[3, 6, 7]} showLens={false}>
               <table className="table" style={{ width: '100%', fontSize: '13px' }}>
               <thead>
                 <tr>
@@ -772,18 +885,19 @@ export const AncientSpecimensPage: React.FC<AncientSpecimensPageProps> = ({ init
                   <th>Specimens</th>
                   <th>Contextual Survey Notes</th>
                   <th>Date Registered</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: 'center', padding: '36px', color: 'var(--color-muted)' }}>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '36px', color: 'var(--color-muted)' }}>
                       Loading excavation sites...
                     </td>
                   </tr>
                 ) : sites.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: 'center', padding: '36px', color: 'var(--color-muted)' }}>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '36px', color: 'var(--color-muted)' }}>
                       No excavation sites registered yet.
                     </td>
                   </tr>
@@ -809,6 +923,48 @@ export const AncientSpecimensPage: React.FC<AncientSpecimensPageProps> = ({ init
                       </td>
                       <td style={{ color: 'var(--color-muted)', fontSize: '12px' }}>
                         {new Date(site.created_at).toLocaleDateString()}
+                      </td>
+                      <td>
+                        {canWrite ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditSite(site)}
+                              className="btn btn-secondary"
+                              style={{
+                                padding: '4px 8px',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                              }}
+                              title="Edit site"
+                            >
+                              <Edit2 size={12} /> Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSite(site.archaeological_site_id, site.site_name)}
+                              style={{
+                                padding: '4px 8px',
+                                fontSize: '12px',
+                                borderRadius: '4px',
+                                border: '1px solid #FECACA',
+                                backgroundColor: '#FEF2F2',
+                                color: 'var(--color-danger)',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                              }}
+                              title="Delete site"
+                            >
+                              <Trash2 size={12} /> Delete
+                            </button>
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: '11px', color: 'var(--color-muted)' }}>Read Only</span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -1369,6 +1525,124 @@ export const AncientSpecimensPage: React.FC<AncientSpecimensPageProps> = ({ init
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ fontSize: '13px' }}>
                   Save Site
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Archaeological Site */}
+      {editingSite && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(23, 43, 58, 0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '20px',
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              width: '100%',
+              maxWidth: '480px',
+              padding: '24px',
+              backgroundColor: '#FFFFFF',
+              boxShadow: 'var(--shadow-lg)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '18px',
+              }}
+            >
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ink)', margin: 0 }}>
+                  Edit Excavation Site
+                </h3>
+                <span className="font-mono" style={{ fontSize: '12px', color: 'var(--color-teal)' }}>
+                  {editingSite.site_code}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingSite(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateSite} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                  Site Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editSiteForm.site_name || ''}
+                  onChange={(e) => setEditSiteForm({ ...editSiteForm, site_name: e.target.value })}
+                  className="input"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                    Region / Province
+                  </label>
+                  <input
+                    type="text"
+                    value={editSiteForm.region || ''}
+                    onChange={(e) => setEditSiteForm({ ...editSiteForm, region: e.target.value })}
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                    Country
+                  </label>
+                  <input
+                    type="text"
+                    value={editSiteForm.country || ''}
+                    onChange={(e) => setEditSiteForm({ ...editSiteForm, country: e.target.value })}
+                    className="input"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                  Context & Stratigraphy Notes
+                </label>
+                <textarea
+                  value={editSiteForm.context_notes || ''}
+                  onChange={(e) => setEditSiteForm({ ...editSiteForm, context_notes: e.target.value })}
+                  className="input"
+                  rows={3}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setEditingSite(null)}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '13px' }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" style={{ fontSize: '13px' }}>
+                  Save Changes
                 </button>
               </div>
             </form>

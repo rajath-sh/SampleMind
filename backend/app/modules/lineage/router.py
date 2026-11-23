@@ -138,3 +138,27 @@ def create_relationship(
         message=f"Lineage edge created: '{res.parent_sample_code}' -> '{res.child_sample_code}' ({res.transformation_type}).",
         data=res
     )
+
+
+@router.delete(
+    "/relationships/{relationship_id}",
+    response_model=APIResponse[dict],
+    summary="Delete parent-child derivation relationship edge",
+)
+def delete_relationship(
+    relationship_id: int,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, "ADMIN", "RESEARCHER"])),
+):
+    """
+    Removes a parent-child derivation relationship edge between specimens.
+    """
+    LineageService.delete_relationship(
+        db=db,
+        relationship_id=relationship_id,
+        actor_id=current_user.user_id
+    )
+    return APIResponse(
+        message=f"Lineage derivation edge #{relationship_id} removed successfully.",
+        data={"relationship_id": relationship_id, "deleted": True}
+    )

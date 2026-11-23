@@ -20,6 +20,8 @@ class IncidentCreateRequest(BaseModel):
 
 
 class IncidentUpdateRequest(BaseModel):
+    incident_type: Optional[str] = Field(None, description="Updated incident type")
+    description: Optional[str] = Field(None, description="Updated incident description")
     status: Optional[str] = Field(None, description="Status: open, investigating, mitigated, closed")
     severity: Optional[str] = Field(None, description="Updated severity level")
     assigned_to: Optional[int] = Field(None, description="Reassigned investigator user ID")

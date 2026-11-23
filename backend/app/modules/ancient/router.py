@@ -109,6 +109,24 @@ def update_site(
     )
 
 
+@ancient_router.delete(
+    "/sites/{site_id}",
+    response_model=APIResponse[bool],
+    summary="Delete an archaeological excavation site (Admin, Researcher, Lab Manager)",
+)
+def delete_site(
+    site_id: int,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, UserRole.RESEARCHER.value, "LAB_MANAGER"])),
+):
+    success = AncientService.delete_site(db, site_id, actor_id=current_user.user_id)
+    return APIResponse(
+        success=True,
+        message="Archaeological excavation site deleted successfully.",
+        data=success,
+    )
+
+
 # -----------------------------------------------------------------------------
 # Ancient Specimens Endpoints
 # -----------------------------------------------------------------------------
@@ -194,4 +212,22 @@ def update_ancient_specimen(
         success=True,
         message=f"Provenance profile for specimen '{updated.sample_code}' updated successfully.",
         data=updated,
+    )
+
+
+@ancient_router.delete(
+    "/specimens/{sample_id}",
+    response_model=APIResponse[bool],
+    summary="Delete ancient specimen provenance profile (Admin, Researcher, Lab Manager)",
+)
+def delete_ancient_specimen(
+    sample_id: int,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, UserRole.RESEARCHER.value, "LAB_MANAGER"])),
+):
+    success = AncientService.delete_ancient_specimen(db, sample_id, actor_id=current_user.user_id)
+    return APIResponse(
+        success=True,
+        message="Ancient specimen provenance profile deleted successfully.",
+        data=success,
     )

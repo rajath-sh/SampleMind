@@ -44,8 +44,19 @@ def cohort_review(
 
 @router.get("/queries")
 def query_catalog():
-    return [{"key": key, "title": title, "concept": concept, "flow": flow, "needs_sample": needs_sample}
-            for key, (title, concept, flow, needs_sample, _) in QUERIES.items()]
+    return [
+        {
+            "key": key,
+            "title": item[0],
+            "concept": item[1],
+            "flow": item[2],
+            "needs_sample": item[3],
+            "category": item[5],
+            "elmasri_reference": item[6],
+            "explanation": item[7],
+        }
+        for key, item in QUERIES.items()
+    ]
 
 
 @router.get("/sql/{key}")

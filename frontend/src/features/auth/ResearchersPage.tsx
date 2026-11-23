@@ -66,12 +66,12 @@ export function ResearchersPage() {
   return (
     <div className="lab-stack">
       <header className="lab-hero">
-        <div><div className="lab-kicker">WORKSPACE ADMINISTRATION</div><h1>Researchers and roles</h1>
-          <p>Review account access and manage roles assigned to this laboratory.</p></div>
+        <div><div className="lab-kicker">WORKSPACE ADMINISTRATION</div><h1>Settings &amp; Roles</h1>
+          <p>Review account access, manage user roles, and provision laboratory personnel.</p></div>
         <div className="lab-hero-mark" aria-hidden="true"><Users size={48} /></div>
       </header>
       <section className="card lab-panel">
-        <div className="lab-title"><ShieldCheck size={20} /><h2>Researcher directory</h2>
+        <div className="lab-title"><ShieldCheck size={20} /><h2>User Accounts &amp; RBAC Directory</h2>
           <ConceptInfo title="Role-based access control" steps={['Signed bearer token', 'Active SQL user', 'Role requirement', 'Audited mutation']}>
             <p>On each request, the server verifies the token, loads the user’s current role and checks the route’s allowed roles. An account change and its audit row commit together.</p>
           </ConceptInfo>

@@ -30,6 +30,7 @@ from .schemas import (
     BoxOccupancySlot,
     OccupancyGridResponse,
     EquipmentCreate,
+    EquipmentUpdate,
     EquipmentStatusUpdate,
     EquipmentDetail,
 )
@@ -198,11 +199,17 @@ class StorageService:
             raise EntityNotFoundException("StorageLocation", location_id)
 
         old_state = {
+            "facility": location.facility,
             "room": location.room,
+            "unit_type": location.unit_type,
             "unit_label": location.unit_label,
             "is_active": location.is_active,
         }
 
+        if req.facility is not None:
+            location.facility = req.facility
+        if req.unit_type is not None:
+            location.unit_type = req.unit_type
         if req.room is not None:
             location.room = req.room
         if req.unit_label is not None:
@@ -236,6 +243,28 @@ class StorageService:
         db.commit()
 
         return StorageService.get_location_by_id(db, location_id)
+
+    @staticmethod
+    def delete_location(
+        db: Session,
+        location_id: int,
+        actor_id: Optional[int] = None
+    ) -> bool:
+        """Deletes a storage location."""
+        location = db.query(StorageLocation).filter(
+            StorageLocation.storage_location_id == location_id
+        ).first()
+        if not location:
+            raise EntityNotFoundException("StorageLocation", location_id)
+
+        # Unlink samples in this storage location if any
+        db.query(Sample).filter(Sample.current_storage_location_id == location_id).update(
+            {"current_storage_location_id": None}
+        )
+
+        db.delete(location)
+        db.commit()
+        return True
 
     @staticmethod
     def get_box_occupancy_grid(
@@ -397,3 +426,48 @@ class EquipmentService:
         db.commit()
 
         return eq
+
+    @staticmethod
+    def update_equipment(
+        db: Session,
+        equipment_id: int,
+        req: EquipmentUpdate,
+        actor_id: Optional[int] = None
+    ) -> Equipment:
+        """Updates equipment record fields."""
+        eq = EquipmentService.get_equipment_by_id(db, equipment_id)
+
+        if req.equipment_name is not None:
+            eq.equipment_name = req.equipment_name
+        if req.manufacturer is not None:
+            eq.manufacturer = req.manufacturer
+        if req.model_number is not None:
+            eq.model_number = req.model_number
+        if req.equipment_status is not None:
+            eq.equipment_status = req.equipment_status
+        if req.last_calibrated_at is not None:
+            eq.last_calibrated_at = req.last_calibrated_at
+        if req.calibration_due_at is not None:
+            eq.calibration_due_at = req.calibration_due_at
+        if req.notes is not None:
+            eq.notes = req.notes
+
+        db.commit()
+        db.refresh(eq)
+        return eq
+
+    @staticmethod
+    def delete_equipment(
+        db: Session,
+        equipment_id: int,
+        actor_id: Optional[int] = None
+    ) -> bool:
+        """Deletes a laboratory equipment record."""
+        eq = EquipmentService.get_equipment_by_id(db, equipment_id)
+        # Delete any experiment reservations for this equipment
+        from app.common.models import ExperimentEquipment
+        db.query(ExperimentEquipment).filter(ExperimentEquipment.equipment_id == equipment_id).delete()
+
+        db.delete(eq)
+        db.commit()
+        return True

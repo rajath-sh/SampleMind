@@ -1187,6 +1187,18 @@ class TestService:
     # =========================================================================
 
     @classmethod
+    def delete_test(cls, db: Session, test_id: int, actor_id: Optional[int] = None) -> bool:
+        """
+        Deletes a laboratory assay record.
+        """
+        test = db.query(SampleTest).filter(SampleTest.sample_test_id == test_id).first()
+        if not test:
+            raise EntityNotFoundException("SampleTest", test_id)
+        db.delete(test)
+        db.commit()
+        return True
+
+    @classmethod
     def get_quality_metrics(cls, db: Session) -> TestQualityMetricsResponse:
         """
         Phase 3 Feature: Analytical Laboratory Quality & Operational Intelligence.

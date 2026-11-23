@@ -20,9 +20,11 @@ from app.common import (
     TokenResponse,
     UserSummary,
     AppUser,
+    DuplicateEntityException,
 )
 from .schemas import (
     LoginRequest,
+    PublicSignupRequest,
     UserCreateRequest,
     UserStatusUpdateRequest,
     UserDetailResponse,
@@ -57,6 +59,44 @@ def login(
     token = AuthService.create_user_token(user)
     return APIResponse(
         message=f"Welcome back, {user.display_name}!",
+        data=token
+    )
+
+
+@router.post(
+    "/signup",
+    response_model=APIResponse[TokenResponse],
+    summary="Self-register a new user account (Strictly VIEWER role)",
+    status_code=status.HTTP_201_CREATED,
+)
+def signup(
+    payload: PublicSignupRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Public self-registration for new users.
+    Assigns the lowest permission tier (VIEWER).
+    Role elevation to Researcher, Technician, or Admin requires Administrator action.
+    """
+    existing = db.query(AppUser).filter(
+        (AppUser.email == payload.email) | (AppUser.display_name == payload.display_name)
+    ).first()
+    if existing:
+        if existing.email == payload.email:
+            raise DuplicateEntityException(f"Email address '{payload.email}' is already registered.")
+        else:
+            raise DuplicateEntityException(f"Display name '{payload.display_name}' is already taken.")
+
+    req = UserCreateRequest(
+        display_name=payload.display_name.strip(),
+        email=payload.email.strip().lower(),
+        password=payload.password,
+        role=UserRole.VIEWER,
+    )
+    new_user = AuthService.register_user(db=db, req=req, actor_id=None)
+    token = AuthService.create_user_token(new_user)
+    return APIResponse(
+        message=f"Account created successfully for '{new_user.display_name}'. Assigned role: VIEWER.",
         data=token
     )
 

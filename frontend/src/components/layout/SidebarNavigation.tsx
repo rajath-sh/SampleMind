@@ -1,5 +1,4 @@
 import React from 'react';
-import { useAuth } from '../../features/auth/AuthContext';
 import {
   Dna,
   LayoutDashboard,
@@ -15,7 +14,6 @@ import {
   BrainCircuit,
   BarChart3,
   Users,
-  Settings,
   Database,
   Layers,
 } from 'lucide-react';
@@ -53,24 +51,23 @@ const NAV_GROUPS: NavGroup[] = [
   ] },
   { group: 'INTELLIGENCE', items: [
     { id: 'cohort', label: 'Cohort Review', icon: <Layers size={17} /> },
-    { id: 'ai_analysis', label: 'Risk Analysis', icon: <BrainCircuit size={17} /> },
     { id: 'sql_testing', label: 'SQL Testing', icon: <Database size={17} /> },
-    { id: 'dbms', label: 'DBMS', icon: <Database size={17} /> },
+    { id: 'reports', label: 'Reports & Analysis', icon: <BarChart3 size={17} /> },
     { id: 'assistant', label: 'AI Chat', icon: <BrainCircuit size={17} /> },
     { id: 'news', label: 'World News', icon: <Scroll size={17} /> },
-    { id: 'lab', label: 'Database Lab', icon: <Database size={17} /> },
-    { id: 'reports', label: 'Reports & Analytics', icon: <BarChart3 size={17} /> },
   ] },
   { group: 'ADMINISTRATION', items: [
-    { id: 'researchers', label: 'Researchers & Roles', icon: <Users size={17} /> },
-    { id: 'settings', label: 'Settings', icon: <Settings size={17} /> },
+    { id: 'dbms', label: 'DBMS', icon: <Database size={17} /> },
+    { id: 'researchers', label: 'Settings & Roles', icon: <Users size={17} /> },
   ] },
 ];
 
-export const sectionLabels = Object.fromEntries(NAV_GROUPS.flatMap(group => group.items.map(item => [item.id, item.label])));
+export const sectionLabels: Record<string, string> = {
+  ...Object.fromEntries(NAV_GROUPS.flatMap(group => group.items.map(item => [item.id, item.label]))),
+  settings: 'Settings & Roles',
+};
 
 export const SidebarNavigation: React.FC<SidebarProps> = ({ currentSection, onSelectSection }) => {
-  const { user } = useAuth();
   return (
     <aside className="workspace-sidebar" style={{
       width: '214px',
@@ -119,7 +116,7 @@ export const SidebarNavigation: React.FC<SidebarProps> = ({ currentSection, onSe
           <div key={grp.group} style={{ marginBottom: '18px' }}>
             <div className="sidebar-group" style={{ padding: '6px 10px', fontSize: '10px', color: '#b5cbc6', letterSpacing: '.08em' }}>{grp.group}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              {grp.items.filter(item => item.id !== 'sql_testing' || user?.role === 'ADMIN').map((item) => {
+              {grp.items.map((item) => {
                 const isSelected = currentSection === item.id;
                 return (
                   <button

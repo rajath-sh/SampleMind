@@ -81,6 +81,19 @@ export const SampleQuantityVisualizer: React.FC<SampleQuantityVisualizerProps> =
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Simple explainer banner */}
+      <div style={{
+        padding: '12px 16px',
+        backgroundColor: '#EFF6FF',
+        borderRadius: 'var(--radius-control)',
+        border: '1px solid #BFDBFE',
+        fontSize: '13px',
+        color: '#1E40AF',
+        lineHeight: 1.5,
+      }}>
+        <strong>What is the Quantity Ledger?</strong> Like a bank account for biological volume or weight, this tracks the sample's starting balance and whenever an amount is used, aliquoted, or transferred. It ensures no material is created or lost without a transaction record.
+      </div>
+
       {/* 4 Key Metrics Grid */}
       <div style={{
         display: 'grid',

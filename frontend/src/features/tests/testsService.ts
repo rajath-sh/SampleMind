@@ -63,6 +63,12 @@ export const testsService = {
     return res.data;
   },
 
+  async deleteTest(testId: number): Promise<void> {
+    await apiRequest<ApiResponseEnvelope<{ deleted: boolean }>>(`/tests/${testId}`, {
+      method: 'DELETE',
+    });
+  },
+
   // =========================================================================
   // Phase 2: Scientific Features
   // =========================================================================

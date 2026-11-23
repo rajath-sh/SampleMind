@@ -25,8 +25,10 @@ from .schemas import (
     ExperimentCreateRequest,
     ExperimentUpdateRequest,
     ExperimentSampleAttachRequest,
+    ExperimentEquipmentAttachRequest,
     ResultCreateRequest,
     ResultVerifyRequest,
+    ResultUpdateRequest,
     ExperimentListItem,
     ExperimentDetailResponse,
     ResultDetailResponse,
@@ -146,6 +148,28 @@ def update_experiment(
     )
 
 
+@experiments_router.delete(
+    "/{experiment_id}",
+    response_model=APIResponse[bool],
+    summary="Delete research experiment and linked cohorts/results (Admin, Researcher)",
+)
+def delete_experiment(
+    experiment_id: int,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, "ADMIN", "RESEARCHER"])),
+):
+    """Deletes research experiment and all its cascaded links."""
+    success = ExperimentService.delete_experiment(
+        db=db,
+        experiment_id=experiment_id,
+        actor_id=current_user.user_id
+    )
+    return APIResponse(
+        message="Experiment deleted successfully.",
+        data=success
+    )
+
+
 @experiments_router.post(
     "/{experiment_id}/samples",
     response_model=APIResponse[bool],
@@ -166,6 +190,30 @@ def attach_sample_to_experiment(
     )
     return APIResponse(
         message="Specimen successfully attached to experiment cohort.",
+        data=success
+    )
+
+
+@experiments_router.post(
+    "/{experiment_id}/equipment",
+    response_model=APIResponse[bool],
+    summary="Allocate or attach equipment to an experiment",
+)
+def attach_equipment_to_experiment(
+    experiment_id: int,
+    req: ExperimentEquipmentAttachRequest,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, "ADMIN", "RESEARCHER"])),
+):
+    """Allocates equipment to the experiment."""
+    success = ExperimentService.attach_equipment(
+        db=db,
+        experiment_id=experiment_id,
+        req=req,
+        actor_id=current_user.user_id
+    )
+    return APIResponse(
+        message="Equipment successfully allocated to experiment.",
         data=success
     )
 
@@ -249,6 +297,30 @@ def list_global_results(
 
 
 @results_router.put(
+    "/{result_id}",
+    response_model=APIResponse[ResultDetailResponse],
+    summary="Update an experimental result (Admin, Researcher)",
+)
+def update_result(
+    result_id: int,
+    req: ResultUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, "ADMIN", "RESEARCHER"])),
+):
+    """Updates fields of an experimental result."""
+    updated = ExperimentService.update_result(
+        db=db,
+        result_id=result_id,
+        req=req,
+        actor_id=current_user.user_id
+    )
+    return APIResponse(
+        message=f"Result '{updated.result_code}' updated successfully.",
+        data=updated
+    )
+
+
+@results_router.put(
     "/{result_id}/verify",
     response_model=APIResponse[ResultDetailResponse],
     summary="Verify an experimental result (Admin, Researcher or Reviewer)",
@@ -269,4 +341,26 @@ def verify_result(
     return APIResponse(
         message=f"Result '{verified.result_code}' status updated: Final={verified.is_final}.",
         data=verified
+    )
+
+
+@results_router.delete(
+    "/{result_id}",
+    response_model=APIResponse[bool],
+    summary="Delete an experimental result (Admin, Researcher)",
+)
+def delete_result(
+    result_id: int,
+    db: Session = Depends(get_db),
+    current_user: AppUser = Depends(require_roles([UserRole.ADMIN.value, "ADMIN", "RESEARCHER"])),
+):
+    """Deletes an experimental result."""
+    success = ExperimentService.delete_result(
+        db=db,
+        result_id=result_id,
+        actor_id=current_user.user_id
+    )
+    return APIResponse(
+        message="Result deleted successfully.",
+        data=success
     )

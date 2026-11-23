@@ -57,6 +57,13 @@ export const incidentsService = {
     return res.data;
   },
 
+  async deleteIncident(incidentId: number): Promise<{ incident_id: number; deleted: boolean }> {
+    const res = await apiRequest<ApiResponseEnvelope<{ incident_id: number; deleted: boolean }>>(`/incidents/${incidentId}`, {
+      method: 'DELETE',
+    });
+    return res.data;
+  },
+
   async getDownstreamImpact(incidentId: number): Promise<IncidentBlastRadiusResponse> {
     const res = await apiRequest<ApiResponseEnvelope<IncidentBlastRadiusResponse>>(`/incidents/${incidentId}/downstream-impact`);
     return res.data;

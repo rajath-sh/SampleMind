@@ -43,24 +43,42 @@ async def chat(payload: ChatInput):
         "contents": contents,
         "generationConfig": {"maxOutputTokens": 2048},
     }
-    try:
-        async with httpx.AsyncClient(timeout=45) as client:
-            response = await client.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent",
-                headers={"x-goog-api-key": settings.GEMINI_API_KEY},
-                json=request,
-            )
-        if response.status_code != 200:
-            raise SampleMindException(
-                502, f"The AI provider returned HTTP {response.status_code}. Check model access, API key and quota.",
-                "AI_PROVIDER_ERROR",
-            )
-        data = response.json()
-        candidates = data.get("candidates", [])
-        reply = "\n".join(part["text"] for part in candidates[0].get("content", {}).get("parts", [])
-                          if "text" in part and not part.get("thought")) if candidates else ""
-        if not reply:
-            raise SampleMindException(502, "The AI provider returned no text response.", "AI_EMPTY_RESPONSE")
-        return {"reply": reply, "model": settings.GEMINI_MODEL}
-    except httpx.HTTPError as error:
-        raise SampleMindException(502, "Could not reach the AI provider. Try again.", "AI_NETWORK_ERROR") from error
+    models_to_try = [settings.GEMINI_MODEL, "gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash"]
+    # De-duplicate while preserving order
+    seen = set()
+    candidate_models = [m for m in models_to_try if not (m in seen or seen.add(m))]
+
+    last_error_code = 502
+    last_error_detail = ""
+
+    for target_model in candidate_models:
+        try:
+            async with httpx.AsyncClient(timeout=45) as client:
+                response = await client.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:generateContent",
+                    headers={"x-goog-api-key": settings.GEMINI_API_KEY},
+                    json=request,
+                )
+            if response.status_code == 200:
+                data = response.json()
+                candidates = data.get("candidates", [])
+                reply = "\n".join(part["text"] for part in candidates[0].get("content", {}).get("parts", [])
+                                  if "text" in part and not part.get("thought")) if candidates else ""
+                if reply:
+                    return {"reply": reply, "model": target_model}
+            
+            last_error_code = response.status_code
+            try:
+                err_json = response.json()
+                last_error_detail = err_json.get("error", {}).get("message", response.text[:120])
+            except Exception:
+                last_error_detail = response.text[:120]
+        except httpx.HTTPError as error:
+            last_error_detail = str(error)
+            continue
+
+    raise SampleMindException(
+        502,
+        f"The AI provider returned HTTP {last_error_code}. {last_error_detail or 'Check model access, API key and quota.'}",
+        "AI_PROVIDER_ERROR",
+    )

@@ -17,7 +17,13 @@ import {
   FileText,
   Clock,
   ShieldAlert,
+  Edit2,
+  Trash2,
+  Download,
+  Users,
+  LayoutList,
 } from 'lucide-react';
+import { apiRequest } from '../../common/apiClient';
 import { incidentsService } from './incidentsService';
 import {
   IncidentListItem,
@@ -32,6 +38,7 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
   const { user } = useAuth();
   const canWrite = user?.role === 'ADMIN' || user?.role === 'RESEARCHER';
   const canReport = canWrite || user?.role === 'TECHNICIAN';
+  const [activeSubTab, setActiveSubTab] = useState<'registry' | 'desk'>('registry');
   const [incidents, setIncidents] = useState<IncidentListItem[]>([]);
   const [totalIncidents, setTotalIncidents] = useState(0);
   const [page, setPage] = useState(1);
@@ -54,6 +61,8 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
 
   // Modals State
   const [isNewIncidentModalOpen, setIsNewIncidentModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingIncident, setEditingIncident] = useState<IncidentListItem | null>(null);
   const [isCapaModalOpen, setIsCapaModalOpen] = useState(false);
 
   // Form states
@@ -66,6 +75,14 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
     description: '',
     occurred_at: new Date().toISOString().slice(0, 16),
     quarantine_descendants: true,
+  });
+
+  const [editForm, setEditForm] = useState<IncidentUpdatePayload>({
+    incident_type: '',
+    severity: 'medium',
+    status: 'open',
+    description: '',
+    resolution_notes: '',
   });
 
   const [capaForm, setCapaForm] = useState<IncidentUpdatePayload>({
@@ -199,6 +216,265 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
     }
   };
 
+  const handleOpenEdit = (inc: IncidentListItem) => {
+    setEditingIncident(inc);
+    setEditForm({
+      incident_type: inc.incident_type,
+      severity: inc.severity,
+      status: inc.status,
+      description: inc.description,
+      resolution_notes: '',
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingIncident) return;
+    try {
+      await incidentsService.updateIncident(editingIncident.incident_id, editForm);
+      setSuccessMessage(`Incident ${editingIncident.incident_code} updated successfully.`);
+      setIsEditModalOpen(false);
+      setEditingIncident(null);
+      loadIncidents();
+      if (selectedIncidentId === editingIncident.incident_id) {
+        loadIncidentDetail(editingIncident.incident_id);
+      }
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to update incident.');
+    }
+  };
+
+  const handleDeleteIncident = async (inc: IncidentListItem) => {
+    if (!window.confirm(`Are you sure you want to permanently delete Incident ${inc.incident_code}? This cannot be undone.`)) {
+      return;
+    }
+    try {
+      await incidentsService.deleteIncident(inc.incident_id);
+      setSuccessMessage(`Incident ${inc.incident_code} was deleted successfully.`);
+      if (selectedIncidentId === inc.incident_id) {
+        setSelectedIncidentId(null);
+        setSelectedDetail(null);
+      }
+      loadIncidents();
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to delete incident.');
+    }
+  };
+
+  const handleDownloadReport = async (inc: IncidentListItem) => {
+    try {
+      // Fetch full details, blast radius, and messages
+      const [detail, deskData] = await Promise.all([
+        incidentsService.getIncident(inc.incident_id),
+        apiRequest<{ incidents: Array<{ id: number; acceptance: string; worker: string | null }>; workers: Array<{ id: number; name: string; role: string }> }>('/incident-desk').catch(() => null),
+      ]);
+
+      let messages: Array<{ sender: string; text: string; at: string }> = [];
+      try {
+        messages = await apiRequest<Array<{ sender: string; text: string; at: string }>>(`/incident-desk/${inc.incident_id}/messages`);
+      } catch {
+        // ignore if desk messages empty
+      }
+
+      const deskMatch = deskData?.incidents.find((d) => d.id === inc.incident_id);
+      const acceptanceStatus = deskMatch ? deskMatch.acceptance.toUpperCase() : 'PENDING';
+      const assignedWorker = deskMatch?.worker || detail.assigned_to_name || 'Unassigned';
+
+      const parseDate = (d: string) => {
+        if (!d) return '';
+        const norm = (d.includes('Z') || d.includes('+') || (d.length > 19 && d.slice(19).includes('-'))) ? d : `${d}Z`;
+        return new Date(norm).toLocaleString();
+      };
+
+      const lines = [
+        '================================================================================',
+        '              LABORATORY INCIDENT INVESTIGATION & CAPA DOSSIER                  ',
+        '                      SAMPLEMIND BIOBANK COMPLIANCE REPORT                      ',
+        '================================================================================',
+        '',
+        `INCIDENT CODE:        ${detail.incident_code}`,
+        `INCIDENT TYPE:        ${detail.incident_type}`,
+        `SEVERITY LEVEL:       ${detail.severity.toUpperCase()}`,
+        `CURRENT STATUS:       ${detail.status.toUpperCase()}`,
+        `OCCURRED AT:          ${parseDate(detail.occurred_at)}`,
+        `REPORTED AT:          ${parseDate(detail.reported_at)}`,
+        `REPORTED BY:          ${detail.reported_by_name || 'System Operator'}`,
+        '',
+        '--------------------------------------------------------------------------------',
+        '1. BIO-SPECIMEN & STORAGE CONTEXT',
+        '--------------------------------------------------------------------------------',
+        `Affected Specimen:    ${detail.sample_code ? `${detail.sample_code} (${detail.sample_name || ''})` : 'Facility-wide Excursion'}`,
+        `Specimen Status:      ${detail.sample_status || 'N/A'}`,
+        `Storage Location:     ${detail.storage_location_code || 'N/A'}`,
+        '',
+        '--------------------------------------------------------------------------------',
+        '2. STAFF ASSIGNMENT & DISPATCH STATUS',
+        '--------------------------------------------------------------------------------',
+        `Assigned Lead:        ${assignedWorker}`,
+        `Assignment Decision:  ${acceptanceStatus} (Permitted Roles: ADMIN, RESEARCHER)`,
+        '',
+        '--------------------------------------------------------------------------------',
+        '3. FACTUAL INCIDENT DESCRIPTION',
+        '--------------------------------------------------------------------------------',
+        detail.description || 'No detailed description recorded.',
+        '',
+        '--------------------------------------------------------------------------------',
+        '4. CORRECTIVE AND PREVENTIVE ACTIONS (CAPA)',
+        '--------------------------------------------------------------------------------',
+        detail.resolution_notes || 'No CAPA remediation notes submitted.',
+        `Closure Date:         ${detail.closed_at ? parseDate(detail.closed_at) : 'Open / Unresolved'}`,
+        '',
+        '--------------------------------------------------------------------------------',
+        '5. INVESTIGATION MESSAGES & COLLABORATION AUDIT TRAIL',
+        '--------------------------------------------------------------------------------',
+      ];
+
+      if (messages.length === 0) {
+        lines.push('No incident discussion messages recorded in the dispatch log.');
+      } else {
+        messages.forEach((m, idx) => {
+          lines.push(`[${idx + 1}] ${parseDate(m.at)} | From: ${m.sender}`);
+          lines.push(`    "${m.text}"`);
+          lines.push('');
+        });
+      }
+
+      lines.push('================================================================================');
+      lines.push(`Report generated on ${new Date().toLocaleString()} by SampleMind LIMS`);
+      lines.push('ISO/IEC 17025 Biobanking Quality Management Framework');
+      lines.push('================================================================================');
+
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Incident-Report-${detail.incident_code}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to download incident report.');
+    }
+  };
+
+  const handleDownloadGeneralReport = async () => {
+    try {
+      setIsLoading(true);
+      // Fetch all incidents using valid pageSize <= 100
+      let allItems: IncidentListItem[] = [];
+      let currentPage = 1;
+      let total = 0;
+
+      while (true) {
+        const res = await incidentsService.listIncidents({ page: currentPage, pageSize: 100 });
+        allItems = allItems.concat(res.items);
+        total = res.total;
+        if (allItems.length >= total || res.items.length === 0 || currentPage >= 10) {
+          break;
+        }
+        currentPage++;
+      }
+
+      // Fetch conversation message threads for all incidents concurrently
+      const messagesMap = new Map<number, Array<{ sender: string; text: string; at: string }>>();
+      await Promise.all(
+        allItems.map(async (inc) => {
+          try {
+            const msgs = await apiRequest<Array<{ sender: string; text: string; at: string }>>(
+              `/incident-desk/${inc.incident_id}/messages`
+            );
+            messagesMap.set(inc.incident_id, msgs);
+          } catch {
+            messagesMap.set(inc.incident_id, []);
+          }
+        })
+      );
+
+      const deskData = await apiRequest<{ incidents: Array<{ id: number; code: string; acceptance: string; worker: string | null; status: string }> }>('/incident-desk').catch(() => null);
+
+      const deskMap = new Map((deskData?.incidents || []).map((d) => [d.id, d]));
+
+      const parseDate = (d: string) => {
+        if (!d) return '—';
+        const norm = (d.includes('Z') || d.includes('+') || (d.length > 19 && d.slice(19).includes('-'))) ? d : `${d}Z`;
+        return new Date(norm).toLocaleString();
+      };
+
+      const lines = [
+        '=========================================================================================================',
+        '                       LABORATORY INCIDENTS COMPREHENSIVE STATUS & BIOBANK AUDIT REPORT                   ',
+        '                                 SAMPLEMIND LIMS QUALITY MANAGEMENT SYSTEM                               ',
+        '=========================================================================================================',
+        `Generated At:        ${new Date().toLocaleString()}`,
+        `Total Records:       ${total}`,
+        `Retrieved In Report: ${allItems.length}`,
+        `Authorized Staff:    ${user?.display_name || 'System Operator'} (${user?.role || 'VIEWER'})`,
+        '---------------------------------------------------------------------------------------------------------',
+        '',
+        'SUMMARY METRICS:',
+        `  * Critical Severity:   ${allItems.filter((i) => i.severity.toLowerCase() === 'critical').length}`,
+        `  * High Severity:       ${allItems.filter((i) => i.severity.toLowerCase() === 'high').length}`,
+        `  * Open / Active:       ${allItems.filter((i) => i.status.toLowerCase() === 'open').length}`,
+        `  * Under Investigation: ${allItems.filter((i) => i.status.toLowerCase() === 'investigating').length}`,
+        `  * Mitigated / Closed:  ${allItems.filter((i) => i.status.toLowerCase() === 'mitigated' || i.status.toLowerCase() === 'closed').length}`,
+        '',
+        '---------------------------------------------------------------------------------------------------------',
+        'INCIDENT REGISTRY, ASSIGNMENT DESK & COMMUNICATIONS DOSSIER:',
+        '---------------------------------------------------------------------------------------------------------',
+      ];
+
+      allItems.forEach((inc, idx) => {
+        const desk = deskMap.get(inc.incident_id);
+        const assignee = desk?.worker || inc.assigned_to_name || 'Unassigned';
+        const acceptance = desk ? desk.acceptance.toUpperCase() : 'N/A';
+        const msgs = messagesMap.get(inc.incident_id) || [];
+
+        lines.push(`[${idx + 1}] INCIDENT CODE: ${inc.incident_code}`);
+        lines.push(`    Classification:  Type: ${inc.incident_type} | Severity: ${inc.severity.toUpperCase()} | Lifecycle Status: ${inc.status.toUpperCase()}`);
+        lines.push(`    Timestamps:      Occurred: ${parseDate(inc.occurred_at)} | Reported: ${parseDate(inc.reported_at)}`);
+        lines.push(`    Specimen & Unit: Specimen: ${inc.sample_code ? `${inc.sample_code} (${inc.sample_name || ''})` : 'Facility-wide Excursion'} | Storage: ${inc.storage_location_code || 'N/A'}`);
+        lines.push(`    Assignment Desk: Lead Assignee: ${assignee} | Acceptance State: ${acceptance}`);
+        lines.push(`    Description:     ${inc.description || 'No description provided'}`);
+        lines.push(`    Investigation Thread (${msgs.length} messages):`);
+
+        if (msgs.length === 0) {
+          lines.push('      (No conversation messages logged for this incident)');
+        } else {
+          msgs.forEach((m, mIdx) => {
+            lines.push(`      [#${mIdx + 1}] ${parseDate(m.at)} | ${m.sender}: "${m.text}"`);
+          });
+        }
+        lines.push('    -------------------------------------------------------------------------------------------------');
+      });
+
+      lines.push('');
+      lines.push('=========================================================================================================');
+      lines.push('End of Laboratory Incidents Summary Dossier — ISO/IEC 17025 Compliant');
+      lines.push('=========================================================================================================');
+
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Laboratory-Incidents-Master-Report-${new Date().toISOString().slice(0, 10)}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      setSuccessMessage('General Laboratory Incidents Report generated and downloaded.');
+    } catch (err: unknown) {
+      const e = err as Error;
+      setErrorMessage(e.message || 'Failed to generate general report.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const generateIncidentCode = () => {
     const year = new Date().getFullYear();
     const code = `INC-${year}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
@@ -234,63 +510,123 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <IncidentDesk />
-      {/* Toast Feedback */}
-      {successMessage && (
-        <div
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Subtab Navigation: Registry vs Staff Assignment Desk */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          borderBottom: '2px solid var(--color-border)',
+          paddingBottom: '4px',
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setActiveSubTab('registry')}
+          className={`btn ${activeSubTab === 'registry' ? 'btn-primary' : 'btn-secondary'}`}
           style={{
-            padding: '12px 18px',
-            backgroundColor: 'var(--color-pale-teal)',
-            border: '1px solid var(--color-teal)',
-            borderRadius: 'var(--radius-control)',
-            color: 'var(--color-teal)',
-            fontSize: '13px',
-            fontWeight: 500,
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
+            gap: '8px',
+            fontSize: '13px',
+            padding: '8px 16px',
+            borderRadius: '6px 6px 0 0',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle2 size={16} />
-            <span>{successMessage}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setSuccessMessage(null)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-teal)' }}
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
+          <LayoutList size={16} />
+          <span>Incidents Registry ({totalIncidents})</span>
+        </button>
 
-      {errorMessage && (
-        <div
+        <button
+          type="button"
+          onClick={() => setActiveSubTab('desk')}
+          className={`btn ${activeSubTab === 'desk' ? 'btn-primary' : 'btn-secondary'}`}
           style={{
-            padding: '12px 18px',
-            backgroundColor: '#FDF2F2',
-            border: '1px solid #F87171',
-            borderRadius: 'var(--radius-control)',
-            color: '#B91C1C',
-            fontSize: '13px',
-            fontWeight: 500,
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
+            gap: '8px',
+            fontSize: '13px',
+            padding: '8px 16px',
+            borderRadius: '6px 6px 0 0',
           }}
         >
-          <span>{errorMessage}</span>
-          <button
-            type="button"
-            onClick={() => setErrorMessage(null)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B91C1C' }}
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
+          <Users size={16} />
+          <span>Staff Assignment & Dispatch Desk</span>
+        </button>
+      </div>
+
+      {activeSubTab === 'desk' ? (
+        <IncidentDesk
+          initialSelectedId={selectedIncidentId || undefined}
+          onSelectIncident={(id) => setSelectedIncidentId(id)}
+          onIncidentDeleted={() => {
+            setSelectedIncidentId(null);
+            setSelectedDetail(null);
+            loadIncidents();
+          }}
+          onIncidentStatusChanged={() => {
+            loadIncidents();
+            if (selectedIncidentId) loadIncidentDetail(selectedIncidentId);
+          }}
+        />
+      ) : (
+        <>
+          {/* Toast Feedback */}
+          {successMessage && (
+            <div
+              style={{
+                padding: '12px 18px',
+                backgroundColor: 'var(--color-pale-teal)',
+                border: '1px solid var(--color-teal)',
+                borderRadius: 'var(--radius-control)',
+                color: 'var(--color-teal)',
+                fontSize: '13px',
+                fontWeight: 500,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckCircle2 size={16} />
+                <span>{successMessage}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSuccessMessage(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-teal)' }}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+
+          {errorMessage && (
+            <div
+              style={{
+                padding: '12px 18px',
+                backgroundColor: '#FDF2F2',
+                border: '1px solid #F87171',
+                borderRadius: 'var(--radius-control)',
+                color: '#B91C1C',
+                fontSize: '13px',
+                fontWeight: 500,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <span>{errorMessage}</span>
+              <button
+                type="button"
+                onClick={() => setErrorMessage(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B91C1C' }}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
 
       {/* Action Toolbar */}
       <div
@@ -319,6 +655,16 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            type="button"
+            onClick={handleDownloadGeneralReport}
+            className="btn btn-secondary"
+            title="Download comprehensive laboratory incidents summary report"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
+          >
+            <Download size={15} />
+            General Report
+          </button>
           <button disabled={!canReport}
             type="button"
             onClick={() => {
@@ -422,7 +768,7 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
 
           {/* Table */}
           <div style={{ overflowX: 'auto' }}>
-            <CompactTable label="incidents" extra={[5, 6, 7]} help={<DatabaseConcept topic="incident" />}>
+            <CompactTable label="incidents" showLens={false} extra={[5, 6, 7]} help={<DatabaseConcept topic="incident" />}>
               <table className="table" style={{ width: '100%', fontSize: '13px' }}>
               <thead>
                 <tr>
@@ -433,7 +779,7 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
                   <th>Affected Specimen</th>
                   <th>Location</th>
                   <th>Occurred</th>
-                  <th>Actions</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -487,14 +833,46 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
                         {new Date(inc.occurred_at).toLocaleDateString()}
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '6px' }}>
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                           <button
                             type="button"
-                            onClick={() => setBlastRadiusIncidentId(inc.incident_id)}
+                            onClick={() => handleDownloadReport(inc)}
                             className="btn btn-secondary"
-                            title="Trace Downstream Blast Radius"
+                            title="Download Incident Investigation Report"
                             style={{
-                              padding: '4px 8px',
+                              padding: '4px 7px',
+                              fontSize: '11px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                          >
+                            <Download size={12} /> Report
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit(inc)}
+                            disabled={!canWrite}
+                            className="btn btn-secondary"
+                            title="Edit Incident"
+                            style={{
+                              padding: '4px 7px',
+                              fontSize: '11px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                          >
+                            <Edit2 size={12} /> Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteIncident(inc)}
+                            disabled={!canWrite}
+                            className="btn btn-secondary"
+                            title="Delete Incident"
+                            style={{
+                              padding: '4px 7px',
                               fontSize: '11px',
                               color: '#B91C1C',
                               borderColor: '#F87171',
@@ -503,13 +881,30 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
                               gap: '4px',
                             }}
                           >
-                            <Flame size={12} /> Blast Radius
+                            <Trash2 size={12} /> Delete
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setBlastRadiusIncidentId(inc.incident_id)}
+                            className="btn btn-secondary"
+                            title="Trace Downstream Blast Radius"
+                            style={{
+                              padding: '4px 7px',
+                              fontSize: '11px',
+                              color: '#B91C1C',
+                              borderColor: '#F87171',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                          >
+                            <Flame size={12} /> Blast
                           </button>
                           <button
                             type="button"
                             onClick={() => setSelectedIncidentId(inc.incident_id)}
                             className="btn btn-secondary"
-                            style={{ padding: '4px 8px', fontSize: '11px' }}
+                            style={{ padding: '4px 7px', fontSize: '11px' }}
                           >
                             Dossier
                           </button>
@@ -700,7 +1095,7 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
                 </div>
 
                 {/* Actions */}
-                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
                   <button disabled={!canWrite}
                     type="button"
                     onClick={() => setIsCapaModalOpen(true)}
@@ -708,6 +1103,27 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
                     style={{ flex: 1, fontSize: '12px' }}
                   >
                     Update Investigation & CAPA
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const item = incidents.find((x) => x.incident_id === selectedDetail.incident_id);
+                      if (item) handleDownloadReport(item);
+                    }}
+                    className="btn btn-secondary"
+                    style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <Download size={13} /> Report
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveSubTab('desk');
+                    }}
+                    className="btn btn-secondary"
+                    style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <Users size={13} /> Desk
                   </button>
                   {selectedDetail.sample_id && (
                     <button
@@ -1369,6 +1785,152 @@ export const IncidentsPage: React.FC<{ initialSearch?: string }> = ({ initialSea
             </form>
           </div>
         </div>
+      )}
+
+      {/* Edit Incident Modal */}
+      {isEditModalOpen && editingIncident && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(23, 43, 58, 0.65)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '20px',
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              width: '100%',
+              maxWidth: '520px',
+              padding: '24px',
+              backgroundColor: '#FFFFFF',
+              boxShadow: 'var(--shadow-lg)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '18px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Edit2 size={18} color="var(--color-teal)" />
+                <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-ink)', margin: 0 }}>
+                  Edit Incident: {editingIncident.incident_code}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                    Incident Type
+                  </label>
+                  <select
+                    value={editForm.incident_type || ''}
+                    onChange={(e) => setEditForm({ ...editForm, incident_type: e.target.value })}
+                    className="input"
+                  >
+                    <option value="contamination">Contamination</option>
+                    <option value="temperature_excursion">Temperature Excursion</option>
+                    <option value="missing_sample">Missing / Misplaced Sample</option>
+                    <option value="handling_issue">Physical Handling Issue</option>
+                    <option value="equipment_failure">Equipment / Unit Failure</option>
+                    <option value="other">Other Incident</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                    Severity Level
+                  </label>
+                  <select
+                    value={editForm.severity || 'medium'}
+                    onChange={(e) => setEditForm({ ...editForm, severity: e.target.value })}
+                    className="input"
+                  >
+                    <option value="critical">Critical (Immediate Quarantine)</option>
+                    <option value="high">High (Quarantine Recommended)</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                  Investigation Status
+                </label>
+                <select
+                  value={editForm.status || 'open'}
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                  className="input"
+                >
+                  <option value="open">Open (Active Hazard)</option>
+                  <option value="investigating">Under Investigation</option>
+                  <option value="mitigated">Mitigated (Containment Active)</option>
+                  <option value="closed">Closed & Resolved</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                  Incident Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={editForm.description || ''}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  className="input"
+                  placeholder="Factual description of the incident..."
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                  CAPA / Corrective Action Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={editForm.resolution_notes || ''}
+                  onChange={(e) => setEditForm({ ...editForm, resolution_notes: e.target.value })}
+                  className="input"
+                  placeholder="Root cause identification, CAPA notes, decontamination..."
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '13px' }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" style={{ fontSize: '13px' }}>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+        </>
       )}
     </div>
   );

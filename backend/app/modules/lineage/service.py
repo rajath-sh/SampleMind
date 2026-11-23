@@ -346,3 +346,39 @@ class LineageService:
             recorded_by=rel.recorded_by,
             notes=rel.notes
         )
+
+    @classmethod
+    def delete_relationship(
+        cls,
+        db: Session,
+        relationship_id: int,
+        actor_id: Optional[int] = None
+    ) -> bool:
+        """
+        Deletes a directed derivation relationship edge between specimens and logs an audit record.
+        """
+        lock_lineage_writes(db)
+        rel = db.query(SampleRelationship).filter(SampleRelationship.relationship_id == relationship_id).first()
+        if not rel:
+            raise EntityNotFoundException("SampleRelationship", relationship_id)
+
+        parent = db.query(Sample).filter(Sample.sample_id == rel.parent_sample_id).first()
+        child = db.query(Sample).filter(Sample.sample_id == rel.child_sample_id).first()
+
+        audit = AuditLog(
+            action="DELETE_LINEAGE_EDGE",
+            entity_type="SampleRelationship",
+            entity_id=rel.relationship_id,
+            actor_user_id=actor_id,
+            details={
+                "parent_sample_id": rel.parent_sample_id,
+                "parent_sample_code": parent.sample_code if parent else f"ID#{rel.parent_sample_id}",
+                "child_sample_id": rel.child_sample_id,
+                "child_sample_code": child.sample_code if child else f"ID#{rel.child_sample_id}",
+                "transformation_type": rel.transformation_type,
+            }
+        )
+        db.add(audit)
+        db.delete(rel)
+        db.commit()
+        return True

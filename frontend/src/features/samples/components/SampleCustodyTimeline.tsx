@@ -75,6 +75,19 @@ export const SampleCustodyTimeline: React.FC<SampleCustodyTimelineProps> = ({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Simple explainer banner */}
+      <div style={{
+        padding: '12px 16px',
+        backgroundColor: '#F0FDF4',
+        borderRadius: 'var(--radius-control)',
+        border: '1px solid #BBF7D0',
+        fontSize: '13px',
+        color: '#166534',
+        lineHeight: 1.5,
+      }}>
+        <strong>What is Chain of Custody?</strong> This is the location movement log of this sample. Every time the specimen is placed into storage, transferred to another freezer/shelf, or moved for processing, a permanent record is created showing who moved it, when, and where it went.
+      </div>
+
       {/* Header Summary Banner */}
       <div style={{
         display: 'flex',
@@ -89,14 +102,14 @@ export const SampleCustodyTimeline: React.FC<SampleCustodyTimelineProps> = ({
       }}>
         <div>
           <div style={{ fontSize: '11px', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
-            Physical Chain-of-Custody Audit Trail
+            Physical Storage Tracking
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
             <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-ink)' }}>
-              {custody.total_movements} Physical Movement Handoff{custody.total_movements === 1 ? '' : 's'}
+              {custody.total_movements} Movement{custody.total_movements === 1 ? '' : 's'} Logged
             </span>
             <span className="badge badge-success" style={{ fontSize: '11px' }}>
-              Current Coordinate: {custody.current_location_code || 'Unassigned'}
+              Current Location: {custody.current_location_code || 'Unassigned'}
             </span>
           </div>
         </div>

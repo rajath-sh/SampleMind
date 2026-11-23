@@ -6,10 +6,10 @@ SECTIONS = {
     "synopsis": "Synopsis",
     "requirements": "Requirement specification",
     "er": "ER diagram",
-    "tests": "SQL and NoSQL test options",
     "dfd": "Data flow diagrams",
     "normalization": "Normalized tables",
     "security": "Forms, security and validation",
+    "report": "Project report",
 }
 
 def schema_info():
@@ -190,8 +190,8 @@ def generated(section, variant="default"):
         from .coursework_content import diagram_notes
         body = diagram_notes(section, tables, table_schema)
     else:
-        raise ValueError("Synopsis must be supplied by the student.")
-    if section in ("requirements", "normalization", "tests", "security"):
+        raise ValueError("Synopsis and Project Report must be supplied by the student.")
+    if section in ("requirements", "normalization", "security"):
         from .coursework_content import section_body
         body = section_body(section, tables, table_schema)
     document = f"""<!doctype html><html lang="en"><meta charset="utf-8"><title>{e(title)}</title>

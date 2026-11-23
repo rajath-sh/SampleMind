@@ -18,6 +18,8 @@ import {
   Table as TableIcon,
   Layers,
   Sparkles,
+  Trash2,
+  ArrowLeftRight,
 } from 'lucide-react';
 import { lineageService } from './lineageService';
 import { samplesService } from '../samples/samplesService';
@@ -33,6 +35,7 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
   const [maxDepth] = useState<number>(5);
   const [layoutMode, setLayoutMode] = useState<'LR' | 'TB'>('LR');
   const [viewMode, setViewMode] = useState<'canvas' | 'table'>('canvas');
+  const [tableTab, setTableTab] = useState<'nodes' | 'edges'>('nodes');
 
   // Graph state
   const [graphData, setGraphData] = useState<LineageGraphResponse | null>(null);
@@ -52,30 +55,61 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
   // Add Relationship Modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [linkForm, setLinkForm] = useState<RelationshipCreatePayload>({
-    parent_sample_id: 1,
-    child_sample_id: 2,
+    parent_sample_id: 252,
+    child_sample_id: 1,
     transformation_type: 'DNA Extraction',
     quantity_transferred: undefined,
     quantity_unit: 'mg',
     notes: '',
   });
 
-  // Load sample catalog for focus selector
+  // Modal search filters for parent/child pickers
+  // After creating link, switch tree root to the parent?
+  const [switchTreeAfterCreate, setSwitchTreeAfterCreate] = useState(true);
+
+  // Load sample catalog — fetch ALL specimens across all pages with resilient fallback
   useEffect(() => {
     let current = true;
     async function loadSamples() {
       try {
-        const data = await samplesService.listSamples({ pageSize: 50 });
+        // Try fetching with pageSize 100 first, which is accepted by older and newer schema validations
+        const first = await samplesService.listSamples({ pageSize: 100, sortBy: 'sample_id', sortDir: 'asc', page: 1 });
         if (!current) return;
-        setSamplesList(data.items);
-        setSelectedSampleId(previous => previous ?? data.items[0]?.sample_id ?? null);
+        let all = [...(first.items || [])];
+
+        if (first.total > all.length) {
+          const totalPages = Math.ceil(first.total / 100);
+          const extraFetches = Array.from({ length: totalPages - 1 }, (_, i) =>
+            samplesService.listSamples({ pageSize: 100, page: i + 2, sortBy: 'sample_id', sortDir: 'asc' }).catch(() => ({ items: [], total: 0, page: i + 2, page_size: 100, total_pages: 0 }))
+          );
+          const extraResults = await Promise.all(extraFetches);
+          for (const r of extraResults) {
+            if (r?.items) all = all.concat(r.items);
+          }
+        }
+
+        if (!current) return;
+        setSamplesList(all);
+        const demoRoot = all.find(s => s.sample_id === 252 || s.sample_code === 'DEMO-ROOT');
+        const fallbackId = demoRoot ? demoRoot.sample_id : all[0]?.sample_id ?? 252;
+        setSelectedSampleId(previous => previous ?? initialSampleId ?? fallbackId);
       } catch (err: unknown) {
         console.error('Failed to load samples list', err);
+        // Fallback: try default listing if custom params failed
+        try {
+          const fallbackData = await samplesService.listSamples();
+          if (current && fallbackData?.items?.length) {
+            setSamplesList(fallbackData.items);
+            setSelectedSampleId(previous => previous ?? initialSampleId ?? fallbackData.items[0].sample_id);
+            return;
+          }
+        } catch {}
+        setSelectedSampleId(previous => previous ?? initialSampleId ?? 252);
       }
     }
     loadSamples();
     return () => { current = false; };
-  }, []);
+  }, [initialSampleId]);
 
   // Fetch DAG Graph Data
   const fetchGraph = useCallback(async () => {
@@ -185,11 +219,64 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
       const res = await lineageService.createRelationship(linkForm);
       setSuccessMsg(`Derivation edge '${res.parent_sample_code}' → '${res.child_sample_code}' registered successfully.`);
       setIsAddModalOpen(false);
-      fetchGraph();
+      if (switchTreeAfterCreate) {
+        setSelectedSampleId(linkForm.parent_sample_id);
+      }
+      await fetchGraph();
+      const freshSamples = await samplesService.listSamples({ pageSize: 1000, sortBy: 'sample_id', sortDir: 'asc' });
+      setSamplesList(freshSamples.items);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to register lineage edge.';
       setError(msg);
     }
+  };
+
+  // Swap parent and child selections
+  const handleSwapParentChild = () => {
+    setLinkForm((prev) => ({
+      ...prev,
+      parent_sample_id: prev.child_sample_id,
+      child_sample_id: prev.parent_sample_id,
+    }));
+  };
+
+  // Delete relationship edge or unlink node
+  const handleDeleteEdge = async (relationshipId: number) => {
+    if (!window.confirm(`Are you sure you want to remove this node connection (Relationship #${relationshipId})?`)) return;
+    try {
+      await lineageService.deleteRelationship(relationshipId);
+      setSuccessMsg(`Node connection #${relationshipId} removed successfully.`);
+      if (inspectedNode) {
+        setInspectedNode(null);
+      }
+      await fetchGraph();
+      const freshSamples = await samplesService.listSamples({ pageSize: 1000, sortBy: 'sample_id', sortDir: 'asc' });
+      setSamplesList(freshSamples.items);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete derivation relationship.';
+      setError(msg);
+    }
+  };
+
+  const handleOpenAddChildForNode = (parentNodeId: number) => {
+    const parentSample = samplesList.find(s => s.sample_id === parentNodeId) || graphData?.nodes.find(n => n.sample_id === parentNodeId);
+    const unit = parentSample?.quantity_unit || 'mg';
+    const childCandidate = samplesList.find(s => s.sample_id !== parentNodeId);
+    setSwitchTreeAfterCreate(true);
+    setLinkForm({
+      parent_sample_id: parentNodeId,
+      child_sample_id: childCandidate?.sample_id || 1,
+      transformation_type: 'DNA Extraction',
+      quantity_transferred: 5,
+      quantity_unit: unit,
+      notes: '',
+    });
+    setIsAddModalOpen(true);
+  };
+
+  const handleOpenAddModal = () => {
+    const parentId = inspectedNode?.sample_id || selectedSampleId || 252;
+    handleOpenAddChildForNode(parentId);
   };
 
   const getStatusBadge = (status: string) => {
@@ -233,7 +320,7 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
           <button disabled={!canWrite}
             type="button"
             className="btn btn-primary"
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={handleOpenAddModal}
             style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Plus size={16} />
@@ -288,13 +375,14 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ink)', textTransform: 'uppercase' }}>
-              Focal Specimen:
+              Tree Root / Focus:
             </span>
             <select
               className="input font-mono"
               style={{ width: '260px' }}
               value={selectedSampleId || ''}
               onChange={(e) => setSelectedSampleId(Number(e.target.value))}
+              title="Pick ANY specimen to load it as the root of a new independent tree"
             >
               {selectedSampleId && !samplesList.some(s => s.sample_id === selectedSampleId) && <option value={selectedSampleId}>{graphData?.nodes.find(node => node.is_focus)?.sample_code ?? selectedSampleId}</option>}
               {samplesList.map((s) => (
@@ -303,7 +391,28 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
                 </option>
               ))}
             </select>
+            <span style={{ fontSize: '11px', color: 'var(--color-muted)' }} title="Select any specimen above to view its lineage tree — each selection is a standalone tree">
+              ← any specimen starts a new tree
+            </span>
           </div>
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{
+              padding: '5px 10px',
+              fontSize: '12px',
+              backgroundColor: selectedSampleId === 252 ? 'var(--color-pale-teal)' : undefined,
+              borderColor: selectedSampleId === 252 ? 'var(--color-teal)' : undefined,
+              color: selectedSampleId === 252 ? 'var(--color-teal)' : undefined,
+              fontWeight: selectedSampleId === 252 ? 700 : 400,
+            }}
+            onClick={() => setSelectedSampleId(252)}
+            title="Load 4-generation complex demo family tree (#252 DEMO-ROOT)"
+          >
+            <Sparkles size={13} style={{ marginRight: '4px', verticalAlign: '-1px' }} />
+            Demo Tree (#252)
+          </button>
 
           <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--color-border)' }} />
 
@@ -570,12 +679,12 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
                           strokeDasharray={edge.transformation_type === 'Aliquot' ? '4 3' : undefined}
                           markerEnd="url(#dag-arrow)"
                         />
-                        {/* Transformation badge chip at midpoint */}
+                        {/* Transformation badge chip at midpoint with delete action */}
                         <foreignObject
-                          x={midX - 60}
-                          y={midY - 12}
-                          width={120}
-                          height={24}
+                          x={midX - 70}
+                          y={midY - 14}
+                          width={140}
+                          height={28}
                           style={{ overflow: 'visible' }}
                         >
                           <div style={{
@@ -586,13 +695,36 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
                             fontSize: '10px',
                             fontWeight: 600,
                             color: 'var(--color-ink)',
-                            textAlign: 'center',
-                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '4px',
                             boxShadow: '0 1px 4px rgba(23, 43, 58, 0.08)',
-                            cursor: 'pointer',
                             pointerEvents: 'auto',
                           }}>
-                            {edge.transformation_type}
+                            <span>{edge.transformation_type}</span>
+                            {canWrite && (
+                              <button
+                                type="button"
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: '0 2px',
+                                  color: 'var(--color-danger)',
+                                  fontSize: '12px',
+                                  fontWeight: 700,
+                                  lineHeight: 1,
+                                }}
+                                title={`Remove derivation edge #${edge.relationship_id} (${edge.source_code} → ${edge.target_code})`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteEdge(edge.relationship_id);
+                                }}
+                              >
+                                ×
+                              </button>
+                            )}
                           </div>
                         </foreignObject>
                       </g>
@@ -607,6 +739,7 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
 
                   const isInspected = inspectedNode?.sample_id === node.sample_id;
                   const isFocus = node.is_focus;
+                  const incomingParentEdge = graphData.edges.find((e) => e.target === node.sample_id);
 
                   return (
                     <div
@@ -664,9 +797,34 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
                           )}
                         </div>
 
-                        <span className={`badge ${getStatusBadge(node.sample_status)}`} style={{ fontSize: '10px' }}>
-                          {node.sample_status}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {incomingParentEdge && canWrite && (
+                            <button
+                              type="button"
+                              style={{
+                                background: '#FFF1F0',
+                                border: '1px solid rgba(201, 79, 63, 0.4)',
+                                borderRadius: '4px',
+                                color: 'var(--color-danger)',
+                                cursor: 'pointer',
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                padding: '1px 5px',
+                                lineHeight: 1.2,
+                              }}
+                              title={`Remove node connection / unlink from ${incomingParentEdge.source_code}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteEdge(incomingParentEdge.relationship_id);
+                              }}
+                            >
+                              ✕ Del
+                            </button>
+                          )}
+                          <span className={`badge ${getStatusBadge(node.sample_status)}`} style={{ fontSize: '10px' }}>
+                            {node.sample_status}
+                          </span>
+                        </div>
                       </div>
 
                       {/* Card Body: Title */}
@@ -681,15 +839,31 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
                         {node.sample_name}
                       </div>
 
-                      {/* Card Footer: Stock & Type */}
+                      {/* Card Footer: Stock, Type & +Child Action */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
                         <span className="font-mono" style={{ color: 'var(--color-muted)' }}>
                           {node.quantity_value.toFixed(1)} {node.quantity_unit}
                         </span>
 
-                        <span className="badge badge-neutral font-mono" style={{ fontSize: '9px' }}>
-                          {node.sample_type_code}
-                        </span>
+                        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                          <span className="badge badge-neutral font-mono" style={{ fontSize: '9px' }}>
+                            {node.sample_type_code}
+                          </span>
+                          {canWrite && (
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              style={{ padding: '1px 5px', fontSize: '10px', height: '20px', lineHeight: 1 }}
+                              title={`Derive and add child node from ${node.sample_code}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenAddChildForNode(node.sample_id);
+                              }}
+                            >
+                              + Child
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -699,82 +873,237 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
           </div>
         ) : (
           /* ===================================================================== */
-          /* Accessible Table Fallback View                                        */
+          /* Accessible Table Fallback View (Nodes & Derivation Edges)             */
           /* ===================================================================== */
-          <div className="card" style={{ flex: 1, overflow: 'hidden' }}>
-            <CompactTable label="lineage specimens" extra={[4, 5, 6, 7]}>
-              <table className="table">
-              <thead>
-                <tr>
-                  <th style={{ width: '110px' }}>Generation</th>
-                  <th>Specimen ID</th>
-                  <th>Specimen Title</th>
-                  <th>Type</th>
-                  <th>Stock</th>
-                  <th>Location</th>
-                  <th>Topology</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: 'right' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {graphData?.nodes.map((node) => (
-                  <tr
-                    key={node.sample_id}
-                    style={{
-                      backgroundColor: node.is_focus ? 'var(--color-pale-teal)' : undefined,
-                    }}
-                  >
-                    <td>
-                      <span className="badge badge-sand font-mono" style={{ fontSize: '11px' }}>
-                        {node.generation === 0 ? 'Gen 0' : node.generation < 0 ? `Gen ${node.generation}` : `Gen +${node.generation}`}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="font-mono" style={{ fontWeight: 700, color: 'var(--color-ink)' }}>
-                        {node.sample_code}
-                      </span>
-                    </td>
-                    <td style={{ fontWeight: 600 }}>{node.sample_name}</td>
-                    <td>
-                      <span className="badge badge-neutral font-mono">{node.sample_type_code}</span>
-                    </td>
-                    <td className="font-mono">
-                      {node.quantity_value.toFixed(1)} {node.quantity_unit}
-                    </td>
-                    <td>
-                      <span className="font-mono" style={{ fontSize: '12px', color: 'var(--color-teal)' }}>
-                        {node.storage_location_code || 'Unassigned'}
-                      </span>
-                    </td>
-                    <td>
-                      {node.is_root && <span className="badge badge-success">Root</span>}
-                      {node.is_leaf && <span className="badge badge-neutral" style={{ marginLeft: '4px' }}>Leaf</span>}
-                      {node.is_focus && <span className="badge badge-sand" style={{ marginLeft: '4px' }}>Focus</span>}
-                    </td>
-                    <td>
-                      <span className={`badge ${getStatusBadge(node.sample_status)}`}>
-                        {node.sample_status}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        style={{ padding: '3px 8px', fontSize: '11px' }}
-                        onClick={() => {
-                          setSelectedSampleId(node.sample_id);
-                          setViewMode('canvas');
-                        }}
-                      >
-                        Inspect DAG
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </CompactTable>
+          <div className="card" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            {/* Table Mode Tabs */}
+            <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', borderBottom: '1px solid var(--color-border)', backgroundColor: '#FAFAFA' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{
+                  padding: '4px 12px',
+                  fontSize: '12px',
+                  backgroundColor: tableTab === 'nodes' ? 'var(--color-pale-teal)' : undefined,
+                  borderColor: tableTab === 'nodes' ? 'var(--color-teal)' : undefined,
+                  color: tableTab === 'nodes' ? 'var(--color-teal)' : undefined,
+                  fontWeight: tableTab === 'nodes' ? 700 : 400,
+                }}
+                onClick={() => setTableTab('nodes')}
+              >
+                Specimens in Lineage ({graphData?.nodes.length || 0})
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{
+                  padding: '4px 12px',
+                  fontSize: '12px',
+                  backgroundColor: tableTab === 'edges' ? 'var(--color-pale-teal)' : undefined,
+                  borderColor: tableTab === 'edges' ? 'var(--color-teal)' : undefined,
+                  color: tableTab === 'edges' ? 'var(--color-teal)' : undefined,
+                  fontWeight: tableTab === 'edges' ? 700 : 400,
+                }}
+                onClick={() => setTableTab('edges')}
+              >
+                Derivation Relationships / Edges ({graphData?.edges.length || 0})
+              </button>
+            </div>
+
+            {tableTab === 'nodes' ? (
+              <CompactTable label="lineage specimens" extra={[4, 5, 6, 7]} showLens={false}>
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '110px' }}>Generation</th>
+                      <th>Specimen ID</th>
+                      <th>Specimen Title</th>
+                      <th>Type</th>
+                      <th>Stock</th>
+                      <th>Location</th>
+                      <th>Topology</th>
+                      <th>Status</th>
+                      <th style={{ textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {graphData?.nodes.map((node) => {
+                      const parentEdge = graphData.edges.find((e) => e.target === node.sample_id);
+                      return (
+                        <tr
+                          key={node.sample_id}
+                          style={{
+                            backgroundColor: node.is_focus ? 'var(--color-pale-teal)' : undefined,
+                          }}
+                        >
+                          <td>
+                            <span className="badge badge-sand font-mono" style={{ fontSize: '11px' }}>
+                              {node.generation === 0 ? 'Gen 0' : node.generation < 0 ? `Gen ${node.generation}` : `Gen +${node.generation}`}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="font-mono" style={{ fontWeight: 700, color: 'var(--color-ink)' }}>
+                              {node.sample_code}
+                            </span>
+                          </td>
+                          <td style={{ fontWeight: 600 }}>{node.sample_name}</td>
+                          <td>
+                            <span className="badge badge-neutral font-mono">{node.sample_type_code}</span>
+                          </td>
+                          <td className="font-mono">
+                            {node.quantity_value.toFixed(1)} {node.quantity_unit}
+                          </td>
+                          <td>
+                            <span className="font-mono" style={{ fontSize: '12px', color: 'var(--color-teal)' }}>
+                              {node.storage_location_code || 'Unassigned'}
+                            </span>
+                          </td>
+                          <td>
+                            {node.is_root && <span className="badge badge-success">Root</span>}
+                            {node.is_leaf && <span className="badge badge-neutral" style={{ marginLeft: '4px' }}>Leaf</span>}
+                            {node.is_focus && <span className="badge badge-sand" style={{ marginLeft: '4px' }}>Focus</span>}
+                          </td>
+                          <td>
+                            <span className={`badge ${getStatusBadge(node.sample_status)}`}>
+                              {node.sample_status}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              style={{ padding: '3px 8px', fontSize: '11px' }}
+                              onClick={() => {
+                                setSelectedSampleId(node.sample_id);
+                                setViewMode('canvas');
+                              }}
+                            >
+                              Inspect DAG
+                            </button>
+                            {canWrite && (
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                style={{
+                                  padding: '3px 8px',
+                                  fontSize: '11px',
+                                  color: 'var(--color-teal)',
+                                  borderColor: 'rgba(40, 125, 120, 0.3)',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '3px',
+                                  marginLeft: '6px',
+                                }}
+                                title={`Derive and add a child node from ${node.sample_code}`}
+                                onClick={() => handleOpenAddChildForNode(node.sample_id)}
+                              >
+                                <Plus size={11} />
+                                Add Child
+                              </button>
+                            )}
+                            {parentEdge && canWrite && (
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                style={{
+                                  padding: '3px 8px',
+                                  fontSize: '11px',
+                                  color: 'var(--color-danger)',
+                                  borderColor: 'rgba(201, 79, 63, 0.3)',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '3px',
+                                  marginLeft: '6px',
+                                }}
+                                title={`Unlink child ${node.sample_code} from parent ${parentEdge.source_code}`}
+                                onClick={() => handleDeleteEdge(parentEdge.relationship_id)}
+                              >
+                                <Trash2 size={11} />
+                                Unlink Parent
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </CompactTable>
+            ) : (
+              <CompactTable label="lineage specimens" extra={[4, 5]} showLens={false}>
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '80px' }}>Edge ID</th>
+                      <th>Origin / Parent</th>
+                      <th>Derived / Target</th>
+                      <th>Transformation Operation</th>
+                      <th>Transferred Quantity</th>
+                      <th>Recorded At</th>
+                      <th style={{ textAlign: 'right' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(!graphData?.edges || graphData.edges.length === 0) ? (
+                      <tr>
+                        <td colSpan={7} style={{ textAlign: 'center', color: 'var(--color-muted)', padding: '24px' }}>
+                          No derivation relationships recorded in this lineage branch.
+                        </td>
+                      </tr>
+                    ) : (
+                      graphData.edges.map((e) => (
+                        <tr key={e.relationship_id}>
+                          <td>
+                            <span className="badge badge-neutral font-mono">#{e.relationship_id}</span>
+                          </td>
+                          <td>
+                            <span className="font-mono" style={{ fontWeight: 700, color: 'var(--color-teal)' }}>
+                              {e.source_code}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="font-mono" style={{ fontWeight: 700, color: 'var(--color-ink)' }}>
+                              {e.target_code}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="badge badge-sand">{e.transformation_type}</span>
+                          </td>
+                          <td className="font-mono">
+                            {e.quantity_transferred != null ? `${e.quantity_transferred} ${e.quantity_unit || ''}` : 'N/A'}
+                          </td>
+                          <td style={{ fontSize: '11px', color: 'var(--color-muted)' }}>
+                            {e.transformed_at ? new Date(e.transformed_at).toLocaleString() : 'N/A'}
+                          </td>
+                          <td style={{ textAlign: 'right' }}>
+                            {canWrite && (
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                style={{
+                                  padding: '3px 8px',
+                                  fontSize: '11px',
+                                  color: 'var(--color-danger)',
+                                  borderColor: 'rgba(201, 79, 63, 0.3)',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                                title="Remove derivation relationship"
+                                onClick={() => handleDeleteEdge(e.relationship_id)}
+                              >
+                                <Trash2 size={11} />
+                                Remove Edge
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </CompactTable>
+            )}
           </div>
         )}
 
@@ -816,18 +1145,56 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
               </button>
             </div>
 
-            {/* Shift Focus Action */}
-            {!inspectedNode.is_focus && (
-              <button
-                type="button"
-                className="btn btn-primary"
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                onClick={() => setSelectedSampleId(inspectedNode.sample_id)}
-              >
-                <Sparkles size={15} />
-                Shift DAG Focus to {inspectedNode.sample_code}
-              </button>
-            )}
+            {/* Focus & Add Child Actions */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {!inspectedNode.is_focus && (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  onClick={() => setSelectedSampleId(inspectedNode.sample_id)}
+                >
+                  <Sparkles size={15} />
+                  Shift DAG Focus to {inspectedNode.sample_code}
+                </button>
+              )}
+              {canWrite && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontWeight: 600, color: 'var(--color-teal)', borderColor: 'var(--color-teal)' }}
+                  onClick={() => handleOpenAddChildForNode(inspectedNode.sample_id)}
+                >
+                  <Plus size={15} />
+                  Derive & Add Child Node from {inspectedNode.sample_code}
+                </button>
+              )}
+              {(() => {
+                const parentEdge = graphData?.edges.find((e) => e.target === inspectedNode.sample_id);
+                if (!parentEdge || !canWrite) return null;
+                return (
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      color: 'var(--color-danger)',
+                      borderColor: 'rgba(201, 79, 63, 0.4)',
+                      backgroundColor: '#FFF1F0',
+                      fontWeight: 600,
+                    }}
+                    onClick={() => handleDeleteEdge(parentEdge.relationship_id)}
+                  >
+                    <Trash2 size={14} />
+                    Remove Node from Tree (Unlink)
+                  </button>
+                );
+              })()}
+            </div>
 
             {/* Node Properties */}
             <div style={{
@@ -895,14 +1262,36 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
                           {e.transformation_type} {e.quantity_transferred && `(${e.quantity_transferred} ${e.quantity_unit})`}
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        style={{ padding: '2px 6px', fontSize: '10px' }}
-                        onClick={() => setSelectedSampleId(isOutgoing ? e.target : e.source)}
-                      >
-                        Jump
-                      </button>
+                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{ padding: '2px 6px', fontSize: '10px' }}
+                          onClick={() => setSelectedSampleId(isOutgoing ? e.target : e.source)}
+                        >
+                          Jump
+                        </button>
+                        {canWrite && (
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            style={{
+                              padding: '2px 6px',
+                              fontSize: '10px',
+                              color: 'var(--color-danger)',
+                              borderColor: 'rgba(201, 79, 63, 0.3)',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '2px',
+                            }}
+                            title="Remove this derivation relationship"
+                            onClick={() => handleDeleteEdge(e.relationship_id)}
+                          >
+                            <Trash2 size={10} />
+                            Remove
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -912,145 +1301,187 @@ export const LineageExplorerPage: React.FC<{ initialSampleId?: number }> = ({ in
       </div>
 
       {/* ========================================================================= */}
-      {/* Modal: Add Lineage Derivation Link (with cycle prevention)                 */}
+      {/* Modal: Add Lineage Derivation Link                                        */}
       {/* ========================================================================= */}
       {isAddModalOpen && (
         <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: 'rgba(23, 43, 58, 0.65)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '20px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '20px',
         }}>
-          <div className="card" style={{ maxWidth: '540px', width: '100%', padding: '24px' }}>
+          <div className="card" style={{ maxWidth: '640px', width: '100%', padding: '24px', maxHeight: '92vh', overflowY: 'auto' }}>
+
+            {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <GitFork size={20} color="var(--color-teal)" />
                 <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--color-ink)' }}>
                   Record Derivation Lineage Edge
                 </h3>
-                <DatabaseConcept topic="cycle" />
               </div>
-              <button
-                type="button"
-                onClick={() => setIsAddModalOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
-              >
+              <button type="button" onClick={() => setIsAddModalOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}>
                 <X size={20} />
               </button>
             </div>
 
+            {/* Switch / New Tree section */}
+            <div style={{
+              padding: '10px 14px', marginBottom: '16px',
+              border: '1px solid var(--color-border)', borderRadius: 'var(--radius-control)',
+              backgroundColor: '#F7FFFE', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap',
+            }}>
+              <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-ink)', whiteSpace: 'nowrap' }}>
+                🌳 Switch / New Tree Root:
+              </span>
+              <select
+                className="input font-mono"
+                style={{ flex: 1, minWidth: '180px', fontSize: '12px' }}
+                value={selectedSampleId || ''}
+                onChange={e => setSelectedSampleId(Number(e.target.value))}
+              >
+                {samplesList.map(s => (
+                  <option key={s.sample_id} value={s.sample_id}>
+                    #{s.sample_id} · {s.sample_code} · {s.sample_name.slice(0, 30)}
+                  </option>
+                ))}
+              </select>
+              <button type="button" className="btn btn-secondary"
+                style={{ fontSize: '12px', whiteSpace: 'nowrap' }}
+                onClick={() => setIsAddModalOpen(false)}>
+                View Tree →
+              </button>
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--color-border)', marginBottom: '16px' }} />
+
             <form onSubmit={handleAddLinkSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+              {/* Swap */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button type="button" className="btn btn-secondary"
+                  style={{ fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px' }}
+                  onClick={handleSwapParentChild}>
+                  <ArrowLeftRight size={13} />
+                  Swap Parent ⇄ Child
+                </button>
+              </div>
+
+              {/* Parent + Child dropdowns side by side */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label className="label">Parent (Origin Specimen) *</label>
+                  <label className="label">
+                    Parent (Origin Specimen) * {samplesList.length > 0 && <span style={{ color: 'var(--color-muted)', fontWeight: 400, fontSize: '11px' }}>({samplesList.length} specimens)</span>}
+                  </label>
                   <select
                     className="input font-mono"
                     value={linkForm.parent_sample_id}
-                    onChange={(e) => setLinkForm({ ...linkForm, parent_sample_id: Number(e.target.value) })}
+                    onChange={e => setLinkForm({ ...linkForm, parent_sample_id: Number(e.target.value) })}
+                    style={{ backgroundColor: '#ffffff', color: '#172B3A', opacity: 1, zIndex: 1 }}
                   >
-                    {samplesList.map((s) => (
-                      <option key={s.sample_id} value={s.sample_id}>
-                        {s.sample_code} ({s.quantity_value} {s.quantity_unit})
-                      </option>
-                    ))}
+                    {samplesList.length === 0 ? (
+                      <option value="">Loading specimens...</option>
+                    ) : (
+                      samplesList.map(s => (
+                        <option key={`parent-${s.sample_id}`} value={s.sample_id} style={{ color: '#172B3A', backgroundColor: '#ffffff' }}>
+                          #{s.sample_id} · {s.sample_code} · {s.sample_name ? s.sample_name.slice(0, 24) : ''}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
-
                 <div>
-                  <label className="label">Child (Target Aliquot) *</label>
+                  <label className="label">
+                    Child / Derived Specimen * {samplesList.length > 0 && <span style={{ color: 'var(--color-muted)', fontWeight: 400, fontSize: '11px' }}>({samplesList.length} specimens)</span>}
+                  </label>
                   <select
                     className="input font-mono"
                     value={linkForm.child_sample_id}
-                    onChange={(e) => setLinkForm({ ...linkForm, child_sample_id: Number(e.target.value) })}
+                    onChange={e => setLinkForm({ ...linkForm, child_sample_id: Number(e.target.value) })}
+                    style={{ backgroundColor: '#ffffff', color: '#172B3A', opacity: 1, zIndex: 1 }}
                   >
-                    {samplesList.map((s) => (
-                      <option key={s.sample_id} value={s.sample_id}>
-                        {s.sample_code} ({s.sample_type_code})
-                      </option>
-                    ))}
+                    {samplesList.length === 0 ? (
+                      <option value="">Loading specimens...</option>
+                    ) : (
+                      samplesList.map(s => (
+                        <option key={`child-${s.sample_id}`} value={s.sample_id} style={{ color: '#172B3A', backgroundColor: '#ffffff' }}>
+                          #{s.sample_id} · {s.sample_code} · {s.sample_name ? s.sample_name.slice(0, 24) : ''}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
               </div>
 
               {linkForm.parent_sample_id === linkForm.child_sample_id && (
-                <div style={{
-                  padding: '8px 12px',
-                  backgroundColor: '#FDEDEC',
-                  color: 'var(--color-danger)',
-                  borderRadius: 'var(--radius-control)',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                }}>
-                  [!] Self-referential edge prohibited: Parent and child must be distinct specimens.
+                <div style={{ padding: '8px 12px', backgroundColor: '#FDEDEC', color: 'var(--color-danger)', borderRadius: 'var(--radius-control)', fontSize: '12px', fontWeight: 600 }}>
+                  ⚠ Parent and child must be different specimens.
                 </div>
               )}
 
+              {/* Transformation + Quantity */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
                   <label className="label">Transformation Operation *</label>
                   <select
                     className="input"
                     value={linkForm.transformation_type}
-                    onChange={(e) => setLinkForm({ ...linkForm, transformation_type: e.target.value })}
+                    onChange={e => setLinkForm({ ...linkForm, transformation_type: e.target.value })}
                   >
                     <option value="DNA Extraction">DNA Extraction</option>
                     <option value="Pulverization">Pulverization / Grinding</option>
                     <option value="Aliquot Partition">Aliquot Partition</option>
                     <option value="Homogenization">Homogenization</option>
                     <option value="Enzymatic Digestion">Enzymatic Digestion</option>
+                    <option value="RNA Isolation">RNA Isolation</option>
+                    <option value="Library Construction">Library Construction</option>
                   </select>
                 </div>
-
                 <div>
                   <label className="label">Quantity Transferred</label>
                   <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    className="input"
+                    type="number" step="0.01" min="0" className="input"
                     placeholder="e.g. 10.0"
                     value={linkForm.quantity_transferred || ''}
-                    onChange={(e) =>
-                      setLinkForm({
-                        ...linkForm,
-                        quantity_transferred: e.target.value ? Number(e.target.value) : undefined,
-                      })
-                    }
+                    onChange={e => setLinkForm({ ...linkForm, quantity_transferred: e.target.value ? Number(e.target.value) : undefined })}
                   />
                 </div>
               </div>
 
+              {/* Notes */}
               <div>
-                <label className="label">Protocol Notes / Instrument Context</label>
-                <textarea
-                  className="input"
-                  rows={2}
-                  placeholder="e.g. Extracted using QIAamp DNA Investigator Kit on QIAcube"
+                <label className="label">Protocol Notes</label>
+                <textarea className="input" rows={2}
+                  placeholder="e.g. Extracted using QIAamp DNA Investigator Kit"
                   value={linkForm.notes || ''}
-                  onChange={(e) => setLinkForm({ ...linkForm, notes: e.target.value })}
+                  onChange={e => setLinkForm({ ...linkForm, notes: e.target.value })}
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setIsAddModalOpen(false)}
-                >
+              {/* Switch tree checkbox */}
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer', userSelect: 'none' }}>
+                <input
+                  type="checkbox"
+                  checked={switchTreeAfterCreate}
+                  onChange={e => setSwitchTreeAfterCreate(e.target.checked)}
+                  style={{ width: '15px', height: '15px', accentColor: 'var(--color-teal)', cursor: 'pointer' }}
+                />
+                <span>
+                  <strong>Switch tree view to parent after creating</strong>
+                  <span style={{ color: 'var(--color-muted)', fontSize: '12px', marginLeft: '6px' }}>
+                    (loads parent as new tree root — good for starting a fresh tree)
+                  </span>
+                </span>
+              </label>
+
+              {/* Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '4px' }}>
+                <button type="button" className="btn btn-secondary" onClick={() => setIsAddModalOpen(false)}>
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={linkForm.parent_sample_id === linkForm.child_sample_id}
-                >
+                <button type="submit" className="btn btn-primary"
+                  disabled={linkForm.parent_sample_id === linkForm.child_sample_id}>
                   Create Derivation Link
                 </button>
               </div>

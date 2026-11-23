@@ -48,6 +48,13 @@ export const ancientService = {
     return res.data;
   },
 
+  async deleteSite(siteId: number): Promise<boolean> {
+    const res = await apiRequest<ApiResponseEnvelope<boolean>>(`/ancient/sites/${siteId}`, {
+      method: 'DELETE',
+    });
+    return res.data;
+  },
+
   async listAncientSpecimens(params?: {
     siteId?: number;
     datingMethod?: string;
@@ -84,6 +91,13 @@ export const ancientService = {
     const res = await apiRequest<ApiResponseEnvelope<AncientSpecimenDetail>>(`/ancient/specimens/${sampleId}`, {
       method: 'PUT',
       body: JSON.stringify(payload),
+    });
+    return res.data;
+  },
+
+  async deleteAncientSpecimen(sampleId: number): Promise<boolean> {
+    const res = await apiRequest<ApiResponseEnvelope<boolean>>(`/ancient/specimens/${sampleId}`, {
+      method: 'DELETE',
     });
     return res.data;
   },

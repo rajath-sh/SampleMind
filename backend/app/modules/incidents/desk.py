@@ -1,5 +1,6 @@
 """Incident assignment acceptance and authenticated conversation."""
 import asyncio
+from datetime import timezone
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
@@ -13,7 +14,7 @@ from app.common.database import acquire_write_lock
 
 router = APIRouter(prefix="/api/v1/incident-desk", tags=["Incident desk"])
 MANAGERS = ("ADMIN", "RESEARCHER")
-WORKERS = ("TECHNICIAN", "RESEARCHER")
+WORKERS = ("ADMIN", "RESEARCHER")
 peers: dict[int, set[WebSocket]] = {}
 
 
@@ -41,6 +42,14 @@ async def notify(incident_id):
             peers.get(incident_id, set()).discard(socket)
 
 
+def _format_iso_utc(dt):
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc).isoformat()
+    return dt.astimezone(timezone.utc).isoformat()
+
+
 @router.get("/notifications/recent")
 def recent_notifications(db: Session = Depends(get_db), user: AppUser = Depends(get_current_user)):
     query = db.query(AuditLog, Incident.incident_code).join(Incident, Incident.incident_id == AuditLog.entity_id).filter(
@@ -50,7 +59,7 @@ def recent_notifications(db: Session = Depends(get_db), user: AppUser = Depends(
     )
     if user.role not in MANAGERS:
         query = query.filter(Incident.assigned_to == user.user_id)
-    return [{"id": log.audit_log_id, "code": code, "action": log.action, "at": log.occurred_at}
+    return [{"id": log.audit_log_id, "code": code, "action": log.action, "at": _format_iso_utc(log.occurred_at)}
             for log, code in query.order_by(AuditLog.audit_log_id.desc()).limit(25)]
 
 
@@ -64,11 +73,14 @@ def list_desk(db: Session = Depends(get_db), user: AppUser = Depends(get_current
     for incident in incidents:
         assignment = latest_assignment(db, incident.incident_id)
         worker = db.get(AppUser, incident.assigned_to) if incident.assigned_to else None
+        acceptance_status = assignment.action.removeprefix("INCIDENT_").lower() if assignment else ("assigned" if incident.assigned_to else "unassigned")
+        if incident.status in ("mitigated", "closed") and acceptance_status == "accepted":
+            acceptance_status = "investigation_completed"
         rows.append({
             "id": incident.incident_id, "code": incident.incident_code, "status": incident.status,
             "description": incident.description, "assigned_to": incident.assigned_to,
             "worker": worker.display_name if worker else None,
-            "acceptance": assignment.action.removeprefix("INCIDENT_").lower() if assignment else ("assigned" if incident.assigned_to else "unassigned"),
+            "acceptance": acceptance_status,
         })
     workers = [{"id": worker.user_id, "name": worker.display_name, "role": worker.role}
                for worker in db.query(AppUser).filter(AppUser.role.in_(WORKERS), AppUser.is_active.is_(True))] if user.role in MANAGERS else []
@@ -127,6 +139,34 @@ async def respond(
     return {"message": "Assignment accepted." if payload.accept else "Assignment declined."}
 
 
+@router.post("/{incident_id}/complete-investigation")
+async def complete_investigation(
+    incident_id: int,
+    db: Session = Depends(get_db),
+    user: AppUser = Depends(get_current_user),
+):
+    incident = acquire_write_lock(db, Incident, incident_id)
+    if not incident:
+        raise SampleMindException(404, "Incident not found.", "NOT_FOUND")
+    # Strictly the assigned investigator can mark their investigation as done
+    if incident.assigned_to != user.user_id:
+        raise SampleMindException(403, "Only the assigned investigator can complete the investigation.", "FORBIDDEN")
+    if incident.status == "closed":
+        raise SampleMindException(409, "This incident is already closed.", "ALREADY_CLOSED")
+
+    incident.status = "mitigated"
+    db.add(AuditLog(
+        actor_user_id=user.user_id,
+        action="INCIDENT_INVESTIGATION_COMPLETED",
+        entity_type="Incident",
+        entity_id=incident_id,
+        details={"status": "mitigated", "investigator": user.display_name},
+    ))
+    db.commit()
+    await notify(incident_id)
+    return {"message": "Investigation completed. Incident status marked as Mitigated."}
+
+
 @router.get("/{incident_id}/messages")
 def messages(incident_id: int, db: Session = Depends(get_db), user: AppUser = Depends(get_current_user)):
     incident_access(db, user, incident_id)
@@ -134,7 +174,7 @@ def messages(incident_id: int, db: Session = Depends(get_db), user: AppUser = De
         AuditLog.entity_id == incident_id, AuditLog.action == "INCIDENT_MESSAGE").order_by(
             AuditLog.audit_log_id.desc()).limit(100).all()
     return [{"id": row.audit_log_id, "text": (row.details or {}).get("text", ""),
-             "sender": (row.details or {}).get("sender", "Staff"), "at": row.occurred_at}
+             "sender": (row.details or {}).get("sender", "Staff"), "at": _format_iso_utc(row.occurred_at)}
             for row in reversed(rows)]
 
 

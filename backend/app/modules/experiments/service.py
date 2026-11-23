@@ -32,7 +32,9 @@ from .schemas import (
     ExperimentCreateRequest,
     ExperimentUpdateRequest,
     ExperimentSampleAttachRequest,
+    ExperimentEquipmentAttachRequest,
     ResultCreateRequest,
+    ResultUpdateRequest,
     ResultVerifyRequest,
     ExperimentListItem,
     ExperimentDetailResponse,
@@ -162,6 +164,7 @@ class ExperimentService:
                 experiment_id=e.experiment_id,
                 experiment_code=e.experiment_code,
                 experiment_name=e.experiment_name,
+                objective=e.objective,
                 protocol_reference=e.protocol_reference,
                 status=e.status,
                 lead_researcher_name=lead_name,
@@ -517,3 +520,116 @@ class ExperimentService:
             recorded_at=res.recorded_at,
             is_final=res.is_final,
         )
+
+    @classmethod
+    def attach_equipment(
+        cls,
+        db: Session,
+        experiment_id: int,
+        req: ExperimentEquipmentAttachRequest,
+        actor_id: int
+    ) -> bool:
+        """Allocates an instrument to an experiment."""
+        exp = db.query(Experiment).filter(Experiment.experiment_id == experiment_id).first()
+        if not exp:
+            raise EntityNotFoundException("Experiment", experiment_id)
+        eq = db.query(Equipment).filter(Equipment.equipment_id == req.equipment_id).first()
+        if not eq:
+            raise EntityNotFoundException("Equipment", req.equipment_id)
+
+        now = datetime.now(timezone.utc)
+        ee = ExperimentEquipment(
+            experiment_id=experiment_id,
+            equipment_id=req.equipment_id,
+            usage_start=now,
+            usage_notes=req.usage_notes or "Allocated via experiment workspace",
+        )
+        db.merge(ee)
+        db.commit()
+        return True
+
+    @classmethod
+    def update_result(
+        cls,
+        db: Session,
+        result_id: int,
+        req: ResultUpdateRequest,
+        actor_id: int
+    ) -> ResultDetailResponse:
+        """Updates an experimental result (measurements, observations, interpretation, final status)."""
+        res = db.query(ExperimentResult).filter(ExperimentResult.experiment_result_id == result_id).first()
+        if not res:
+            raise EntityNotFoundException("ExperimentResult", result_id)
+
+        if req.result_title is not None:
+            res.result_title = req.result_title.strip()
+        if req.observation is not None:
+            res.observation = req.observation
+        if req.result_value is not None:
+            res.result_value = req.result_value
+        if req.result_unit is not None:
+            res.result_unit = req.result_unit
+        if req.interpretation is not None:
+            res.interpretation = req.interpretation.upper().strip() if req.interpretation else None
+        if req.is_final is not None:
+            res.is_final = req.is_final
+
+        audit = AuditLog(
+            action="UPDATE_EXPERIMENT_RESULT",
+            entity_type="ExperimentResult",
+            entity_id=res.experiment_result_id,
+            actor_user_id=actor_id,
+            details={"updated": True}
+        )
+        db.add(audit)
+        db.commit()
+        db.refresh(res)
+
+        recorder_name = res.recorder.display_name if res.recorder else None
+        return ResultDetailResponse(
+            experiment_result_id=res.experiment_result_id,
+            experiment_id=res.experiment_id,
+            experiment_code=res.experiment.experiment_code,
+            result_code=res.result_code,
+            result_title=res.result_title,
+            observation=res.observation,
+            result_value=float(res.result_value) if res.result_value is not None else None,
+            result_unit=res.result_unit,
+            interpretation=res.interpretation,
+            recorded_by=res.recorded_by,
+            recorded_by_name=recorder_name,
+            recorded_at=res.recorded_at,
+            is_final=res.is_final,
+        )
+
+    @classmethod
+    def delete_experiment(
+        cls,
+        db: Session,
+        experiment_id: int,
+        actor_id: Optional[int] = None
+    ) -> bool:
+        """Deletes an experiment and all cascade relationships."""
+        exp = db.query(Experiment).filter(Experiment.experiment_id == experiment_id).first()
+        if not exp:
+            raise EntityNotFoundException("Experiment", experiment_id)
+
+        db.delete(exp)
+        db.commit()
+        return True
+
+    @classmethod
+    def delete_result(
+        cls,
+        db: Session,
+        result_id: int,
+        actor_id: Optional[int] = None
+    ) -> bool:
+        """Deletes an experiment result."""
+        res = db.query(ExperimentResult).filter(ExperimentResult.experiment_result_id == result_id).first()
+        if not res:
+            raise EntityNotFoundException("ExperimentResult", result_id)
+
+        db.delete(res)
+        db.commit()
+        return True

@@ -18,6 +18,13 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=6, description="Plaintext account password")
 
 
+class PublicSignupRequest(BaseModel):
+    """Self-registration request from the front login page (strictly VIEWER role)."""
+    display_name: str = Field(..., min_length=2, max_length=120, description="Full name or display title")
+    email: str = Field(..., min_length=5, max_length=150, pattern=r"^[^@]+@[^@]+\.[^@]+$", description="Valid institutional email address")
+    password: str = Field(..., min_length=6, description="Account password (minimum 6 characters)")
+
+
 class UserCreateRequest(BaseModel):
     """Administrator request to provision a new user account."""
     display_name: str = Field(..., min_length=2, max_length=120, description="Full name or display title")

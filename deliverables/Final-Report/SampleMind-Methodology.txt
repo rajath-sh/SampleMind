@@ -1,0 +1,50 @@
+SAMPLEMIND LABORATORY INFORMATION MANAGEMENT SYSTEM
+Project Methodology | RVCE CD252IA
+
+1. REQUIREMENTS AND SCOPE
+
+We identified the information needed to register, classify, locate, test and trace a specimen and to record its use in experiments. The main users were laboratory staff, researchers, administrators and reviewers. The requirements covered authenticated access, searchable inventory, specimen lineage, assay recording, role-specific experiment usage, query demonstrations and downloadable reports. We assessed integrity, recoverability and reproducibility through explicit database and query checks.
+
+2. METHODOLOGY FLOWCHART
+
+Requirements and scope
+  -> Chen ER model and balanced DFDs
+  -> Relational mapping and normalization
+  -> SQLite schema, TinyDB collections and API workflows
+  -> Forms, query workbench, reports and analytics
+  -> Read-only query verification and isolated write tests
+  -> Interpretation and documentation of observed results
+
+3. CONCEPTUAL MODEL AND DATA FLOW
+
+The academic ER model comprises AppUser, SampleType, StorageLocation, Sample, SampleTest, SampleRelationship, Experiment, ExperimentSample and AncientSpecimen. We marked primary keys, multiplicities, participation and the roles of repeated entity references. A type classifies multiple specimens. A storage location can hold multiple specimens and a specimen can have no current assignment. One specimen can have several tests. A derivation has two references to Sample, one for the parent and one for the child. Experiment separately references its creator and optional lead. ExperimentSample resolves the many-to-many association between experiments and specimens. AncientSpecimen extends a specimen through a shared identifier. The assay count is derived from related test records.
+
+The Level 0 DFD shows SampleMind as one process exchanging requests and results with the laboratory user. Level 1 separates account and access, specimen maintenance, assay maintenance, experiment and usage, and search and reporting. Its stores cover accounts, specimens and references, assays, and experiments and usage. Level 2 expands specimen maintenance into validation, reference changes, specimen or extension changes, derivation changes and response preparation. We checked balancing by matching parent-level inputs, outputs, reference reads and aggregate writes to their Level 2 counterparts. The DFDs use the selected nine-entity scope.
+
+4. RELATIONAL MAPPING AND NORMALIZATION
+
+We created one relation per selected entity and placed the foreign key on the many side of each one-to-many relationship. AncientSpecimen.sample_id serves as both primary and foreign key. ExperimentSample is identified by (experiment_id, sample_id, usage_role). Its quantity belongs to the complete usage key, since the same experiment and specimen may occur in more than one role. SampleRelationship uses its own key and retains the two directional specimen references. We used nullable references where the relationship is optional.
+
+We worked through a specimen-usage example. In 1NF, each row represented one usage with scalar values. In 2NF, we removed partial dependencies by separating experiment facts and specimen facts from role-specific usage facts. In 3NF, we moved type and storage descriptions into their respective lookup relations. We assessed BCNF by checking whether each determinant of a nontrivial dependency is a superkey under the stated business rules. We used keys and shared attributes to explain lossless reconstruction under those assumptions. An outer join preserves specimens whose optional storage reference is absent.
+
+5. IMPLEMENTATION AND SECURITY
+
+The React and TypeScript interface sends structured requests to FastAPI. Pydantic checks request values, service code enforces workflow rules, and SQLAlchemy maps operational objects to SQLite. SQLite holds keys, relationships and operational state. TinyDB stores evidence documents whose fields can vary by event. A document projection can be rebuilt or replayed independently of the SQL records. The two stores have separate commit boundaries.
+
+Authentication verifies credentials and issues a signed token. Protected actions check the active account and permitted role at the server. Forms validate required values and offer selections for referenced records. The database enforces identifiers and referential integrity. Related inventory updates run inside one SQLite transaction so a failed operation can roll back. Fixed Workbench queries bind user inputs. Document uploads have type and size checks, and report integrity receipts can be compared with a trusted reference.
+
+6. QUERY DESIGN AND ANALYTICS
+
+The SQL Workbench includes joins, grouping and aggregation, correlated subqueries, set operations, recursive common table expressions and relational division. A left join retains types with zero specimens. A correlated query compares each quantity with its own type and unit group. A recursive query follows recorded parent links. The division query uses double NOT EXISTS to find candidates with no missing passing assay for the reference specimen's required test types. A guard requires the reference to have at least one required type. The NoSQL Explorer demonstrates collection retrieval, nested-field filtering and membership queries, with write examples exercised in an isolated collection.
+
+Reports use stored rows for counts, distributions and numeric summaries. We separated quantities by recorded unit and checked the denominator and missing-value handling for each metric. K-means groups similar encoded profiles. Isolation Forest ranks unusual profiles for inspection. These exploratory models fit table data in memory. A separate supervised risk experiment used synthetic holdout labels and reported precision, recall, F1 and support. Those metrics measure agreement with generated labels.
+
+7. TESTING AND EVALUATION
+
+We ran all 24 fixed Workbench examples against a read-only SQLite snapshot. It contained 260 specimens, 60 assay records, 104 lineage records and 17 experiment usage records. The required-assay query returned three specimens for DEMO-DNA-A1. The intersection of assay and experiment usage records returned four distinct specimen IDs. Three independent count comparisons used equivalent SQL formulations and agreed on the same snapshot.
+
+On a disposable in-memory copy, SQLite rejected a duplicate experiment usage key and a reference to an unknown specimen. Rolling back a quantity change restored the original value. The foreign-key check returned zero violations. We also used an isolated TinyDB fixture for document reads, filters, updates and deletions. Observations were recorded alongside their input and scope. The completed evaluation documents application behaviour on the project data and the separate synthetic model experiment.
+
+8. DELIVERABLES
+
+The completed methodology produced the requirements specification, Chen ER model, relational schema, normalization analysis, balanced Level 0 to Level 2 DFDs, form and security design, implemented application, executable SQL and NoSQL demonstrations and analysed results. The report connects each design decision to the workflow or evidence it supports.

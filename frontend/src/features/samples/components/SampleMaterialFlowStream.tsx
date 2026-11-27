@@ -72,32 +72,42 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
     const destinations = data.nodes.filter((n) => n.category === 'destination');
 
     const colX = {
-      source: 30,
-      transformation: 385,
-      destination: 735,
+      source: 24,
+      transformation: 430,
+      destination: 846,
     };
-    const nodeWidth = 148;
-    const svgHeight = 370;
-    const topMargin = 45;
-    const usableHeight = svgHeight - topMargin - 25;
+    const colWidths = {
+      source: 190,
+      transformation: 200,
+      destination: 190,
+    };
+    const svgWidth = 1060;
+    const maxCount = Math.max(sources.length, transformations.length, destinations.length, 1);
+    const spacing = maxCount > 11 ? 6 : 10;
+    const minNodeH = maxCount > 11 ? 22 : 26;
+    const maxNodeH = 36;
+    const topMargin = 44;
+    const bottomMargin = 16;
+    const requiredColumnH = maxCount * minNodeH + Math.max(0, maxCount - 1) * spacing;
+    const svgHeight = Math.max(360, topMargin + requiredColumnH + bottomMargin);
+    const usableHeight = svgHeight - topMargin - bottomMargin;
 
     const nodePosMap = new Map<string, { x: number; y: number; width: number; height: number; node: MaterialFlowNode }>();
 
-    const layoutColumn = (items: MaterialFlowNode[], x: number) => {
+    const layoutColumn = (items: MaterialFlowNode[], x: number, width: number) => {
       const count = items.length || 1;
-      const spacing = 10;
       const totalSpacing = (count - 1) * spacing;
       const availableH = usableHeight - totalSpacing;
-      const nodeH = Math.min(36, Math.max(22, availableH / count));
+      const nodeH = Math.min(maxNodeH, Math.max(minNodeH, availableH / count));
 
       const totalH = count * nodeH + totalSpacing;
-      let startY = topMargin + (usableHeight - totalH) / 2;
+      let startY = topMargin + Math.max(0, (usableHeight - totalH) / 2);
 
       items.forEach((item) => {
         nodePosMap.set(item.id, {
           x,
           y: startY,
-          width: nodeWidth,
+          width,
           height: nodeH,
           node: item,
         });
@@ -105,9 +115,9 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
       });
     };
 
-    layoutColumn(sources, colX.source);
-    layoutColumn(transformations, colX.transformation);
-    layoutColumn(destinations, colX.destination);
+    layoutColumn(sources, colX.source, colWidths.source);
+    layoutColumn(transformations, colX.transformation, colWidths.transformation);
+    layoutColumn(destinations, colX.destination, colWidths.destination);
 
     // Compute curved ribbon paths
     const paths = data.links.map((link, idx) => {
@@ -149,6 +159,8 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
       sources,
       transformations,
       destinations,
+      svgWidth,
+      svgHeight,
     };
   }, [data]);
 
@@ -389,10 +401,11 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
       </div>
 
       {/* SVG Canvas Area */}
-      <div style={{ position: 'relative', width: '100%', overflowX: 'auto', padding: '10px 0' }}>
+      <div style={{ position: 'relative', width: '100%', overflow: 'hidden', padding: '8px 0' }}>
         <svg
-          viewBox="0 0 1020 370"
-          style={{ width: '100%', height: 'auto', display: 'block' }}
+          viewBox={`0 0 ${layout.svgWidth} ${layout.svgHeight}`}
+          preserveAspectRatio="xMidYMid meet"
+          style={{ width: '100%', maxWidth: '100%', height: 'auto', maxHeight: '460px', display: 'block', margin: '0 auto' }}
         >
           <defs>
             {/* Gradients for ribbons */}
@@ -414,13 +427,13 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
           </defs>
 
           {/* Column Header Titles */}
-          <text x="30" y="24" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
+          <text x="24" y="24" textAnchor="start" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
             STAGE 1: BIOLOGICAL ACCESSION ORIGINS
           </text>
-          <text x="385" y="24" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
+          <text x="530" y="24" textAnchor="middle" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
             STAGE 2: BIOCHEMICAL TRANSFORMATION
           </text>
-          <text x="735" y="24" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
+          <text x="1036" y="24" textAnchor="end" fill="#94A3B8" fontSize="11" fontWeight="700" letterSpacing="0.06em">
             STAGE 3: CURRENT INVENTORY DISPOSITION
           </text>
 
@@ -527,7 +540,7 @@ export const SampleMaterialFlowStream: React.FC<Props> = ({
                   letterSpacing="-0.01em"
                   style={{ pointerEvents: 'none', userSelect: 'none' }}
                 >
-                  {node.label.length > 18 ? `${node.label.slice(0, 16)}…` : node.label}
+                  {node.label.length > 23 ? `${node.label.slice(0, 21)}…` : node.label}
                 </text>
 
                 {/* Node Metric Badge */}
